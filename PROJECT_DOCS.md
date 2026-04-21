@@ -306,6 +306,18 @@ Repository documentation, code, comments, file names, and technical artifacts mu
 - Continuous Deployment should rely on the native Vercel Git integration already connected to the repository, rather than duplicating production deployment logic in GitHub Actions.
 - Branch protection on `main` should require the GitHub Actions CI workflow to pass before merge.
 
+### Public Repository Security Posture
+
+- The repository may be public. Security must not depend on hiding the implementation.
+- No secret, token, credential, environment value, dashboard export, or real customer data may be committed to version control.
+- All privileged values must remain in environment variables or platform-managed secrets.
+- Public repository examples, screenshots, SQL samples, and seed data must use fictional data only.
+- Admin protection, membership checks, and private-content access must be enforced on the server and at the database policy layer.
+- Every privileged mutation must validate authentication and authorization explicitly.
+- Supabase RLS must be written as if an attacker can read the entire codebase and understand the schema.
+- Unsafe HTML execution is forbidden. Any rich content pipeline must default to safe Markdown or sanitized rendering.
+- Before opening a pull request, review the diff for secrets, private notes, copied dashboard values, and accidental environment leakage.
+
 ## 9. Environment Configuration
 
 Public WhatsApp configuration must not be hardcoded in components, actions, utilities, or route handlers.

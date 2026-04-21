@@ -47,6 +47,19 @@ This version has breaking changes. APIs, conventions, and file structure may all
 - Do not implement public signup. Users must be created through the admin-controlled flow.
 - If privileged Supabase credentials are needed for admin user creation, keep them server-only.
 
+## Public Repository Security Rules
+
+- Treat this repository as public-facing by default. Do not rely on source-code privacy as a security control.
+- Never commit secrets, credentials, access tokens, API keys, service-role keys, session data, private exports, or real customer data.
+- Keep all sensitive values in environment variables or in the relevant platform secret manager.
+- Do not expose `SUPABASE_SERVICE_ROLE_KEY`, Vercel tokens, GitHub tokens, or any equivalent privileged secret to Client Components, public environment variables, logs, examples, or documentation.
+- Do not commit `.env`, `.env.local`, `.env.production`, SQL dumps with real data, screenshots containing secrets, or copied dashboard values.
+- Assume attackers can read the repository. Enforce security through authentication, authorization, RLS, input validation, safe rendering, and server-side checks.
+- Validate authorization inside every Server Action and any privileged Route Handler. Do not trust client-side gating alone.
+- Keep admin behavior server-enforced. Hidden buttons or hidden routes are not access control.
+- Sanitize or safely render any user-controlled or admin-authored rich content. Do not allow unsafe HTML execution.
+- When adding new documentation, examples, or seed data, use placeholders or fictional sample data only.
+
 ## Configuration Rules
 
 - Do not hardcode public configuration values.
@@ -69,3 +82,4 @@ This version has breaking changes. APIs, conventions, and file structure may all
 - Do not modify unrelated files.
 - Do not implement product code when the user only asks for documentation, planning, or review.
 - If Step 1 discovers framework or repository conventions that should govern future work, update `PROJECT_DOCS.md` instead of creating scattered documentation files.
+- Do not hide useful source-of-truth documentation from the repository unless it contains sensitive information. Prefer sanitizing public docs over removing them.

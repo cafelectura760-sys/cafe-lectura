@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cafe Lectura
 
-## Getting Started
+Cafe Lectura is a monolithic web application for a private reading club in Venezuela. The product includes a public area, a membership area for active readers, and an internal admin area for manual management.
 
-First, run the development server:
+This repository is intentionally maintained with a public-repo security posture:
+
+- no secrets in source control
+- no real customer data in the repository
+- server-side authorization for privileged actions
+- explicit Supabase Row Level Security for protected data
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- Radix UI
+- lucide-react
+- Supabase
+- Vercel
+
+## Quality Gates
+
+The repository uses:
+
+- Husky
+- lint-staged
+- ESLint
+- Prettier
+- GitHub Actions CI
+
+Every change to `main` is expected to pass:
+
+- formatting checks
+- linting
+- typechecking
+- production build validation
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm run format
+npm run format:check
+```
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+Project decisions and implementation rules live in:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [PROJECT_DOCS.md](C:/Projects/cafe-lectura/PROJECT_DOCS.md)
+- [AGENTS.md](C:/Projects/cafe-lectura/AGENTS.md)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Security Note
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This codebase should be treated as publicly readable. Security must come from correct architecture and enforcement, not from source-code secrecy.

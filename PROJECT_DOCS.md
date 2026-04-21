@@ -297,6 +297,15 @@ Repository documentation, code, comments, file names, and technical artifacts mu
 - Prefer simple, explicit, maintainable code.
 - Keep each implementation task tightly scoped.
 
+### CI/CD Baseline
+
+- Continuous Integration must run through GitHub Actions.
+- Pull requests and pushes to `main` must run formatting checks, linting, typechecking, and a production build.
+- CI must use `npm ci` for reproducible installs against `package-lock.json`.
+- GitHub Actions workflows should use explicit permissions, workflow concurrency, and dependency caching where appropriate.
+- Continuous Deployment should rely on the native Vercel Git integration already connected to the repository, rather than duplicating production deployment logic in GitHub Actions.
+- Branch protection on `main` should require the GitHub Actions CI workflow to pass before merge.
+
 ## 9. Environment Configuration
 
 Public WhatsApp configuration must not be hardcoded in components, actions, utilities, or route handlers.

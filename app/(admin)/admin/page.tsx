@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { createBookAction, updateBookAction } from "@/lib/admin/book-actions";
+import { listAdminBooks } from "@/lib/admin/book-management";
 import {
   createMemberAction,
   extendMembershipAction,
@@ -68,6 +70,22 @@ function getFeedbackMessage(
     };
   }
 
+  if (status === "book-created") {
+    return {
+      tone: "success" as const,
+      message:
+        "El libro fue creado correctamente y ya forma parte del catalogo interno.",
+    };
+  }
+
+  if (status === "book-updated") {
+    return {
+      tone: "success" as const,
+      message:
+        "Los datos del libro fueron actualizados y la ruta /admin ya fue revalidada.",
+    };
+  }
+
   if (!error) {
     return null;
   }
@@ -85,6 +103,12 @@ function getFeedbackMessage(
     "member-not-found": "No pudimos encontrar el miembro solicitado.",
     "cannot-demote-yourself":
       "No puedes quitarte a ti mismo el rol admin desde esta base de gestion.",
+    "invalid-book-title": "Debes indicar un titulo de libro valido.",
+    "invalid-book-author": "Debes indicar un autor valido.",
+    "invalid-book-synopsis": "Debes indicar una sinopsis valida para el libro.",
+    "invalid-book-cover-image-url":
+      "La portada debe ser una URL valida con protocolo http o https.",
+    "book-not-found": "No pudimos encontrar el libro solicitado.",
   };
 
   return {
@@ -117,6 +141,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const resolvedSearchParams = await searchParams;
   const feedback = getFeedbackMessage(resolvedSearchParams);
   const members = await listAdminMembers();
+  const books = await listAdminBooks();
   const defaultMembershipDate = getDefaultMembershipDateInput();
 
   return (
@@ -343,13 +368,166 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </section>
 
         <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
+          <div className="space-y-3">
+            <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
+              Books management
+            </p>
+            <h2 className="text-2xl font-semibold text-stone-900">
+              Catalogo interno de libros
+            </h2>
+            <p className="text-base leading-7 text-stone-700">
+              Esta base permite cargar y editar libros manualmente desde el
+              panel admin usando Server Actions y las politicas RLS ya vigentes.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+            <article className="rounded-lg border border-stone-200 bg-stone-50 p-6">
+              <h3 className="text-xl font-semibold text-stone-900">
+                Crear libro
+              </h3>
+
+              <form action={createBookAction} className="mt-6 grid gap-5">
+                <label className="grid gap-2 text-sm font-medium text-stone-800">
+                  Titulo
+                  <input
+                    type="text"
+                    name="title"
+                    required
+                    className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                  />
+                </label>
+
+                <label className="grid gap-2 text-sm font-medium text-stone-800">
+                  Autor
+                  <input
+                    type="text"
+                    name="author"
+                    required
+                    className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                  />
+                </label>
+
+                <label className="grid gap-2 text-sm font-medium text-stone-800">
+                  URL de portada
+                  <input
+                    type="url"
+                    name="cover_image_url"
+                    required
+                    className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                  />
+                </label>
+
+                <label className="grid gap-2 text-sm font-medium text-stone-800">
+                  Sinopsis
+                  <textarea
+                    name="synopsis"
+                    rows={6}
+                    required
+                    className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                  />
+                </label>
+
+                <button
+                  type="submit"
+                  className="rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
+                >
+                  Guardar libro
+                </button>
+              </form>
+            </article>
+
+            <article className="space-y-5">
+              {books.map((book) => (
+                <section
+                  key={book.id}
+                  className="rounded-lg border border-stone-200 bg-stone-50 p-6"
+                >
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-xl font-semibold text-stone-900">
+                      {book.title}
+                    </h3>
+                    <p className="text-base text-stone-700">
+                      {book.author} · Creado el{" "}
+                      {formatDateLabel(book.createdAt)}
+                    </p>
+                  </div>
+
+                  <form action={updateBookAction} className="mt-6 grid gap-5">
+                    <input type="hidden" name="book_id" value={book.id} />
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <label className="grid gap-2 text-sm font-medium text-stone-800">
+                        Titulo
+                        <input
+                          type="text"
+                          name="title"
+                          defaultValue={book.title}
+                          required
+                          className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                        />
+                      </label>
+
+                      <label className="grid gap-2 text-sm font-medium text-stone-800">
+                        Autor
+                        <input
+                          type="text"
+                          name="author"
+                          defaultValue={book.author}
+                          required
+                          className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                        />
+                      </label>
+                    </div>
+
+                    <label className="grid gap-2 text-sm font-medium text-stone-800">
+                      URL de portada
+                      <input
+                        type="url"
+                        name="cover_image_url"
+                        defaultValue={book.coverImageUrl}
+                        required
+                        className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-medium text-stone-800">
+                      Sinopsis
+                      <textarea
+                        name="synopsis"
+                        rows={5}
+                        defaultValue={book.synopsis}
+                        required
+                        className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                      />
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="justify-self-start rounded-md border border-stone-300 bg-white px-5 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
+                    >
+                      Actualizar libro
+                    </button>
+                  </form>
+                </section>
+              ))}
+
+              {books.length === 0 ? (
+                <p className="rounded-lg border border-stone-200 bg-stone-50 p-6 text-base leading-7 text-stone-700">
+                  Todavia no hay libros cargados para administracion.
+                </p>
+              ) : null}
+            </article>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-stone-900">
             Siguiente paso sugerido
           </h2>
           <p className="mt-4 text-base leading-7 text-stone-700">
-            Con esta base ya podemos separar la siguiente iteracion entre una UI
-            mas comoda para administracion y los CRUD manuales de libros y
-            coloquios sin mover la seguridad central.
+            Con esta base ya podemos seguir con la gestion manual de coloquios
+            usando libros reales del sistema como fuente de relacion.
           </p>
           <div className="mt-6">
             <Link

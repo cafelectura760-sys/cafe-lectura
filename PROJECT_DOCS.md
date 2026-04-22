@@ -332,13 +332,18 @@ These values should be used to build WhatsApp URLs for membership inquiries, ren
 Required Supabase environment values:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` as a legacy fallback only, if the project has not switched to the publishable key naming yet.
 
 Server-only environment values:
 
 - `SUPABASE_SERVICE_ROLE_KEY`, only if required for admin-side user creation or privileged operations.
 
 Server-only values must never be imported into Client Components or exposed through public environment variables.
+
+Bootstrap note:
+
+- The first administrator may need to be created through a server-only privileged flow or a manual SQL/bootstrap process, because the application does not support public signup and admin creation is restricted.
 
 ## 10. Execution Plan
 

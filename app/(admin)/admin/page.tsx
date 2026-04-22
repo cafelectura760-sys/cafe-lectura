@@ -4,6 +4,15 @@ import Link from "next/link";
 import { createBookAction, updateBookAction } from "@/lib/admin/book-actions";
 import { listAdminBooks } from "@/lib/admin/book-management";
 import {
+  createColloquiumAction,
+  updateColloquiumAction,
+} from "@/lib/admin/colloquium-actions";
+import {
+  getDefaultPublishedAtInput,
+  getPublishedAtInputValue,
+  listAdminColloquiums,
+} from "@/lib/admin/colloquium-management";
+import {
   createMemberAction,
   extendMembershipAction,
   updateMemberAction,
@@ -86,6 +95,22 @@ function getFeedbackMessage(
     };
   }
 
+  if (status === "colloquium-created") {
+    return {
+      tone: "success" as const,
+      message:
+        "El coloquio fue creado correctamente y ya queda relacionado con un libro del catalogo.",
+    };
+  }
+
+  if (status === "colloquium-updated") {
+    return {
+      tone: "success" as const,
+      message:
+        "Los datos del coloquio fueron actualizados y la ruta /admin ya fue revalidada.",
+    };
+  }
+
   if (!error) {
     return null;
   }
@@ -109,6 +134,15 @@ function getFeedbackMessage(
     "invalid-book-cover-image-url":
       "La portada debe ser una URL valida con protocolo http o https.",
     "book-not-found": "No pudimos encontrar el libro solicitado.",
+    "invalid-colloquium-title":
+      "Debes indicar un titulo valido para el coloquio.",
+    "invalid-colloquium-content":
+      "Debes indicar contenido Markdown valido para el coloquio.",
+    "invalid-colloquium-book-id":
+      "Debes seleccionar un libro valido para relacionar el coloquio.",
+    "invalid-colloquium-published-at":
+      "La fecha de publicacion del coloquio no es valida.",
+    "colloquium-not-found": "No pudimos encontrar el coloquio solicitado.",
   };
 
   return {
@@ -142,7 +176,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const feedback = getFeedbackMessage(resolvedSearchParams);
   const members = await listAdminMembers();
   const books = await listAdminBooks();
+  const colloquiums = await listAdminColloquiums();
   const defaultMembershipDate = getDefaultMembershipDateInput();
+  const defaultPublishedAt = getDefaultPublishedAtInput();
 
   return (
     <main className="flex flex-1 bg-stone-100 px-6 py-12">
@@ -157,8 +193,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </h1>
             <p className="max-w-2xl text-base leading-7 text-stone-700">
               Hola, {session.profile.full_name}. Esta base administrativa ya
-              puede crear usuarios manualmente y gestionar membresias sin
-              exponer credenciales privilegiadas al navegador.
+              puede crear usuarios manualmente y gestionar miembros, libros y
+              coloquios sin exponer credenciales privilegiadas al navegador.
             </p>
           </div>
 
@@ -522,12 +558,197 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </section>
 
         <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
+          <div className="space-y-3">
+            <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
+              Colloquiums management
+            </p>
+            <h2 className="text-2xl font-semibold text-stone-900">
+              Gestion manual de coloquios
+            </h2>
+            <p className="text-base leading-7 text-stone-700">
+              El contenido se guarda como Markdown y cada coloquio queda
+              asociado a un libro del catalogo interno.
+            </p>
+          </div>
+
+          {books.length === 0 ? (
+            <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-6 text-base leading-7 text-amber-950">
+              Primero necesitas al menos un libro en el catalogo para poder
+              crear coloquios relacionados.
+            </p>
+          ) : (
+            <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+              <article className="rounded-lg border border-stone-200 bg-stone-50 p-6">
+                <h3 className="text-xl font-semibold text-stone-900">
+                  Crear coloquio
+                </h3>
+
+                <form
+                  action={createColloquiumAction}
+                  className="mt-6 grid gap-5"
+                >
+                  <label className="grid gap-2 text-sm font-medium text-stone-800">
+                    Titulo
+                    <input
+                      type="text"
+                      name="title"
+                      required
+                      className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                    />
+                  </label>
+
+                  <label className="grid gap-2 text-sm font-medium text-stone-800">
+                    Libro relacionado
+                    <select
+                      name="book_id"
+                      required
+                      className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                    >
+                      {books.map((book) => (
+                        <option key={book.id} value={book.id}>
+                          {book.title} - {book.author}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="grid gap-2 text-sm font-medium text-stone-800">
+                    Publicado en
+                    <input
+                      type="datetime-local"
+                      name="published_at"
+                      defaultValue={defaultPublishedAt}
+                      required
+                      className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                    />
+                  </label>
+
+                  <label className="grid gap-2 text-sm font-medium text-stone-800">
+                    Contenido Markdown
+                    <textarea
+                      name="content"
+                      rows={10}
+                      required
+                      className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
+                  >
+                    Guardar coloquio
+                  </button>
+                </form>
+              </article>
+
+              <article className="space-y-5">
+                {colloquiums.map((colloquium) => (
+                  <section
+                    key={colloquium.id}
+                    className="rounded-lg border border-stone-200 bg-stone-50 p-6"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-xl font-semibold text-stone-900">
+                        {colloquium.title}
+                      </h3>
+                      <p className="text-base text-stone-700">
+                        {colloquium.bookTitle} · Publicado el{" "}
+                        {formatDateTimeLabel(colloquium.publishedAt)}
+                      </p>
+                    </div>
+
+                    <form
+                      action={updateColloquiumAction}
+                      className="mt-6 grid gap-5"
+                    >
+                      <input
+                        type="hidden"
+                        name="colloquium_id"
+                        value={colloquium.id}
+                      />
+
+                      <label className="grid gap-2 text-sm font-medium text-stone-800">
+                        Titulo
+                        <input
+                          type="text"
+                          name="title"
+                          defaultValue={colloquium.title}
+                          required
+                          className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                        />
+                      </label>
+
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <label className="grid gap-2 text-sm font-medium text-stone-800">
+                          Libro relacionado
+                          <select
+                            name="book_id"
+                            defaultValue={colloquium.bookId}
+                            required
+                            className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                          >
+                            {books.map((book) => (
+                              <option key={book.id} value={book.id}>
+                                {book.title} - {book.author}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className="grid gap-2 text-sm font-medium text-stone-800">
+                          Publicado en
+                          <input
+                            type="datetime-local"
+                            name="published_at"
+                            defaultValue={getPublishedAtInputValue(
+                              colloquium.publishedAt,
+                            )}
+                            required
+                            className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                          />
+                        </label>
+                      </div>
+
+                      <label className="grid gap-2 text-sm font-medium text-stone-800">
+                        Contenido Markdown
+                        <textarea
+                          name="content"
+                          rows={10}
+                          defaultValue={colloquium.content}
+                          required
+                          className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
+                        />
+                      </label>
+
+                      <button
+                        type="submit"
+                        className="justify-self-start rounded-md border border-stone-300 bg-white px-5 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
+                      >
+                        Actualizar coloquio
+                      </button>
+                    </form>
+                  </section>
+                ))}
+
+                {colloquiums.length === 0 ? (
+                  <p className="rounded-lg border border-stone-200 bg-stone-50 p-6 text-base leading-7 text-stone-700">
+                    Todavia no hay coloquios cargados para administracion.
+                  </p>
+                ) : null}
+              </article>
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-stone-900">
             Siguiente paso sugerido
           </h2>
           <p className="mt-4 text-base leading-7 text-stone-700">
-            Con esta base ya podemos seguir con la gestion manual de coloquios
-            usando libros reales del sistema como fuente de relacion.
+            Con members, books y colloquiums ya cubiertos en admin manual
+            management, el siguiente salto natural es consumir estos datos en
+            las areas publica y privada del producto.
           </p>
           <div className="mt-6">
             <Link

@@ -4,12 +4,17 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/auth/actions";
 import { requireAdmin } from "@/lib/auth/session";
 
+type AdminPageProps = {
+  params: Promise<Record<string, never>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
 export const metadata: Metadata = {
   title: "Admin | Cafe Lectura",
   description: "Administrative area for Cafe Lectura.",
 };
 
-export default async function AdminPage(_: PageProps<"/admin">) {
+export default async function AdminPage(_: AdminPageProps) {
   const session = await requireAdmin();
 
   return (

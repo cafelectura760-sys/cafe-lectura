@@ -4,6 +4,11 @@ import Link from "next/link";
 import { loginAction } from "@/lib/auth/actions";
 import { getAuthSession } from "@/lib/auth/session";
 
+type LoginPageProps = {
+  params: Promise<Record<string, never>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
 const errorMessages: Record<string, string> = {
   "invalid-credentials":
     "No pudimos iniciar sesión con esas credenciales. Revisa el correo y la contraseña.",
@@ -21,7 +26,7 @@ function normalizeErrorCode(error: string | string[] | undefined) {
   return typeof error === "string" ? error : undefined;
 }
 
-export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await getAuthSession();
   const resolvedSearchParams = await searchParams;
   const error = normalizeErrorCode(resolvedSearchParams?.error);

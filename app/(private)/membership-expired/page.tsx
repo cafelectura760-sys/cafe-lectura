@@ -3,14 +3,17 @@ import Link from "next/link";
 
 import { logoutAction } from "@/lib/auth/actions";
 
+type MembershipExpiredPageProps = {
+  params: Promise<Record<string, never>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
 export const metadata: Metadata = {
   title: "Membership Expired | Cafe Lectura",
   description: "Expired membership guidance for Cafe Lectura members.",
 };
 
-export default function MembershipExpiredPage(
-  _: PageProps<"/membership-expired">,
-) {
+export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
   const defaultMessage =
     process.env.NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE ??

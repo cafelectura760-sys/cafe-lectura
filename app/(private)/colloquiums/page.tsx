@@ -4,12 +4,17 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/auth/actions";
 import { requireActiveMembership } from "@/lib/auth/session";
 
+type ColloquiumsPageProps = {
+  params: Promise<Record<string, never>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
 export const metadata: Metadata = {
   title: "Colloquiums | Cafe Lectura",
   description: "Private colloquium area for active members.",
 };
 
-export default async function ColloquiumsPage(_: PageProps<"/colloquiums">) {
+export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
   const session = await requireActiveMembership();
 
   return (

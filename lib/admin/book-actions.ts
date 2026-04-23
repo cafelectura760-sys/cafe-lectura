@@ -51,6 +51,9 @@ export async function createBookAction(formData: FormData) {
   }
 
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/library");
+  revalidatePath("/colloquiums");
   redirectToAdmin("status", "book-created");
 }
 
@@ -74,5 +77,8 @@ export async function updateBookAction(formData: FormData) {
   }
 
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/library");
+  revalidatePath("/colloquiums");
   redirectToAdmin("status", "book-updated");
 }

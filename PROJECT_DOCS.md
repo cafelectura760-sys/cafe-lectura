@@ -49,6 +49,37 @@ The technical stack is fixed and must not be changed without explicit approval.
 - Avoid obsolete Tailwind CSS v3-style configuration files such as `tailwind.config.ts` unless a specific dependency or justified project need requires it.
 - Keep styling simple, accessible, and consistent with the product audience.
 
+## 2.1 Current Implementation Status
+
+This section reflects the repository state directly observed in version-controlled files on April 23, 2026.
+
+Implemented:
+
+- Next.js 16 App Router project using the root `app/` directory and route groups.
+- Tailwind CSS v4 global CSS setup.
+- Supabase SSR client utilities using `@supabase/ssr`.
+- Root `proxy.ts` for Supabase session cookie refresh.
+- Public home page and public library page backed by Supabase book data.
+- Login-only authentication flow for existing Supabase users.
+- Private colloquium list and detail pages protected by server-side membership checks.
+- Expired-membership page with environment-driven WhatsApp renewal link.
+- Admin dashboard protected by server-side `role = admin` validation.
+- Admin-created user flow using the service-role Supabase client only on the server.
+- Manual admin management for members, books, and colloquiums using Server Actions.
+- Safe Markdown rendering for colloquium content without raw HTML execution.
+- Supabase migration for `profiles`, `books`, and `colloquiums`, including constraints, indexes, Row Level Security, and policies.
+- GitHub Actions CI for formatting, linting, typechecking, and production build.
+- Weekly dependency audit workflow.
+
+Observed gaps or repository-only limitations:
+
+- The UI uses plain Tailwind classes and does not yet include a committed shadcn/ui component directory.
+- Admin management supports create/update workflows, but delete workflows are not implemented.
+- Route-level loading states exist for library and colloquium routes, but error boundaries are not yet present.
+- Supabase project settings are not represented in version-controlled files, so public self-registration still needs manual verification in the Supabase dashboard.
+- Real RLS runtime behavior against anonymous visitors, active members, expired members, and admins cannot be confirmed from repository files alone.
+- Production deployment readiness on Vercel cannot be confirmed from repository files alone.
+
 ## 3. Product Structure
 
 The application uses Next.js App Router with route groups.
@@ -347,329 +378,66 @@ Bootstrap note:
 
 ## 10. Execution Plan
 
-The MVP should be built incrementally. Each step should leave the repository in a coherent state and avoid introducing features outside the current scope.
+The MVP should continue incrementally. Each step should leave the repository in a coherent state and avoid introducing features outside the current scope.
 
-### Step 1: Project Baseline and Conventions
+### Completed Baseline
 
-Objective:
+The repository has already progressed beyond the original early-step plan. The following areas are implemented and should now be maintained rather than re-scaffolded:
 
-- Establish the technical foundation and verify the current Next.js, TypeScript, Tailwind CSS v4, and project conventions.
+- Project baseline and conventions for Next.js 16, strict TypeScript, Tailwind CSS v4, and root-level App Router structure.
+- Supabase schema and Row Level Security migration for `profiles`, `books`, and `colloquiums`.
+- Supabase SSR auth foundation with `proxy.ts`, login, logout, and server-side session helpers.
+- Public home and library routes with WhatsApp calls to action.
+- Membership gate and expired-membership flow.
+- Private colloquium list and detail routes with safe Markdown rendering.
+- Admin dashboard and manual management flows for members, books, and colloquiums.
+- GitHub Actions CI and dependency audit workflows.
 
-Scope:
-
-- Inspect installed dependencies and project structure.
-- Read the relevant Next.js documentation in `node_modules/next/dist/docs/` before implementation.
-- Confirm Tailwind CSS v4 setup.
-- Confirm strict TypeScript settings.
-- Define shared project conventions only where needed.
-
-Out of scope:
-
-- Product pages.
-- Database schema.
-- Authentication implementation.
-- Admin workflows.
-
-Deliverables:
-
-- Verified project baseline.
-- Any required minimal configuration corrections.
-- Clear notes on framework conventions that affect implementation.
-- Updates to `PROJECT_DOCS.md` when Step 1 discovers project-specific conventions that should govern future work.
-
-Completion criteria:
-
-- The app can run locally.
-- TypeScript and linting are understood and pass or have known documented issues.
-- Tailwind CSS v4 is confirmed to work using the modern CSS-based approach.
-
-### Step 2: Design System Foundation
+### Current Focus: MVP Hardening and Release Readiness
 
 Objective:
 
-- Establish accessible UI primitives and base styling for the application.
+- Validate and harden the already implemented MVP without expanding product scope.
 
 Scope:
 
-- Configure or verify shadcn/ui usage.
-- Define global visual tokens in CSS as needed.
-- Add base layout patterns for readable pages.
-- Establish button, card, form, table, and skeleton usage patterns.
+- Verify required environment variables and server-only credential boundaries.
+- Confirm all privileged Server Actions validate admin authorization.
+- Confirm public WhatsApp flows use shared environment-driven helpers.
+- Review route protection for public, authenticated member, expired member, and admin states.
+- Verify Supabase RLS behavior in a real Supabase project.
+- Review loading and error states for the main public, private, auth, and admin routes.
+- Keep documentation aligned with implementation status.
+- Run formatting, linting, typechecking, and production build checks.
 
 Out of scope:
 
-- Full page implementation.
-- Data integration.
-- Admin CRUD.
-
-Deliverables:
-
-- Reusable UI component setup.
-- Accessible global styling foundation.
-- Initial layout conventions suitable for older adults.
-
-Completion criteria:
-
-- Core UI components are available and consistent.
-- Typography, contrast, spacing, and interaction targets match the product guidelines.
-
-### Step 3: Supabase Schema and RLS
-
-Objective:
-
-- Define the database foundation with explicit security rules.
-
-Scope:
-
-- Create SQL for `profiles`, `books`, and `colloquiums`.
-- Include indexes and foreign keys where appropriate.
-- Enforce supported profile roles at the database level.
-- Enforce a one-year default membership expiration at the database level.
-- Enable Row Level Security on all application tables.
-- Define explicit RLS policies for public, member, and admin access.
-
-Out of scope:
-
-- Application pages consuming the data.
-- Admin UI.
-- Seed content unless requested.
-
-Deliverables:
-
-- Supabase SQL migration or setup script.
-- Complete RLS policy definitions.
-- Documentation notes for required environment variables.
-
-Completion criteria:
-
-- Tables can be created cleanly in Supabase.
-- RLS behavior matches public, member, and admin access rules.
-- Membership expiration defaults are enforced in the database.
-- No table relies on assumed or implicit policies.
-
-### Step 4: Supabase SSR Auth Foundation
-
-Objective:
-
-- Implement authentication plumbing using Supabase Auth with SSR.
-
-Scope:
-
-- Create server-side Supabase client utilities.
-- Configure middleware or route protection as required by the current Next.js version.
-- Implement login flow for existing users.
-- Implement logout if needed for a complete session flow.
-- Ensure public self-registration is not exposed by the app.
-
-Out of scope:
-
+- Payment gateway integration.
 - Public signup.
-- Password reset unless explicitly requested.
-- Admin user creation UI.
-
-Deliverables:
-
-- SSR-compatible Supabase Auth setup.
-- Login page.
-- Protected route foundation.
-
-Completion criteria:
-
-- Existing users can log in.
-- Authenticated session state is available server-side.
-- Unauthenticated users are redirected away from protected routes.
-
-### Step 5: Public Area
-
-Objective:
-
-- Build the public-facing experience for visitors.
-
-Scope:
-
-- Landing page.
-- Public library page.
-- WhatsApp call to action for membership and book requests.
-- Public book reads from Supabase.
-
-Out of scope:
-
-- Private colloquium content.
-- Admin editing workflows.
-- Payments or downloads.
-
-Deliverables:
-
-- Public home page.
-- Public library page.
-- Environment-driven WhatsApp URL handling.
-
-Completion criteria:
-
-- Visitors can understand the club and request contact through WhatsApp.
-- Books are visible publicly.
-- No downloadable book files are exposed.
-- WhatsApp values are not hardcoded.
-
-### Step 6: Membership Gate and Expired Membership Flow
-
-Objective:
-
-- Enforce private access rules for colloquium routes.
-
-Scope:
-
-- Check authentication.
-- Check active membership using `membership_expires_at`.
-- Redirect expired members to `/membership-expired`.
-- Allow admin users to bypass membership expiration checks.
-- Provide WhatsApp renewal call to action.
-
-Out of scope:
-
-- Admin renewal workflow.
-- Payment processing.
-- Complex subscription states.
-
-Deliverables:
-
-- Membership validation helper or route-level guard.
-- `/membership-expired` page.
-- Protected private route behavior.
-
-Completion criteria:
-
-- Unauthenticated users cannot access private colloquiums.
-- Expired members see the renewal screen.
-- Active members can continue to private content.
-- Admin users can access private content and admin views regardless of membership expiration.
-
-### Step 7: Private Colloquium Area
-
-Objective:
-
-- Provide active members with access to text-based colloquiums.
-
-Scope:
-
-- Colloquium list page.
-- Colloquium detail page.
-- Visual distinction between moderator and participant content.
-- Safe rendering approach for Markdown content.
-
-Out of scope:
-
-- Audio, video, or large file storage.
-- Comments or live discussion.
-- Member-generated content unless explicitly requested.
-
-Deliverables:
-
-- Private colloquium list.
-- Private colloquium detail view.
-- Loading and skeleton states where appropriate.
-
-Completion criteria:
-
-- Active members can browse and read colloquiums.
-- Content remains text-based and Markdown-based.
-- Moderator and participant sections are visually clear.
-
-### Step 8: Admin Foundation
-
-Objective:
-
-- Create the internal admin area for manual management.
-
-Scope:
-
-- Admin dashboard route protection.
-- Basic admin navigation.
-- Read views for members, books, and colloquiums.
-- Prepare Server Action patterns for future mutations.
-
-Out of scope:
-
-- Full CRUD unless requested for this step.
-- Payment handling.
-- Bulk import workflows.
-
-Deliverables:
-
-- Admin dashboard shell.
-- Admin-only access enforcement.
-- Initial data tables or summaries.
-
-Completion criteria:
-
-- Non-admin users cannot access admin routes.
-- Admin users can access the dashboard.
-- Admin views follow accessibility and readability guidelines.
-
-### Step 9: Admin Manual Management
-
-Objective:
-
-- Implement manual management workflows required for the MVP.
-
-Scope:
-
-- Create users manually.
-- Assign roles.
-- Set or extend membership expiration dates.
-- Apply the one-year default membership expiration in the application flow when creating member users.
-- Manage books.
-- Manage colloquiums.
-- Use Server Actions for mutations.
-- Revalidate affected routes after mutations.
-- Use server-only privileged Supabase access only where required, such as creating Auth users.
-
-Out of scope:
-
-- Public signup.
-- Payment automation.
+- Member self-service account creation.
+- Audio, video, downloads, or heavy media workflows.
 - Complex role systems beyond `admin` and `member`.
+- Analytics, marketing automation, or feature expansion.
 
 Deliverables:
 
-- Admin forms and tables.
-- Server Actions for mutations.
-- Validation and user feedback.
+- Passing local checks or clearly documented failures.
+- Updated documentation for any discovered project conventions or verified limitations.
+- Minimal fixes for obvious security, consistency, accessibility, or operational issues.
+- Deployment-readiness notes for Vercel and Supabase.
 
 Completion criteria:
 
-- Admins can perform required manual operations.
-- Users are created only through the admin flow.
-- Mutations are server-side.
-- Updated data appears after revalidation.
+- Core public, private, auth, and admin flows are understood and checked.
+- Security rules are enforced in Server Components, Server Actions, Route Handlers, and Supabase RLS.
+- Environment configuration is documented and contains no committed secrets.
+- The app is ready for initial Vercel deployment once Supabase project settings and production environment variables are verified.
 
-### Step 10: MVP Hardening and Release Readiness
+### Deferred Work
 
-Objective:
+These items remain valid but should be handled only when explicitly requested or when required for release readiness:
 
-- Prepare the MVP for deployment and real use.
-
-Scope:
-
-- Validate environment configuration.
-- Review accessibility basics.
-- Test route protection and RLS expectations.
-- Verify loading states and error states.
-- Prepare Vercel deployment notes.
-
-Out of scope:
-
-- Feature expansion.
-- Analytics, marketing automation, or payment integration.
-
-Deliverables:
-
-- Final MVP verification checklist.
-- Deployment readiness notes.
-- Any critical bug fixes discovered during validation.
-
-Completion criteria:
-
-- Core public, private, auth, and admin flows work.
-- Security rules are verified at the application and database levels.
-- The app is ready for initial deployment to Vercel.
+- Add delete workflows for admin-managed books, colloquiums, or members if the business process requires them.
+- Add route-level `error.tsx` boundaries where operational testing shows meaningful failure modes.
+- Introduce a committed shadcn/ui component directory if the project starts standardizing reusable UI primitives.
+- Add formal automated tests after the MVP behavior stabilizes enough to justify the maintenance cost.

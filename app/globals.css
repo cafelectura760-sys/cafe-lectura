@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-ink: #1f1a17;
+  --color-ink-soft: #5e5147;
+  --color-ink-muted: #7a6c62;
+  --color-paper: #f7f3ec;
+  --color-paper-soft: #efe7d8;
+  --color-surface: #fffdf9;
+  --color-verde: #737b4c;
+  --color-verde-hover: #626a40;
+  --color-verde-active: #545b36;
+  --color-dune: #a05035;
+  --color-dune-hover: #8d452d;
+  --color-dune-active: #783a26;
+  --color-clay: #b88d6a;
+  --color-casa: #7c563d;
+  --color-line: #d7ccbb;
+  --color-line-strong: #bfae98;
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-source-sans);
+  --font-serif: var(--font-literata);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-source-sans), Arial, Helvetica, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-verde);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-clay) 35%, white);
+  color: var(--color-ink);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-literata), "Times New Roman", Times, serif;
+    color: var(--color-ink);
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply flex flex-1 bg-[var(--color-paper)] px-5 py-10 md:px-6 md:py-14;
+  }
+
+  .page-container {
+    @apply mx-auto flex w-full max-w-7xl flex-col gap-8 md:gap-10;
+  }
+
+  .surface-card {
+    @apply rounded-lg border bg-[var(--color-surface)] shadow-[0_8px_24px_rgba(31,26,23,0.04)];
+    border-color: var(--color-line);
+  }
+
+  .eyebrow {
+    @apply text-[13px] font-semibold tracking-[0.18em] uppercase md:text-sm;
+    color: var(--color-ink-muted);
+  }
+
+  .editorial-link {
+    @apply font-semibold underline underline-offset-4;
+    color: var(--color-verde);
+  }
+
+  .editorial-link:hover {
+    color: var(--color-verde-hover);
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:text-[18px];
+    background: var(--color-verde);
+    color: var(--color-surface);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-verde-hover);
+  }
+
+  .btn-primary:active {
+    background: var(--color-verde-active);
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-12 items-center justify-center rounded-md border px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:text-[18px];
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
+    background: transparent;
+  }
+
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-paper-soft) 75%, white);
+  }
+
+  .btn-warm {
+    @apply inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:text-[18px];
+    background: var(--color-dune);
+    color: var(--color-surface);
+  }
+
+  .btn-warm:hover {
+    background: var(--color-dune-hover);
+  }
+
+  .btn-warm:active {
+    background: var(--color-dune-active);
+  }
 }

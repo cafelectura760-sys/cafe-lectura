@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  ArrowRight,
+  BookOpenText,
+  LibraryBig,
+  MessageCircleMore,
+} from "lucide-react";
 
 import { logoutAction } from "@/lib/auth/actions";
 import { getAuthSession } from "@/lib/auth/session";
@@ -24,93 +30,124 @@ export default async function Home() {
     getPublicBooks(),
   ]);
   const featuredBooks = books.slice(0, 3);
+  const highlights = [
+    {
+      title: "Biblioteca visible",
+      text: "Consulta los libros disponibles y solicita informacion por WhatsApp sin descargar archivos.",
+      icon: LibraryBig,
+    },
+    {
+      title: "Membresia anual",
+      text: "La participacion se gestiona de forma manual, cercana y sin pagos dentro de la plataforma.",
+      icon: MessageCircleMore,
+    },
+    {
+      title: "Coloquios privados",
+      text: "Los miembros activos acceden a lecturas y conversaciones preparadas para leer con calma.",
+      icon: BookOpenText,
+    },
+  ];
 
   return (
-    <main className="flex flex-1 bg-stone-100 px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-          <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
-            <div className="p-8 sm:p-10">
-              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Cafe Lectura
-              </p>
-              <h1 className="mt-4 max-w-3xl text-4xl leading-tight font-semibold text-stone-900 sm:text-5xl">
-                Un espacio tranquilo para leer, conversar y volver a los libros.
+    <main className="page-shell">
+      <div className="page-container">
+        <header className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <p className="eyebrow">Cafe Lectura</p>
+            <p className="max-w-xl text-[17px] leading-7 text-[var(--color-ink-soft)] md:text-[18px]">
+              Club privado de lectura, biblioteca visible y coloquios para
+              miembros activos.
+            </p>
+          </div>
+          <nav className="flex flex-wrap items-center gap-4 text-[17px] font-semibold text-[var(--color-ink)]">
+            <Link href="/" className="editorial-link">
+              Inicio
+            </Link>
+            <Link href="/library" className="editorial-link">
+              Biblioteca
+            </Link>
+            {session ? (
+              <Link href="/colloquiums" className="editorial-link">
+                Coloquios
+              </Link>
+            ) : (
+              <Link href="/login" className="editorial-link">
+                Iniciar sesion
+              </Link>
+            )}
+          </nav>
+        </header>
+
+        <section className="surface-card overflow-hidden">
+          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="bg-[var(--color-surface)] px-6 py-8 md:px-10 md:py-12 lg:px-12 lg:py-16">
+              <p className="eyebrow">Club privado de lectura</p>
+              <h1 className="mt-4 max-w-4xl text-[38px] leading-[1.15] font-semibold text-[var(--color-ink)] md:text-[52px]">
+                Un lugar sereno para volver a los libros, conversar con calma y
+                sostener el habito de leer.
               </h1>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-stone-700">
-                Somos un club privado de lectura con membresia anual, biblioteca
-                disponible para consulta y coloquios preparados para miembros
-                activos. Todo se gestiona de forma cercana, sencilla y por
-                contacto directo.
+              <p className="mt-6 max-w-3xl text-[18px] leading-8 text-[var(--color-ink-soft)] md:text-[19px]">
+                Cafe Lectura acompana a sus miembros con una biblioteca publica
+                para consulta, una membresia anual gestionada de forma cercana y
+                coloquios privados preparados para leer sin prisa.
               </p>
 
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <a
                   href={getMembershipHref()}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
+                  className="btn-primary gap-2"
                 >
                   Consultar membresia
+                  <ArrowRight className="h-[18px] w-[18px]" />
                 </a>
-                <Link
-                  href="/library"
-                  className="inline-flex min-h-12 items-center justify-center rounded-md border border-stone-300 px-5 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
-                >
+                <Link href="/library" className="btn-secondary">
                   Ver biblioteca
                 </Link>
               </div>
             </div>
 
-            <aside className="border-t border-stone-200 bg-stone-50 p-8 sm:p-10 lg:border-t-0 lg:border-l">
-              <h2 className="text-2xl font-semibold text-stone-900">
-                Acceso para miembros
-              </h2>
+            <aside className="flex flex-col justify-between border-t border-[var(--color-line)] bg-[var(--color-paper-soft)] px-6 py-8 md:px-10 md:py-10 lg:border-t-0 lg:border-l lg:px-10 lg:py-12">
+              <div>
+                <p className="eyebrow">Acceso para miembros</p>
+                <h2 className="mt-4 text-[30px] leading-[1.24] font-semibold text-[var(--color-ink)]">
+                  Tu espacio privado de lectura
+                </h2>
+                <p className="mt-4 text-[18px] leading-8 text-[var(--color-ink-soft)]">
+                  Si ya eres miembro, aqui puedes entrar al area privada donde
+                  se publican los coloquios y lecturas del club.
+                </p>
+              </div>
 
               {session ? (
-                <div className="mt-5 space-y-4 text-base leading-7 text-stone-700">
-                  <p>
+                <div className="mt-8 space-y-4">
+                  <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-5 text-[17px] leading-7 text-[var(--color-ink-soft)]">
                     Estas conectado como{" "}
-                    <span className="font-semibold">
+                    <span className="font-semibold text-[var(--color-ink)]">
                       {session.profile?.full_name ?? session.email}
                     </span>
                     .
-                  </p>
+                  </div>
                   <div className="flex flex-col gap-3">
-                    <Link
-                      href="/colloquiums"
-                      className="inline-flex min-h-12 items-center justify-center rounded-md bg-stone-900 px-4 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
-                    >
+                    <Link href="/colloquiums" className="btn-primary">
                       Ir a coloquios
                     </Link>
                     {session.profile?.role === "admin" ? (
-                      <Link
-                        href="/admin"
-                        className="inline-flex min-h-12 items-center justify-center rounded-md border border-stone-300 px-4 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
-                      >
+                      <Link href="/admin" className="btn-secondary">
                         Ir al panel admin
                       </Link>
                     ) : null}
                     <form action={logoutAction}>
-                      <button
-                        type="submit"
-                        className="min-h-12 w-full rounded-md border border-stone-300 px-4 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
-                      >
+                      <button type="submit" className="btn-secondary w-full">
                         Cerrar sesion
                       </button>
                     </form>
                   </div>
                 </div>
               ) : (
-                <div className="mt-5 space-y-4 text-base leading-7 text-stone-700">
-                  <p>
-                    Si ya eres miembro, inicia sesion para entrar al area
-                    privada de coloquios.
-                  </p>
-                  <Link
-                    href="/login"
-                    className="inline-flex min-h-12 items-center justify-center rounded-md border border-stone-300 px-5 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
-                  >
+                <div className="mt-8 flex flex-col gap-3">
+                  <Link href="/login" className="btn-secondary">
                     Iniciar sesion
                   </Link>
                 </div>
@@ -119,70 +156,64 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-3">
-          {[
-            {
-              title: "Biblioteca visible",
-              text: "Consulta los libros disponibles y solicita informacion por WhatsApp sin descargar archivos.",
-            },
-            {
-              title: "Membresia anual",
-              text: "La participacion se gestiona manualmente, con renovacion directa y sin pagos dentro de la plataforma.",
-            },
-            {
-              title: "Coloquios privados",
-              text: "Los miembros activos acceden a contenidos textuales preparados para leer con calma.",
-            },
-          ].map((item) => (
-            <article
-              key={item.title}
-              className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm"
-            >
-              <h2 className="text-2xl font-semibold text-stone-900">
-                {item.title}
-              </h2>
-              <p className="mt-4 text-base leading-8 text-stone-700">
-                {item.text}
-              </p>
-            </article>
-          ))}
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {highlights.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article key={item.title} className="surface-card p-6 md:p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-paper-soft)] text-[var(--color-casa)]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h2 className="mt-5 text-[28px] leading-[1.24] font-semibold text-[var(--color-ink)]">
+                  {item.title}
+                </h2>
+                <p className="mt-4 text-[18px] leading-8 text-[var(--color-ink-soft)]">
+                  {item.text}
+                </p>
+              </article>
+            );
+          })}
         </section>
 
-        <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Biblioteca
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold text-stone-900">
-                Ultimos libros agregados
+        <section className="surface-card px-6 py-8 md:px-10 md:py-10">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-3xl">
+              <p className="eyebrow">Biblioteca</p>
+              <h2 className="mt-4 text-[32px] leading-[1.2] font-semibold text-[var(--color-ink)] md:text-[40px]">
+                Una biblioteca visible para descubrir con calma
               </h2>
+              <p className="mt-4 text-[18px] leading-8 text-[var(--color-ink-soft)]">
+                Estos son algunos de los titulos ya disponibles en Cafe Lectura.
+                La consulta y las solicitudes se realizan de manera directa por
+                WhatsApp.
+              </p>
             </div>
-            <Link
-              href="/library"
-              className="font-semibold text-stone-900 underline underline-offset-4"
-            >
+            <Link href="/library" className="editorial-link">
               Ver catalogo completo
             </Link>
           </div>
 
           {featuredBooks.length === 0 ? (
-            <p className="mt-6 text-base leading-8 text-stone-700">
+            <div className="mt-8 rounded-lg border border-[var(--color-line)] bg-[var(--color-paper-soft)] p-6 text-[18px] leading-8 text-[var(--color-ink-soft)]">
               La biblioteca publica esta en preparacion. Pronto veras aqui los
               primeros titulos disponibles.
-            </p>
+            </div>
           ) : (
-            <div className="mt-6 grid gap-5 md:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {featuredBooks.map((book) => (
                 <article
                   key={book.id}
-                  className="rounded-lg border border-stone-200 bg-stone-50 p-5"
+                  className="rounded-lg border border-[var(--color-line)] bg-[var(--color-paper-soft)] p-6"
                 >
-                  <h3 className="text-xl font-semibold text-stone-900">
+                  <p className="eyebrow">Selecciones recientes</p>
+                  <h3 className="mt-4 text-[28px] leading-[1.24] font-semibold text-[var(--color-ink)]">
                     {book.title}
                   </h3>
-                  <p className="mt-2 text-base text-stone-700">{book.author}</p>
-                  <p className="mt-4 line-clamp-4 text-base leading-7 text-stone-700">
+                  <p className="mt-2 text-[17px] font-semibold text-[var(--color-casa)]">
+                    {book.author}
+                  </p>
+                  <p className="mt-4 line-clamp-4 text-[17px] leading-8 text-[var(--color-ink-soft)]">
                     {book.synopsis}
                   </p>
                 </article>
@@ -191,20 +222,32 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="rounded-lg border border-stone-200 bg-stone-900 p-8 text-white shadow-sm">
-          <h2 className="text-3xl font-semibold">
-            Quieres saber si Cafe Lectura es para ti?
-          </h2>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-stone-200">
-            Escribenos por WhatsApp y te contamos como funciona la membresia,
-            que libros estan disponibles y como se organizan los coloquios.
-          </p>
-          <div className="mt-6">
+        <section
+          className="rounded-lg px-6 py-8 text-[var(--color-surface)] md:px-10 md:py-10"
+          style={{
+            background:
+              "linear-gradient(135deg, var(--color-casa), var(--color-dune))",
+          }}
+        >
+          <div className="max-w-4xl">
+            <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_75%,white)]">
+              Conversacion cercana
+            </p>
+            <h2 className="mt-4 text-[32px] leading-[1.2] font-semibold md:text-[40px]">
+              Quieres saber si Cafe Lectura puede ser para ti?
+            </h2>
+            <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_82%,white)]">
+              Escribenos por WhatsApp y te contamos como funciona la membresia,
+              que libros estan disponibles y de que forma se organizan los
+              coloquios del club.
+            </p>
+          </div>
+          <div className="mt-8">
             <a
               href={getMembershipHref()}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-12 items-center justify-center rounded-md bg-white px-5 py-3 text-base font-semibold text-stone-900 transition hover:bg-stone-100"
+              className="btn-warm"
             >
               Escribir por WhatsApp
             </a>

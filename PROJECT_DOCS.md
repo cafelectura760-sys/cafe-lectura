@@ -309,6 +309,702 @@ Cafe Lectura is optimized for older adults. The interface must be calm, readable
 
 Repository documentation, code, comments, file names, and technical artifacts must be written in English.
 
+### Design Foundation
+
+#### Purpose
+
+This design foundation defines the canonical visual source of truth for Cafe Lectura before page-level redesign work begins.
+
+It exists to ensure that all future UI work across the public and private experience follows one consistent visual system aligned with the product context:
+
+- private local reading club in Venezuela
+- primary audience: adults 50 to 70+
+- warm, calm, readable, trustworthy, literary, mature
+- simple navigation and low cognitive load
+- strong readability over visual novelty
+
+This foundation applies to:
+
+- landing
+- library
+- login
+- membership-expired
+- colloquium list
+- colloquium detail
+
+It does not yet define admin design in detail, but it must remain compatible with a later admin phase using shadcn-admin as the primary structural and visual reference.
+
+#### Visual Direction Summary
+
+Cafe Lectura should feel like a quiet, well-kept literary club rather than a startup app, ecommerce site, or editorial magazine with heavy styling.
+
+The interface must communicate:
+
+- calmness
+- warmth
+- trust
+- clarity
+- mature restraint
+- ease of use
+
+The UI should avoid:
+
+- glossy SaaS aesthetics
+- overly dark themes
+- decorative gradients
+- crowded dashboards
+- low-contrast beige-on-beige layouts
+- tiny type
+- dense controls
+- ambiguous actions
+
+#### Design Tokens
+
+##### Core Color Tokens
+
+```text
+--color-ink: #1F1A17;
+--color-ink-soft: #5E5147;
+--color-ink-muted: #7A6C62;
+
+--color-paper: #F7F3EC;
+--color-paper-soft: #EFE7D8;
+--color-surface: #FFFDF9;
+
+--color-verde: #737B4C;
+--color-verde-hover: #626A40;
+--color-verde-active: #545B36;
+
+--color-dune: #A05035;
+--color-dune-hover: #8D452D;
+--color-dune-active: #783A26;
+
+--color-clay: #B88D6A;
+--color-casa: #7C563D;
+
+--color-line: #D7CCBB;
+--color-line-strong: #BFAE98;
+
+--color-success: #4F6B45;
+--color-success-bg: #E8F0E3;
+
+--color-warning: #8A6032;
+--color-warning-bg: #F5E9D8;
+
+--color-error: #8E3B2F;
+--color-error-bg: #F7E4DF;
+
+--color-disabled-bg: #E6DFD3;
+--color-disabled-text: #9A8F83;
+```
+
+##### Semantic Tokens
+
+Background tokens:
+
+```text
+--background-app: var(--color-paper);
+--background-page: var(--color-paper);
+--background-surface: var(--color-surface);
+--background-subtle: var(--color-paper-soft);
+--background-muted: #F1EBE1;
+--background-strong: var(--color-casa);
+```
+
+Text tokens:
+
+```text
+--text-primary: var(--color-ink);
+--text-secondary: var(--color-ink-soft);
+--text-muted: var(--color-ink-muted);
+--text-on-dark: #FFFDF9;
+--text-link: var(--color-verde);
+--text-link-hover: var(--color-verde-hover);
+--text-disabled: var(--color-disabled-text);
+```
+
+Border tokens:
+
+```text
+--border-default: var(--color-line);
+--border-strong: var(--color-line-strong);
+--border-accent: var(--color-clay);
+--border-success: #B8CCAF;
+--border-warning: #DEC6A6;
+--border-error: #D8B0A8;
+--border-focus: var(--color-verde);
+```
+
+Surface tokens:
+
+```text
+--surface-default: var(--color-surface);
+--surface-subtle: var(--color-paper-soft);
+--surface-emphasis: #F2ECE2;
+--surface-dark: var(--color-casa);
+--surface-book: #FBF8F2;
+```
+
+Action tokens:
+
+```text
+--action-primary-bg: var(--color-verde);
+--action-primary-text: #FFFDF9;
+--action-primary-hover: var(--color-verde-hover);
+--action-primary-active: var(--color-verde-active);
+
+--action-secondary-bg: transparent;
+--action-secondary-text: var(--color-ink);
+--action-secondary-border: var(--color-line-strong);
+--action-secondary-hover: #F2ECE2;
+--action-secondary-active: #E8E0D2;
+
+--action-warm-bg: var(--color-dune);
+--action-warm-text: #FFFDF9;
+--action-warm-hover: var(--color-dune-hover);
+--action-warm-active: var(--color-dune-active);
+```
+
+##### State Tokens
+
+```text
+--focus-ring-color: var(--color-verde);
+--focus-ring-width: 3px;
+--focus-ring-offset: 2px;
+
+--state-success-bg: var(--color-success-bg);
+--state-success-text: var(--color-success);
+--state-success-border: var(--border-success);
+
+--state-warning-bg: var(--color-warning-bg);
+--state-warning-text: var(--color-warning);
+--state-warning-border: var(--border-warning);
+
+--state-error-bg: var(--color-error-bg);
+--state-error-text: var(--color-error);
+--state-error-border: var(--border-error);
+```
+
+Rules:
+
+- hover deepens contrast slightly and must not introduce aggressive hue shifts
+- active states must feel firmer than hover states
+- disabled states must remain legible and clearly inactive
+- status surfaces must be tinted and restrained, never saturated
+
+#### Typography System
+
+Preferred pairing:
+
+- Heading and editorial font: `Literata`
+- Body and UI font: `Source Sans 3`
+
+Typography decision status:
+
+- locked for the first implementation pass
+- may be revisited only if real browser rendering, readability testing, or tone mismatch reveals a concrete issue after implementation
+- do not reopen font exploration before the first integrated visual pass exists
+
+Serif usage:
+
+- use `Literata` for H1, H2, major H3, hero headlines, colloquium titles, selected editorial pull lines, and important reading headers
+- do not use serif for form fields, buttons, navigation, metadata, long body copy, or dense UI labels
+
+Sans usage:
+
+- use `Source Sans 3` for body text, interface labels, navigation, cards, buttons, forms, helper text, metadata, banners, and long reading paragraphs
+
+Type scale:
+
+```text
+Desktop
+Display: 60px / 1.1 / 600
+H1: 52px / 1.12 / 600
+H2: 40px / 1.18 / 600
+H3: 30px / 1.24 / 600
+H4: 24px / 1.3 / 600
+
+Body XL: 22px / 1.65 / 400
+Body L: 19px / 1.7 / 400
+Body M: 18px / 1.7 / 400
+Body S: 16px / 1.65 / 400
+
+Label L: 18px / 1.4 / 600
+Label M: 16px / 1.35 / 600
+Label S: 14px / 1.3 / 600
+
+Meta: 15px / 1.5 / 500
+Eyebrow: 14px / 1.2 / 600
+
+Mobile
+Display: 42px / 1.12 / 600
+H1: 38px / 1.15 / 600
+H2: 32px / 1.2 / 600
+H3: 26px / 1.25 / 600
+H4: 22px / 1.3 / 600
+
+Body XL: 20px / 1.65 / 400
+Body L: 18px / 1.7 / 400
+Body M: 17px / 1.7 / 400
+Body S: 16px / 1.65 / 400
+
+Label L: 17px / 1.4 / 600
+Label M: 16px / 1.35 / 600
+Label S: 14px / 1.3 / 600
+
+Meta: 15px / 1.5 / 500
+Eyebrow: 13px / 1.2 / 600
+```
+
+Type spacing rules:
+
+- heading to paragraph: `12px` to `16px`
+- eyebrow to heading: `8px` to `12px`
+- paragraph to paragraph: `16px` to `20px`
+- section header stack: `10px` to `16px`
+- card title to meta: `6px` to `10px`
+- card meta to description: `12px` to `16px`
+
+Constraints:
+
+- minimum running text size: `17px` on mobile and `18px` on desktop
+- avoid all-caps for long labels or buttons
+- eyebrow may be uppercase only when short
+- do not use negative letter spacing
+- do not use muted text for essential reading content
+
+#### Responsive Behavior
+
+Responsive behavior must use Tailwind CSS standard breakpoints and conventions.
+
+Use Tailwind's default responsive model:
+
+- base mobile-first styles
+- `sm`
+- `md`
+- `lg`
+- `xl`
+- `2xl`
+
+Do not introduce a parallel custom breakpoint vocabulary unless a concrete implementation need makes it unavoidable.
+
+Layout rules by breakpoint intent:
+
+- base to `sm`: single-column by default, hero content stacks vertically, section actions move below copy, headers collapse into vertical stacks, image and text compositions become vertical blocks
+- `md`: two-column layouts may begin only when content remains readable, section header actions may align beside content if spacing stays generous, image and text compositions may move side by side only if text width remains comfortable
+- `lg` and above: landing hero may use two columns, library may use three columns, colloquium list metadata and actions may sit horizontally, and section header actions may move to the right
+
+Column collapse rules:
+
+- default assumption: `1` column
+- move to `2` columns only when content remains calm and legible
+- move to `3` columns only for scan-friendly card content such as books
+- do not use `4+` primary content columns
+
+Recommended behavior:
+
+- landing feature groups: `1 -> 2 -> 3` only when cards are short
+- library grid: `1` on mobile, `2` on tablet, `3` on large desktop
+- colloquium list: remain mostly `1` column; internal card layout may split at `lg`
+- login and membership-expired: always single-column
+
+Stacking behavior:
+
+- hero layouts: mobile stacks text first, actions second, media third if present; tablet remains stacked unless the split stays spacious; desktop may use two columns if text remains dominant and readable
+- headers: mobile places title block first and actions below; tablet may place actions beside the title only if no compression occurs; desktop may align horizontally for compact action sets
+- section actions: mobile stacks vertically or moves them below text; desktop may place them inline or on the right when the action count stays low
+
+Image and text composition rules:
+
+- images must never shrink text into narrow unreadable columns
+- cover images should preserve ratio and crop gracefully
+- on mobile, image and text pairs should stack with clear separation
+- text should not wrap around images in editorial style
+- for book and colloquium compositions, the image is supporting context rather than the layout driver
+
+#### Spacing and Layout System
+
+Container widths:
+
+```text
+--container-wide: 1200px;
+--container-default: 1120px;
+--container-narrow: 960px;
+--container-reading: 760px;
+--container-auth: 520px;
+```
+
+Usage rules:
+
+- landing: `wide` or `default`
+- library: `wide`
+- colloquium list: `default`
+- colloquium detail body: `reading`
+- login and membership-expired: `auth`
+
+Horizontal padding:
+
+- desktop page padding: `32px`
+- desktop section internal padding: `32px`
+- tablet page padding: `24px`
+- mobile page padding: `20px`
+- mobile section internal padding: `20px` to `24px`
+
+Section spacing:
+
+```text
+hero section top/bottom: 72px to 96px
+standard section vertical spacing: 56px to 72px
+compact section spacing: 40px to 48px
+section-to-section gap inside page: 32px to 40px
+```
+
+Card spacing:
+
+```text
+card padding large: 32px
+card padding default: 24px
+card padding compact: 20px
+card gap internal: 16px
+card corner radius: 8px
+```
+
+Grid rules:
+
+- prefer `1`, `2`, or `3` columns only
+- book grids may reach `3` columns on large screens
+- text-heavy content should collapse early
+- stable heights are acceptable only where comparison improves scanability
+
+Reading width:
+
+- the colloquium reading body must not exceed `760px`
+- target line length: `60` to `75` characters per line
+
+Density rules:
+
+- use low to medium density
+- allow one primary action per major section
+- avoid crowded utility bars
+- avoid multi-column dense metadata clusters
+- prefer vertical rhythm over compression
+
+#### Base Form and Interaction Patterns
+
+These rules should map cleanly to a likely shadcn/ui implementation using components such as `Button`, `Input`, `Textarea`, `Select`, and `Alert`.
+
+Input rules:
+
+- minimum height: `48px`, preferred `52px`
+- use generous horizontal padding
+- labels must remain visible above the field
+- placeholder text must never carry essential information
+- helper text belongs below the field only when needed
+- default state uses a surface background and default border
+- hover slightly strengthens the border
+- focus uses a visible green focus ring and stronger border
+- error uses an error border plus short inline explanation
+- disabled uses muted surface, muted text, and no hover change
+
+Textarea rules:
+
+- match input styling
+- provide comfortable vertical padding
+- allow vertical growth
+- do not make the field visually tiny
+- resize behavior should remain predictable
+
+Select rules:
+
+- use shadcn/ui select patterns when the interaction remains accessible
+- keep the same height and visual style as inputs
+- the trigger must look clearly interactive
+- the selected value must remain legible
+- avoid long complex dropdowns in public or member views unless necessary
+
+Inline link rules:
+
+- use the link semantic token
+- keep underline visible by default or on hover and focus consistently
+- maintain strong contrast
+- do not hide important actions as low-emphasis links when a button is more appropriate
+
+Feedback banner usage:
+
+- align with shadcn/ui alert-style composition patterns
+- use for login status, auth guidance, form success, recoverable error explanation, and page-level informational notices
+- keep one clear message, short text, and an optional inline link or action only when useful
+- status color must support the message rather than overpower it
+
+Disabled form behavior:
+
+- disabled fields and controls must remain readable
+- disabled elements must clearly appear inactive
+- disabled states must not rely on opacity alone
+- disabled submit buttons must not become visually invisible
+
+#### Navigation and Header Rules
+
+Public header rules:
+
+- keep the public header simple and calm
+- make the brand or title clearly visible
+- keep only essential navigation items
+- avoid crowded top bars and icon-only primary navigation
+- recommended public navigation scope: home, library, and login
+
+Private header rules:
+
+- orient the member without creating dashboard-like chrome
+- keep the page or section title clear
+- keep the action set very small
+- library access and logout are acceptable secondary actions
+- if member identity appears, keep it secondary and unobtrusive
+
+Back links and secondary navigation:
+
+- use for returning from colloquium detail to list and for simple contextual return paths
+- prefer plain text links or icon-plus-text only when the icon adds clarity
+- keep secondary navigation to one or two links per block
+- avoid breadcrumb-heavy interfaces
+- secondary navigation must not compete with the primary task
+
+Reading view navigation chrome:
+
+- reduce visible navigation chrome in colloquium detail
+- preserve one clear back path
+- optional home or library links may remain, but they must be visually quiet
+- reading views must prioritize concentration over persistent navigation
+
+#### Reusable UI Pattern Rules
+
+Page shell:
+
+- use a warm page background, a centered content container, clear vertical rhythm, and stacked top-level sections
+- use banded sections or clean stacked blocks
+- avoid cards inside cards
+- the page shell should feel breathable rather than boxed in
+
+Section header:
+
+- include eyebrow, heading, short supporting paragraph, and an optional action
+- keep the eyebrow restrained
+- let the heading carry tone
+- use supporting copy to explain function simply
+- action belongs at section level only when useful
+- on mobile, stack vertically and move the action below the copy; horizontal alignment is allowed only from `md` or `lg` when spacing supports it
+
+CTA types:
+
+- primary CTA: solid verde background, light text, generous height, sans semibold label
+- secondary CTA: transparent or soft surface, visible border, ink text
+- warm CTA: dune background, light text, used selectively, especially for WhatsApp and contact
+- a screen should usually contain only one visually dominant CTA treatment
+
+Surface card:
+
+- use for content grouping, summaries, library cards, private area blocks, and empty states
+- use a surface background, warm border, subtle radius, and very restrained shadow or none
+
+Book card:
+
+- include a stable-ratio cover image, title, author, short synopsis or excerpt, and one CTA
+- keep the title as the strongest text
+- keep synopsis length controlled
+- avoid decorative badge overload
+- place the CTA consistently
+
+Auth and gate panel:
+
+- use for login, membership-expired, and access guidance
+- keep centered narrow width, simple hierarchy, one clear action, calm tone, and no visual alarmism
+
+Reading section:
+
+- use for colloquium detail
+- reduce nonessential UI
+- keep the body within reading width
+- use serif for section titles and sans for reading body
+- keep role-based emphasis subtle and semantic
+
+Empty state:
+
+- include a short heading, one sentence explanation, and an optional single CTA
+- keep the tone calm
+- avoid blameful language and decorative dependence
+
+Feedback banner:
+
+- use for auth state, form success or error, and important informational messages
+- tint by state
+- use a readable border
+- keep to one short paragraph and an optional inline action only when useful
+
+#### Component Strategy
+
+shadcn/ui role:
+
+- shadcn/ui is the primary component foundation for the product
+- use it as the structural base for buttons, inputs, textareas, selects, alerts, dialogs if later needed, sheets if later needed, form composition patterns, and future table patterns where relevant
+- Cafe Lectura should feel like a custom product built on top of shadcn/ui primitives rather than a default shadcn demo
+
+Custom component rules:
+
+- create custom components when a pattern is product-specific, combines primitives into a repeatable branded pattern, improves readability for older adults, or expresses the editorial tone of Cafe Lectura
+- likely custom patterns include page shell, section header, book card, auth and gate panel, reading section, and colloquium list item
+
+External library rules:
+
+- additional component libraries are acceptable only when they solve a specific UI problem clearly better than a shadcn/ui-based solution
+- they must match the project's tone, density, accessibility, and visual language
+- they must not introduce a conflicting aesthetic or fragment interaction patterns
+- prefer shadcn/ui first and introduce external libraries only for concrete needs, not variety
+
+Future admin compatibility:
+
+- admin is out of scope for this phase
+- public and private design choices must not block later admin work
+- future admin should use shadcn-admin as a direct structural and visual reference
+- admin may later become denser and more operational while public and private remain warmer and more editorial
+
+#### Icon System
+
+Primary icon library:
+
+- use `lucide-react` as the primary and default icon library
+- do not mix multiple icon libraries without a very strong reason
+
+Icon usage rules:
+
+- icons are supportive, not primary meaning carriers
+- use icons for small directional cues, supportive CTA affordances, status reinforcement, and simple utility actions where text remains present
+- do not use icons for primary meaning without text, dense navigation chrome, decorative clutter, or critical actions presented as icon-only controls
+
+Icon sizing:
+
+- inline with text: `16px`
+- standard UI button or supporting icon: `18px`
+- prominent supporting icon: `20px`
+- avoid oversized decorative icons in core UI
+
+Alignment rules:
+
+- align icons optically with text baselines
+- keep icon and label spacing consistent
+- use an icon before text only when it adds recognition
+- do not add icons to every button by default
+
+Older adult constraints for icons:
+
+- prefer text-first actions
+- do not rely on icon recognition alone
+- avoid tiny icons and ambiguous metaphors
+- avoid mixed icon visual languages
+
+#### Accessibility Constraints
+
+- all body text must meet strong readable contrast against its background
+- primary text should target at least WCAG AA normal-text contrast
+- large headings must remain clearly readable on warm backgrounds
+- muted text may only be used for secondary information
+- minimum interactive height: `48px`
+- preferred interactive height: `52px`
+- minimum touch target: `44x44px`, preferably `48x48px`
+- every interactive element must show a visible focus ring
+- focus ring must be distinct from the border color
+- never remove focus outline without replacement
+- keyboard focus should remain obvious on all surfaces
+- errors must be explicit, calm, and readable
+- never rely on color alone for error communication
+- pair status styling with direct explanatory text
+- keep field-level errors close to the relevant control
+- for older adults, favor large readable text, strong contrast, low visual clutter, obvious button styles, predictable navigation, short UI paragraphs, visible actions, and interaction patterns that do not require speed or precision
+
+#### Screen Application Rules
+
+Landing:
+
+- introduce the club, communicate trust, and guide users toward membership inquiry or library exploration
+- use the strongest editorial tone in the product
+- keep the hero stacked on smaller screens and allow a two-column treatment only at larger breakpoints
+- use membership or contact as the primary CTA and library as the secondary CTA
+- avoid dashboard-like composition
+
+Library:
+
+- present available books clearly and calmly
+- use the responsive book grid pattern: `1` column on mobile, `2` on tablet, and `3` on large desktop
+- keep title, author, cover, then synopsis in the reading order
+- make the WhatsApp CTA visible without making the page feel transactional
+- do not introduce filter-heavy behavior in this phase
+
+Login:
+
+- use the auth and gate panel pattern
+- keep the layout single-column
+- use a full-width primary action
+- keep labels above controls
+- use feedback banners for errors and auth status
+- do not use a split-screen auth layout
+
+Membership-expired:
+
+- use the auth and gate panel pattern
+- keep the layout single-column
+- a warm CTA is acceptable for WhatsApp
+- include one quiet fallback action
+- keep the tone respectful and reassuring
+
+Colloquium list:
+
+- use a light private header
+- allow each item layout to stack on mobile and split at larger breakpoints
+- emphasize colloquium title, related book, date, and excerpt
+- keep actions obvious without crowding the layout
+
+Colloquium detail:
+
+- minimize persistent header chrome
+- preserve one clear back path
+- constrain the reading body to reading width
+- keep book context visible but subordinate to the content
+- differentiate moderator and participant sections subtly
+- do not allow navigation chrome to dominate the reading flow
+
+#### Implementation Guidance
+
+When implementing this foundation:
+
+- convert tokens into `globals.css` CSS variables
+- expose semantic tokens to the app layer
+- implement layout and pattern consistency with Tailwind utility conventions
+- use Tailwind's standard responsive model
+- build the primary UI on shadcn/ui component patterns
+- use `lucide-react` as the single default icon system
+- avoid one-off visual rules unless clearly justified
+
+#### Non-Negotiable Constraints
+
+The visual redesign must preserve:
+
+- existing backend behavior
+- Supabase-based product logic
+- membership gating behavior
+- WhatsApp-based membership and book request flows
+- simple navigation
+- accessibility for older adults
+- calm and trustworthy tone
+
+The redesign must not introduce:
+
+- dense control surfaces
+- unnecessary animations
+- decorative complexity
+- visually noisy gradients
+- startup-style UX patterns
+- public signup or payment flows
+- feature expansion outside MVP
+
 ## 8. Development Constraints
 
 - Use Server Components by default.

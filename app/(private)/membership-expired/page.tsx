@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { GatePanel } from "@/components/gate-panel";
+import { PageShell } from "@/components/page-shell";
+import { SiteHeader } from "@/components/site-header";
+import { StatusBanner } from "@/components/status-banner";
 import { logoutAction } from "@/lib/auth/actions";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
@@ -10,61 +14,58 @@ type MembershipExpiredPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Membership Expired | Cafe Lectura",
+  title: "Membresia vencida",
   description: "Expired membership guidance for Cafe Lectura members.",
 };
 
 export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
   const whatsappHref = createWhatsAppHref(
-    "Necesito ayuda para renovar mi membresía de Cafe Lectura.",
+    "Necesito ayuda para renovar mi membresia de Cafe Lectura.",
   );
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-stone-100 px-6 py-12">
-      <div className="w-full max-w-2xl rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-        <div className="space-y-3">
-          <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-            Membresía
-          </p>
-          <h1 className="text-3xl font-semibold text-stone-900">
-            Tu acceso necesita renovación
-          </h1>
-          <p className="text-base leading-7 text-stone-700">
-            Tu sesión está activa, pero la membresía registrada ya no permite
-            entrar a los coloquios privados. Escríbenos por WhatsApp para
-            ayudarte a renovarla.
-          </p>
-        </div>
+    <PageShell width="regular">
+      <SiteHeader
+        items={[
+          { href: "/", label: "Inicio" },
+          { href: "/library", label: "Biblioteca" },
+          { href: "/login", label: "Acceso" },
+        ]}
+        description="Orientacion para renovar la membresia y recuperar el acceso privado."
+      />
 
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+      <GatePanel
+        eyebrow="Membresia"
+        title="Tu acceso necesita renovacion"
+        description="Tu sesion esta activa, pero la membresia registrada ya no permite entrar a los coloquios privados."
+        footer={
+          <Link href="/" className="editorial-link">
+            Volver al inicio
+          </Link>
+        }
+      >
+        <StatusBanner tone="warning">
+          Escribenos por WhatsApp y te ayudamos a renovar tu membresia de forma
+          directa y cercana.
+        </StatusBanner>
+
+        <div className="flex flex-col gap-3 sm:flex-row">
           <a
             href={whatsappHref}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center rounded-md bg-stone-900 px-4 py-3 text-base font-semibold text-white transition hover:bg-stone-700"
+            className="btn-warm"
           >
             Solicitar ayuda por WhatsApp
           </a>
 
           <form action={logoutAction}>
-            <button
-              type="submit"
-              className="w-full rounded-md border border-stone-300 px-4 py-3 text-base font-semibold text-stone-800 transition hover:bg-stone-100 sm:w-auto"
-            >
-              Cerrar sesión
+            <button type="submit" className="btn-secondary w-full sm:w-auto">
+              Cerrar sesion
             </button>
           </form>
         </div>
-
-        <div className="mt-6">
-          <Link
-            href="/"
-            className="font-semibold text-stone-900 underline underline-offset-4"
-          >
-            Volver al inicio
-          </Link>
-        </div>
-      </div>
-    </main>
+      </GatePanel>
+    </PageShell>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { createBookAction, updateBookAction } from "@/lib/admin/book-actions";
 import { listAdminBooks } from "@/lib/admin/book-management";
 import {
@@ -184,18 +185,24 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     <main className="flex flex-1 bg-stone-100 px-6 py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <header className="flex flex-col gap-4 rounded-lg border border-stone-200 bg-white p-8 shadow-sm sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-3">
-            <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-              Administracion
-            </p>
-            <h1 className="text-3xl font-semibold text-stone-900">
-              Panel interno
-            </h1>
-            <p className="max-w-2xl text-base leading-7 text-stone-700">
-              Hola, {session.profile.full_name}. Esta base administrativa ya
-              puede crear usuarios manualmente y gestionar miembros, libros y
-              coloquios sin exponer credenciales privilegiadas al navegador.
-            </p>
+          <div className="flex gap-4">
+            <BrandLogo
+              size="sm"
+              className="border-stone-200 bg-stone-50 shadow-none"
+            />
+            <div className="space-y-3">
+              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
+                Administracion
+              </p>
+              <h1 className="text-3xl font-semibold text-stone-900">
+                Panel interno
+              </h1>
+              <p className="max-w-2xl text-base leading-7 text-stone-700">
+                Hola, {session.profile.full_name}. Esta base administrativa ya
+                puede crear usuarios manualmente y gestionar miembros, libros y
+                coloquios sin exponer credenciales privilegiadas al navegador.
+              </p>
+            </div>
           </div>
 
           <form action={logoutAction}>

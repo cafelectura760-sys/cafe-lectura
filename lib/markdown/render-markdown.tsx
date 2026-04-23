@@ -75,7 +75,7 @@ function splitInlineMarkdown(text: string): ReactNode[] {
             href={safeHref}
             target="_blank"
             rel="noreferrer"
-            className="font-semibold text-stone-900 underline underline-offset-4"
+            className="editorial-link"
           >
             {linkLabel}
           </a>
@@ -187,28 +187,17 @@ function parseMarkdownSections(markdown: string): MarkdownSection[] {
   return sections.length > 0 ? sections : [currentSection];
 }
 
-function getSectionClassName(tone: SectionTone): string {
-  if (tone === "moderator") {
-    return "border-amber-200 bg-amber-50";
-  }
-
-  if (tone === "participant") {
-    return "border-sky-200 bg-sky-50";
-  }
-
-  return "border-stone-200 bg-white";
-}
-
 export function renderSafeMarkdown(markdown: string): ReactNode {
   const sections = parseMarkdownSections(markdown);
 
   return sections.map((section, sectionIndex) => (
     <section
       key={`${section.heading ?? "section"}-${sectionIndex}`}
-      className={`rounded-lg border p-6 shadow-sm ${getSectionClassName(section.tone)}`}
+      className="reader-section"
+      data-tone={section.tone}
     >
       {section.heading ? (
-        <h2 className="text-2xl font-semibold text-stone-900">
+        <h2 className="subsection-title text-[var(--text-primary)]">
           {section.heading}
         </h2>
       ) : null}
@@ -219,7 +208,7 @@ export function renderSafeMarkdown(markdown: string): ReactNode {
             return (
               <p
                 key={`paragraph-${blockIndex}`}
-                className="text-base leading-8 text-stone-800"
+                className="text-[17px] leading-[1.85] text-[var(--text-primary)] md:text-[18px]"
               >
                 {splitInlineMarkdown(block.text)}
               </p>
@@ -229,7 +218,7 @@ export function renderSafeMarkdown(markdown: string): ReactNode {
           return (
             <ul
               key={`list-${blockIndex}`}
-              className="space-y-3 pl-6 text-base leading-8 text-stone-800"
+              className="space-y-3 pl-6 text-[17px] leading-[1.8] text-[var(--text-primary)] md:text-[18px]"
             >
               {block.items.map((item, itemIndex) => (
                 <li key={`item-${itemIndex}`} className="list-disc">

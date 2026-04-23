@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { logoutAction } from "@/lib/auth/actions";
+import { createWhatsAppHref } from "@/lib/whatsapp";
 
 type MembershipExpiredPageProps = {
   params: Promise<Record<string, never>>;
@@ -14,14 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
-  const defaultMessage =
-    process.env.NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE ??
-    "Hola, necesito ayuda con mi membresía de Cafe Lectura.";
-
-  const whatsappHref = whatsappNumber
-    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`
-    : "#";
+  const whatsappHref = createWhatsAppHref(
+    "Necesito ayuda para renovar mi membresía de Cafe Lectura.",
+  );
 
   return (
     <main className="flex flex-1 items-center justify-center bg-stone-100 px-6 py-12">

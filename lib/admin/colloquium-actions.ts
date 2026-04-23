@@ -54,16 +54,19 @@ export async function createColloquiumAction(formData: FormData) {
   }
 
   revalidatePath("/admin");
+  revalidatePath("/colloquiums");
   redirectToAdmin("status", "colloquium-created");
 }
 
 export async function updateColloquiumAction(formData: FormData) {
+  const colloquiumId = getStringEntry(
+    formData.get("colloquium_id"),
+    "colloquium-not-found",
+  );
+
   try {
     await updateAdminColloquium({
-      colloquiumId: getStringEntry(
-        formData.get("colloquium_id"),
-        "colloquium-not-found",
-      ),
+      colloquiumId,
       title: getStringEntry(formData.get("title"), "invalid-colloquium-title"),
       content: getStringEntry(
         formData.get("content"),
@@ -83,5 +86,7 @@ export async function updateColloquiumAction(formData: FormData) {
   }
 
   revalidatePath("/admin");
+  revalidatePath("/colloquiums");
+  revalidatePath(`/colloquiums/${colloquiumId}`);
   redirectToAdmin("status", "colloquium-updated");
 }

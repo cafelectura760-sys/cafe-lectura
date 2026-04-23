@@ -67,4 +67,7 @@ jobs:
         run: npm ci
 
       - name: Build application
+        env:
+          NEXT_PUBLIC_WHATSAPP_NUMBER: ${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER || '584120000000' }}
+          NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE: ${{ vars.NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE || 'Hola, necesito ayuda con mi membresía de Cafe Lectura.' }}
         run: npm run build

@@ -77,16 +77,28 @@ html {
 body {
   background:
     linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--color-line) 20%, transparent) 1px,
+        0deg,
+        color-mix(in srgb, var(--color-line) 16%, transparent) 1px,
         transparent 1px
       )
       0 0 / 88px 88px,
     linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-line) 26%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 88px 88px,
+    repeating-linear-gradient(
+      105deg,
+      transparent 0 22px,
+      color-mix(in srgb, var(--color-casa) 4%, transparent) 22px 23px,
+      transparent 23px 46px
+    ),
+    linear-gradient(
       180deg,
-      color-mix(in srgb, var(--background-page) 88%, white) 0%,
+      color-mix(in srgb, var(--background-page) 86%, white) 0%,
       var(--background-page) 34%,
-      color-mix(in srgb, var(--color-paper-soft) 82%, white) 100%
+      color-mix(in srgb, var(--color-paper-soft) 78%, white) 100%
     );
   color: var(--foreground);
   font-family: var(--font-source-sans), Arial, Helvetica, sans-serif;
@@ -154,12 +166,20 @@ select {
 @layer components {
   .page-shell {
     @apply flex flex-1 px-4 py-5 md:px-6 md:py-7 lg:px-8;
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-default) 38%, transparent) 0%,
-      transparent 30%,
-      color-mix(in srgb, var(--color-paper-soft) 36%, transparent) 100%
-    );
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-gold) 8%, transparent) 0%,
+        transparent 18%,
+        transparent 82%,
+        color-mix(in srgb, var(--color-teal) 8%, transparent) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 36%, transparent) 0%,
+        transparent 30%,
+        color-mix(in srgb, var(--color-paper-soft) 34%, transparent) 100%
+      );
   }
 
   .page-container {
@@ -388,6 +408,20 @@ select {
     border-color: var(--border-focus);
   }
 
+  .password-field-wrap {
+    @apply relative w-full;
+  }
+
+  .password-toggle {
+    @apply absolute top-1/2 right-2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[8px];
+    color: var(--text-secondary);
+  }
+
+  .password-toggle:hover {
+    background: var(--surface-subtle);
+    color: var(--text-primary);
+  }
+
   .reader-panel {
     @apply rounded-[10px] border px-6 py-7 md:px-8 md:py-9;
     border-color: var(--border-default);
@@ -424,8 +458,14 @@ select {
     );
     background:
       linear-gradient(
+          0deg,
+          color-mix(in srgb, var(--color-line) 14%, transparent) 1px,
+          transparent 1px
+        )
+        0 0 / 72px 72px,
+      linear-gradient(
           90deg,
-          color-mix(in srgb, var(--color-line) 18%, transparent) 1px,
+          color-mix(in srgb, var(--color-line) 24%, transparent) 1px,
           transparent 1px
         )
         0 0 / 72px 72px,
@@ -549,6 +589,10 @@ select {
     );
     box-shadow: 0 22px 46px rgba(31, 26, 23, 0.09);
   }
+
+  .scroll-reveal {
+    --scroll-reveal-y: 18px;
+  }
 }
 
 @keyframes cafe-reveal {
@@ -560,6 +604,38 @@ select {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes cafe-scroll-reveal {
+  from {
+    opacity: 0.12;
+    transform: translateY(var(--scroll-reveal-y, 18px));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .page-container > section,
+  .page-container > article,
+  .content-grid > article,
+  .reader-prose > * {
+    animation: cafe-scroll-reveal both ease-out;
+    animation-timeline: view();
+    animation-range: entry 0% cover 24%;
+  }
+
+  .page-container > section:nth-of-type(2n),
+  .content-grid > article:nth-child(2n) {
+    --scroll-reveal-y: 14px;
+  }
+
+  .hero-band {
+    animation-range: entry 0% cover 18%;
   }
 }
 
@@ -579,6 +655,15 @@ select {
 
   .lift-on-hover:hover {
     transform: none;
+  }
+
+  .page-container > section,
+  .page-container > article,
+  .content-grid > article,
+  .reader-prose > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { GatePanel } from "@/components/gate-panel";
 import { PageShell } from "@/components/page-shell";
+import { PasswordField } from "@/components/password-field";
 import { SiteHeader } from "@/components/site-header";
 import { StatusBanner } from "@/components/status-banner";
 import { loginAction } from "@/lib/auth/actions";
@@ -36,7 +37,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const error = normalizeErrorCode(resolvedSearchParams?.error);
 
   return (
-    <PageShell width="regular">
+    <PageShell>
       <SiteHeader
         items={[
           { href: "/", label: "Inicio" },
@@ -94,19 +95,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className="field-label">
-              Contrasena
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="field-input"
-            />
-          </div>
+          <PasswordField
+            id="password"
+            name="password"
+            label="Contrasena"
+            autoComplete="current-password"
+            required
+          />
 
           <button type="submit" className="btn-primary w-full">
             Entrar al club

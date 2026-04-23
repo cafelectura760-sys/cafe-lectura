@@ -9,6 +9,7 @@ import {
 
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
+import { ReadingTableau } from "@/components/reading-tableau";
 import { SectionHeading } from "@/components/section-heading";
 import { SiteHeader } from "@/components/site-header";
 import { StatusBanner } from "@/components/status-banner";
@@ -82,7 +83,7 @@ export default async function Home() {
                 </span>
                 .
               </StatusBanner>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link href="/colloquiums" className="btn-primary">
                   Ir a coloquios
                 </Link>
@@ -99,7 +100,7 @@ export default async function Home() {
               </div>
             </>
           ) : (
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/login" className="btn-secondary">
                 Iniciar sesion
               </Link>
@@ -116,13 +117,13 @@ export default async function Home() {
         }
       />
 
-      <section className="surface-card overflow-hidden px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] lg:gap-10">
-          <div className="py-2">
-            <p className="eyebrow">Club privado de lectura</p>
+      <section className="hero-band">
+        <div className="relative z-10 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.9fr)] lg:items-center lg:gap-10">
+          <div className="reveal-soft min-w-0 py-2">
+            <div className="accent-rule" />
+            <p className="eyebrow mt-5">Club privado de lectura</p>
             <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
-              Un lugar sereno para volver a los libros, conversar con calma y
-              sostener el habito de leer.
+              Un club de lectura que se siente cercano desde la primera visita.
             </h1>
             <p className="body-large mt-6 max-w-3xl">
               Cafe Lectura acompana a sus miembros con una biblioteca publica
@@ -152,9 +153,9 @@ export default async function Home() {
                 return (
                   <article
                     key={item.title}
-                    className="surface-card-muted h-full px-5 py-5"
+                    className="surface-card-muted lift-on-hover h-full px-5 py-5"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-default)] text-[var(--color-casa)]">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-[8px] bg-[var(--surface-default)] text-[var(--color-casa)]">
                       <Icon className="h-5 w-5" />
                     </div>
                     <h2 className="mt-4 text-[22px] leading-[1.28] font-semibold text-[var(--text-primary)]">
@@ -167,50 +168,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <aside className="surface-card-muted flex flex-col justify-between px-6 py-6 md:px-7 md:py-7">
-            <div>
-              <p className="eyebrow">Experiencia del club</p>
-              <h2 className="section-title mt-3 text-[var(--text-primary)]">
-                Una presencia sobria, cercana y pensada para leer sin apuro
-              </h2>
-              <p className="body-copy mt-4">
-                Cada pantalla busca orientar con claridad: una sola accion
-                principal por bloque, textos amplios y una composicion comoda
-                para consultar desde el telefono o desde una pantalla de
-                escritorio.
-              </p>
-            </div>
-
-            <div className="mt-8 space-y-4">
-              <div className="status-panel status-panel-default">
-                <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                  Biblioteca publica
-                </p>
-                <p className="mt-2 text-[16px] leading-7 text-[var(--text-secondary)]">
-                  Consulta titulos disponibles y solicita informacion sin
-                  descargar archivos.
-                </p>
-              </div>
-              <div className="status-panel status-panel-default">
-                <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                  Coloquios privados
-                </p>
-                <p className="mt-2 text-[16px] leading-7 text-[var(--text-secondary)]">
-                  Lecturas y conversaciones reservadas para miembros con acceso
-                  activo.
-                </p>
-              </div>
-              <div className="status-panel status-panel-default">
-                <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                  Gestion cercana
-                </p>
-                <p className="mt-2 text-[16px] leading-7 text-[var(--text-secondary)]">
-                  La membresia y las solicitudes se coordinan de forma manual
-                  por WhatsApp.
-                </p>
-              </div>
-            </div>
-          </aside>
+          <ReadingTableau />
         </div>
       </section>
 

@@ -79,6 +79,7 @@ Observed gaps or repository-only limitations:
 - Supabase project settings are not represented in version-controlled files, so public self-registration still needs manual verification in the Supabase dashboard.
 - Real RLS runtime behavior against anonymous visitors, active members, expired members, and admins cannot be confirmed from repository files alone.
 - Production deployment readiness on Vercel cannot be confirmed from repository files alone.
+- The public and member-facing design uses the Cafe Lectura visual foundation with warm editorial surfaces, a custom landing-page reading tableau, restrained texture, and reduced-motion-aware entry animation.
 
 ## 3. Product Structure
 
@@ -381,6 +382,9 @@ The UI should avoid:
 
 --color-clay: #B88D6A;
 --color-casa: #7C563D;
+--color-fig: #5A2F2D;
+--color-teal: #3F6F70;
+--color-gold: #C49A4A;
 
 --color-line: #D7CCBB;
 --color-line-strong: #BFAE98;

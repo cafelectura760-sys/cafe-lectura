@@ -15,7 +15,7 @@ function truncateText(text: string, maxLength: number) {
     return text;
   }
 
-  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+  return `${text.slice(0, maxLength - 3).trimEnd()}...`;
 }
 
 export function BookCard({
@@ -26,7 +26,7 @@ export function BookCard({
   compact = false,
 }: BookCardProps) {
   return (
-    <article className="surface-card flex h-full flex-col p-4 md:p-5">
+    <article className="surface-card lift-on-hover flex h-full flex-col p-4 md:p-5">
       <div className="book-cover-frame">
         {book.coverImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

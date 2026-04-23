@@ -29,7 +29,7 @@ function formatDateLabel(isoDate: string): string {
 
 export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
   return (
-    <article className="surface-card overflow-hidden p-4 md:p-5">
+    <article className="surface-card lift-on-hover overflow-hidden p-4 md:p-5">
       <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)]">
         <div className="book-cover-frame max-w-[168px]">
           {colloquium.bookCoverImageUrl ? (
@@ -53,7 +53,7 @@ export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
               {colloquium.title}
             </h2>
             <p className="meta-copy mt-3">
-              {colloquium.bookAuthor} · Publicado el{" "}
+              {colloquium.bookAuthor} - Publicado el{" "}
               {formatDateLabel(colloquium.publishedAt)}
             </p>
             <p className="body-copy mt-4">{getExcerpt(colloquium.content)}</p>

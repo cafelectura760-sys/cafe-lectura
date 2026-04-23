@@ -40,8 +40,8 @@ export default async function ColloquiumDetailPage({
 
   return (
     <PageShell width="reading">
-      <header className="surface-card px-5 py-5 md:px-7 md:py-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <header className="hero-band">
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-4">
               <Link href="/colloquiums" className="editorial-link">
@@ -55,6 +55,7 @@ export default async function ColloquiumDetailPage({
               </Link>
             </div>
             <div>
+              <div className="accent-rule mb-5" />
               <p className="eyebrow">Coloquio privado</p>
               <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
                 {colloquium.title}

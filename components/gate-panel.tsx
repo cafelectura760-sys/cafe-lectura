@@ -18,6 +18,7 @@ export function GatePanel({
   return (
     <section className="surface-card mx-auto w-full max-w-[680px] px-6 py-7 md:px-8 md:py-9">
       <div className="space-y-3">
+        <div className="accent-rule mb-5" />
         <p className="eyebrow">{eyebrow}</p>
         <h1 className="section-title text-[var(--text-primary)]">{title}</h1>
         <p className="body-copy">{description}</p>

@@ -23,7 +23,7 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   return (
     <header className="site-header">
-      <div className="flex flex-1 flex-col gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex items-center gap-4">
           <BrandLogo size="sm" />
           <div className="space-y-1">
@@ -53,7 +53,9 @@ export function SiteHeader({
       </div>
 
       {actions ? (
-        <div className="flex flex-col gap-3 lg:items-end">{actions}</div>
+        <div className="flex w-full min-w-0 flex-col gap-3 lg:w-auto lg:items-end">
+          {actions}
+        </div>
       ) : null}
     </header>
   );

@@ -48,34 +48,38 @@ export default async function LibraryPage() {
         }
       />
 
-      <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <SectionHeading
-          eyebrow="Biblioteca publica"
-          title="Libros para descubrir, leer con interes y solicitar con facilidad"
-          description="Esta biblioteca muestra los titulos disponibles en Cafe Lectura. Puedes recorrer el catalogo con calma y escribirnos por WhatsApp para pedir informacion o solicitar un libro en particular."
-          titleClassName="display-title"
-          action={
-            <Link href="/" className="editorial-link">
-              Volver al inicio
-            </Link>
-          }
-        />
+      <section className="hero-band">
+        <div className="relative z-10">
+          <div className="accent-rule mb-5" />
+          <SectionHeading
+            eyebrow="Biblioteca publica"
+            title="Libros para descubrir, leer con interes y solicitar con facilidad"
+            description="Esta biblioteca muestra los titulos disponibles en Cafe Lectura. Puedes recorrer el catalogo con calma y escribirnos por WhatsApp para pedir informacion o solicitar un libro en particular."
+            titleClassName="display-title"
+            action={
+              <Link href="/" className="editorial-link">
+                Volver al inicio
+              </Link>
+            }
+          />
 
-        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="surface-card-muted px-5 py-5 md:px-6">
-            <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
-              Una biblioteca para recorrer sin prisa
-            </h2>
-            <p className="body-copy mt-3">
-              Los titulos se presentan con portada, autor y sinopsis para que la
-              consulta sea simple y directa. La solicitud siempre termina en un
-              contacto humano por WhatsApp.
-            </p>
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="surface-card-muted px-5 py-5 md:px-6">
+              <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
+                Una biblioteca para recorrer sin prisa
+              </h2>
+              <p className="body-copy mt-3">
+                Los titulos se presentan con portada, autor y sinopsis para que
+                la consulta sea simple y directa. La solicitud siempre termina
+                en un contacto humano por WhatsApp.
+              </p>
+            </div>
+            <StatusBanner title="Sin descargas ni pasos confusos">
+              El catalogo es solo de consulta. Si un libro te interesa, la
+              accion principal te lleva directamente al canal de contacto del
+              club.
+            </StatusBanner>
           </div>
-          <StatusBanner title="Sin descargas ni pasos confusos">
-            El catalogo es solo de consulta. Si un libro te interesa, la accion
-            principal te lleva directamente al canal de contacto del club.
-          </StatusBanner>
         </div>
       </section>
 

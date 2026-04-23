@@ -43,7 +43,7 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
               </span>
               .
             </StatusBanner>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/library" className="btn-secondary">
                 Ver biblioteca
               </Link>
@@ -62,28 +62,31 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
         }
       />
 
-      <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <SectionHeading
-          eyebrow="Area privada"
-          title="Coloquios disponibles"
-          description={`Bienvenido, ${session.profile.full_name}. Aqui puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
-        />
+      <section className="hero-band">
+        <div className="relative z-10">
+          <div className="accent-rule mb-5" />
+          <SectionHeading
+            eyebrow="Area privada"
+            title="Coloquios disponibles"
+            description={`Bienvenido, ${session.profile.full_name}. Aqui puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
+          />
 
-        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="surface-card-muted px-5 py-5 md:px-6">
-            <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
-              Lectura con foco y contexto
-            </h2>
-            <p className="body-copy mt-3">
-              Cada coloquio muestra el libro relacionado, la fecha de
-              publicacion y un extracto inicial para ayudarte a elegir la
-              lectura que quieres abrir.
-            </p>
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="surface-card-muted px-5 py-5 md:px-6">
+              <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
+                Lectura con foco y contexto
+              </h2>
+              <p className="body-copy mt-3">
+                Cada coloquio muestra el libro relacionado, la fecha de
+                publicacion y un extracto inicial para ayudarte a elegir la
+                lectura que quieres abrir.
+              </p>
+            </div>
+            <StatusBanner title="Lectura privada y calmada">
+              La experiencia minimiza el ruido visual para que el contenido
+              tenga prioridad sobre la navegacion.
+            </StatusBanner>
           </div>
-          <StatusBanner title="Lectura privada y calmada">
-            La experiencia minimiza el ruido visual para que el contenido tenga
-            prioridad sobre la navegacion.
-          </StatusBanner>
         </div>
       </section>
 

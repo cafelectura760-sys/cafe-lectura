@@ -15,6 +15,9 @@
   --color-dune-active: #783a26;
   --color-clay: #b88d6a;
   --color-casa: #7c563d;
+  --color-fig: #5a2f2d;
+  --color-teal: #3f6f70;
+  --color-gold: #c49a4a;
   --color-line: #d7ccbb;
   --color-line-strong: #bfae98;
   --color-success: #4f6b45;
@@ -72,7 +75,19 @@ html {
 }
 
 body {
-  background: var(--background);
+  background:
+    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-line) 20%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 88px 88px,
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background-page) 88%, white) 0%,
+      var(--background-page) 34%,
+      color-mix(in srgb, var(--color-paper-soft) 82%, white) 100%
+    );
   color: var(--foreground);
   font-family: var(--font-source-sans), Arial, Helvetica, sans-serif;
   font-size: 17px;
@@ -138,24 +153,17 @@ select {
 
 @layer components {
   .page-shell {
-    @apply flex flex-1 px-4 py-6 md:px-6 md:py-8 lg:px-8;
-    background:
-      radial-gradient(
-        circle at top,
-        color-mix(in srgb, var(--color-paper-soft) 82%, white) 0%,
-        transparent 42%
-      ),
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--background-page) 92%, white) 0%,
-        var(--background-page) 32%,
-        color-mix(in srgb, var(--background-page) 94%, var(--color-paper-soft))
-          100%
-      );
+    @apply flex flex-1 px-4 py-5 md:px-6 md:py-7 lg:px-8;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 38%, transparent) 0%,
+      transparent 30%,
+      color-mix(in srgb, var(--color-paper-soft) 36%, transparent) 100%
+    );
   }
 
   .page-container {
-    @apply mx-auto flex w-full max-w-7xl flex-col gap-8 md:gap-10 lg:gap-12;
+    @apply mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-7 md:gap-9 lg:gap-11;
   }
 
   .page-container-regular {
@@ -167,37 +175,45 @@ select {
   }
 
   .surface-card {
-    @apply rounded-[28px] border shadow-[0_20px_50px_rgba(31,26,23,0.06)];
+    @apply rounded-[10px] border shadow-[0_18px_44px_rgba(31,26,23,0.06)];
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 96%, white);
   }
 
   .surface-card-muted {
-    @apply rounded-[28px] border shadow-[0_20px_50px_rgba(31,26,23,0.04)];
+    @apply rounded-[10px] border shadow-[0_14px_32px_rgba(31,26,23,0.04)];
     border-color: var(--border-default);
-    background: color-mix(in srgb, var(--surface-subtle) 82%, white);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-subtle) 82%, white) 0%,
+      color-mix(in srgb, var(--surface-default) 78%, white) 100%
+    );
   }
 
   .surface-card-strong {
-    @apply rounded-[28px] border shadow-[0_20px_50px_rgba(31,26,23,0.08)];
+    @apply rounded-[10px] border shadow-[0_20px_50px_rgba(31,26,23,0.08)];
     border-color: color-mix(in srgb, var(--color-casa) 24%, white);
     background: linear-gradient(
       145deg,
-      color-mix(in srgb, var(--color-casa) 96%, white) 0%,
-      color-mix(in srgb, var(--color-dune) 88%, var(--color-casa)) 100%
+      color-mix(in srgb, var(--color-fig) 96%, var(--color-casa)) 0%,
+      color-mix(in srgb, var(--color-dune) 80%, var(--color-casa)) 100%
     );
     color: var(--text-on-dark);
   }
 
   .site-header {
-    @apply flex flex-col gap-5 rounded-[28px] border px-5 py-5 md:px-7 md:py-6 lg:flex-row lg:items-start lg:justify-between;
+    @apply flex flex-col gap-5 rounded-[10px] border px-5 py-5 md:px-7 md:py-6 lg:flex-row lg:items-start lg:justify-between;
     border-color: var(--border-default);
-    background: color-mix(in srgb, var(--surface-default) 92%, white);
-    box-shadow: 0 16px 40px rgba(31, 26, 23, 0.04);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 94%, white),
+      color-mix(in srgb, var(--surface-default) 88%, var(--color-paper-soft))
+    );
+    box-shadow: 0 14px 34px rgba(31, 26, 23, 0.04);
   }
 
   .brand-logo {
-    @apply inline-flex shrink-0 items-center justify-center rounded-full border p-1.5;
+    @apply inline-flex shrink-0 items-center justify-center rounded-[8px] border p-1.5;
     border-color: color-mix(in srgb, var(--color-clay) 60%, white);
     background: color-mix(in srgb, var(--surface-subtle) 84%, white);
     box-shadow: 0 10px 24px rgba(31, 26, 23, 0.06);
@@ -209,7 +225,7 @@ select {
   }
 
   .display-title {
-    @apply text-[42px] leading-[1.12] font-semibold md:text-[54px] lg:text-[60px];
+    @apply text-[38px] leading-[1.14] font-semibold md:text-[52px] lg:text-[60px];
   }
 
   .section-title {
@@ -245,7 +261,7 @@ select {
   }
 
   .nav-link {
-    @apply inline-flex min-h-12 items-center rounded-full px-4 text-[16px] font-semibold md:text-[17px];
+    @apply inline-flex min-h-12 items-center rounded-[8px] px-4 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
   }
 
@@ -256,7 +272,7 @@ select {
   }
 
   .btn-primary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     background: var(--color-verde);
     color: var(--color-surface);
   }
@@ -270,7 +286,7 @@ select {
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] border px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     border-color: var(--border-strong);
     color: var(--text-primary);
     background: color-mix(in srgb, var(--surface-default) 72%, white);
@@ -281,7 +297,7 @@ select {
   }
 
   .btn-warm {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     background: var(--color-dune);
     color: var(--color-surface);
   }
@@ -295,7 +311,7 @@ select {
   }
 
   .btn-ghost {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-3 text-[16px] font-semibold md:text-[17px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-4 py-3 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
   }
 
@@ -313,7 +329,7 @@ select {
   }
 
   .book-cover-frame {
-    @apply aspect-[4/5] overflow-hidden rounded-[22px] border;
+    @apply aspect-[4/5] overflow-hidden rounded-[8px] border;
     border-color: color-mix(in srgb, var(--color-clay) 28%, white);
     background: linear-gradient(
       180deg,
@@ -323,7 +339,7 @@ select {
   }
 
   .status-panel {
-    @apply rounded-[24px] border px-5 py-4;
+    @apply rounded-[8px] border px-5 py-4;
   }
 
   .status-panel-default {
@@ -352,7 +368,7 @@ select {
   }
 
   .field-input {
-    @apply min-h-13 w-full rounded-[18px] border px-4 py-3 text-[17px] leading-[1.5] outline-none md:text-[18px];
+    @apply min-h-13 w-full rounded-[8px] border px-4 py-3 text-[17px] leading-[1.5] outline-none md:text-[18px];
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 94%, white);
     color: var(--text-primary);
@@ -373,7 +389,7 @@ select {
   }
 
   .reader-panel {
-    @apply rounded-[30px] border px-6 py-7 md:px-8 md:py-9;
+    @apply rounded-[10px] border px-6 py-7 md:px-8 md:py-9;
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 97%, white);
     box-shadow: 0 20px 50px rgba(31, 26, 23, 0.05);
@@ -384,7 +400,7 @@ select {
   }
 
   .reader-section {
-    @apply rounded-[24px] border px-5 py-5 md:px-6 md:py-6;
+    @apply rounded-[10px] border px-5 py-5 md:px-6 md:py-6;
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 96%, white);
   }
@@ -397,5 +413,198 @@ select {
   .reader-section[data-tone="participant"] {
     border-color: color-mix(in srgb, var(--color-verde) 30%, white);
     background: color-mix(in srgb, var(--color-success-bg) 75%, white);
+  }
+
+  .hero-band {
+    @apply relative min-w-0 overflow-hidden rounded-[10px] border px-6 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12;
+    border-color: color-mix(
+      in srgb,
+      var(--color-casa) 20%,
+      var(--border-default)
+    );
+    background:
+      linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-line) 18%, transparent) 1px,
+          transparent 1px
+        )
+        0 0 / 72px 72px,
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--surface-default) 98%, white) 0%,
+        color-mix(in srgb, var(--color-paper-soft) 82%, white) 56%,
+        color-mix(in srgb, var(--color-clay) 26%, var(--surface-default)) 100%
+      );
+    box-shadow: 0 24px 64px rgba(31, 26, 23, 0.08);
+  }
+
+  .hero-band::before {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-2;
+    content: "";
+    background: linear-gradient(
+      90deg,
+      var(--color-verde),
+      var(--color-gold),
+      var(--color-dune),
+      var(--color-teal)
+    );
+  }
+
+  .hero-band::after {
+    @apply pointer-events-none absolute inset-0;
+    content: "";
+    background: repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--color-ink) 3%, transparent) 0 1px,
+      transparent 1px 7px
+    );
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+  }
+
+  .reading-tableau {
+    @apply relative min-w-0 overflow-hidden rounded-[10px] border p-5 md:p-6;
+    min-height: 520px;
+    border-color: color-mix(in srgb, var(--color-casa) 26%, white);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-paper) 70%, white) 0%,
+      color-mix(in srgb, var(--color-clay) 18%, var(--surface-default)) 52%,
+      color-mix(in srgb, var(--color-casa) 18%, var(--color-paper-soft)) 100%
+    );
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+
+  .tableau-shelf {
+    @apply absolute right-5 left-5 rounded-[8px];
+    height: 14px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-casa) 88%, black),
+      color-mix(in srgb, var(--color-clay) 86%, var(--color-casa))
+    );
+    box-shadow: 0 14px 28px rgba(31, 26, 23, 0.12);
+  }
+
+  .book-spine {
+    @apply rounded-t-[6px] border;
+    width: var(--book-width, 34px);
+    height: var(--book-height, 140px);
+    border-color: rgba(31, 26, 23, 0.16);
+    background: var(--book-color, var(--color-verde));
+    box-shadow: inset 8px 0 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .tableau-note {
+    @apply rounded-[8px] border px-4 py-4 shadow-[0_16px_30px_rgba(31,26,23,0.08)];
+    border-color: color-mix(in srgb, var(--color-clay) 34%, white);
+    background: color-mix(in srgb, var(--surface-default) 94%, white);
+  }
+
+  .tableau-quote {
+    @apply rounded-[8px] border px-5 py-5 shadow-[0_18px_36px_rgba(31,26,23,0.1)];
+    border-color: color-mix(in srgb, var(--color-gold) 42%, white);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 96%, white),
+      color-mix(in srgb, var(--color-paper-soft) 74%, white)
+    );
+  }
+
+  .accent-rule {
+    @apply h-1 w-16 rounded-full;
+    background: linear-gradient(
+      90deg,
+      var(--color-dune),
+      var(--color-gold),
+      var(--color-verde)
+    );
+  }
+
+  .reveal-soft {
+    animation: cafe-reveal 560ms ease-out both;
+  }
+
+  .reveal-soft-delay-1 {
+    animation-delay: 90ms;
+  }
+
+  .reveal-soft-delay-2 {
+    animation-delay: 170ms;
+  }
+
+  .lift-on-hover {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .lift-on-hover:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(
+      in srgb,
+      var(--color-casa) 30%,
+      var(--border-default)
+    );
+    box-shadow: 0 22px 46px rgba(31, 26, 23, 0.09);
+  }
+}
+
+@keyframes cafe-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+
+  .lift-on-hover:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-shell {
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  .page-container {
+    max-width: calc(100vw - 32px);
+  }
+
+  .site-header,
+  .hero-band,
+  .surface-card,
+  .surface-card-muted,
+  .surface-card-strong,
+  .reader-panel {
+    max-width: 100%;
+  }
+
+  .site-header .btn-primary,
+  .site-header .btn-secondary,
+  .site-header .btn-warm,
+  .site-header .btn-ghost {
+    width: 100%;
   }
 }

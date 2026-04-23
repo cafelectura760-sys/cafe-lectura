@@ -80,34 +80,46 @@ export default async function ColloquiumDetailPage({
             >
               Volver al inicio
             </Link>
+            <Link
+              href="/library"
+              className="font-semibold text-stone-900 underline underline-offset-4"
+            >
+              Ver biblioteca
+            </Link>
           </div>
         </header>
 
-        {colloquium.bookCoverImageUrl ? (
-          <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-            <div className="grid gap-0 md:grid-cols-[220px_minmax(0,1fr)]">
-              <div className="bg-stone-200">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={colloquium.bookCoverImageUrl}
-                  alt={`Portada de ${colloquium.bookTitle}`}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-8">
-                <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                  Libro relacionado
-                </p>
-                <h2 className="mt-3 text-3xl font-semibold text-stone-900">
-                  {colloquium.bookTitle}
-                </h2>
-                <p className="mt-3 text-base leading-8 text-stone-700">
-                  {colloquium.bookAuthor}
-                </p>
-              </div>
+        <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+          <div className="grid gap-0 md:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="min-h-64 bg-stone-200">
+              {colloquium.bookCoverImageUrl ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={colloquium.bookCoverImageUrl}
+                    alt={`Portada de ${colloquium.bookTitle}`}
+                    className="h-full w-full object-cover"
+                  />
+                </>
+              ) : (
+                <div className="flex h-full min-h-64 items-center justify-center p-6 text-center text-base font-semibold text-stone-600">
+                  Portada no disponible
+                </div>
+              )}
             </div>
-          </section>
-        ) : null}
+            <div className="p-8">
+              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
+                Libro relacionado
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-stone-900">
+                {colloquium.bookTitle}
+              </h2>
+              <p className="mt-3 text-base leading-8 text-stone-700">
+                {colloquium.bookAuthor}
+              </p>
+            </div>
+          </div>
+        </section>
 
         <article className="space-y-6">
           {renderSafeMarkdown(colloquium.content)}

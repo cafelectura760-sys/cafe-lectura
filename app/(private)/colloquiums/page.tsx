@@ -58,14 +58,22 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
             </p>
           </div>
 
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/library"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
             >
-              Cerrar sesion
-            </button>
-          </form>
+              Ver biblioteca
+            </Link>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="min-h-11 w-full rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
+              >
+                Cerrar sesion
+              </button>
+            </form>
+          </div>
         </header>
 
         {colloquiums.length === 0 ? (
@@ -79,7 +87,13 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
             </p>
           </section>
         ) : (
-          <section className="grid gap-6">
+          <section className="grid gap-6" aria-label="Coloquios publicados">
+            <p className="text-base font-medium text-stone-700">
+              {colloquiums.length}{" "}
+              {colloquiums.length === 1
+                ? "coloquio publicado"
+                : "coloquios publicados"}
+            </p>
             {colloquiums.map((colloquium) => (
               <article
                 key={colloquium.id}

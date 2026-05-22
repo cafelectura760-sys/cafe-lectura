@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookOpenText } from "lucide-react";
 
+import { BookCard } from "@/components/book-card";
+import { PageShell } from "@/components/page-shell";
+import { SectionHeading } from "@/components/section-heading";
+import { SiteHeader } from "@/components/site-header";
+import { StatusBanner } from "@/components/status-banner";
 import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Library | Cafe Lectura",
+  title: "Biblioteca",
   description: "Public library catalog for Cafe Lectura.",
 };
 
@@ -19,90 +25,93 @@ export default async function LibraryPage() {
   const books = await getPublicBooks();
 
   return (
-    <main className="flex flex-1 bg-stone-100 px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-          <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-            Biblioteca publica
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-stone-900">
-            Libros para descubrir y solicitar
-          </h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-stone-700">
-            Esta biblioteca muestra los libros disponibles en Cafe Lectura.
-            Puedes revisar cada titulo y escribirnos por WhatsApp para pedir
-            informacion o solicitar uno en particular.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/"
-              className="font-semibold text-stone-900 underline underline-offset-4"
-            >
-              Volver al inicio
-            </Link>
-          </div>
-        </header>
+    <PageShell>
+      <SiteHeader
+        items={[
+          { href: "/", label: "Inicio" },
+          { href: "/library", label: "Biblioteca" },
+          { href: "/login", label: "Iniciar sesion" },
+        ]}
+        activeHref="/library"
+        description="Catalogo publico de libros disponibles para consultar y solicitar por WhatsApp."
+        actions={
+          <a
+            href={createWhatsAppHref(
+              "Quiero recibir orientacion sobre un libro disponible en la biblioteca de Cafe Lectura.",
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-warm"
+          >
+            Consultar por WhatsApp
+          </a>
+        }
+      />
 
-        {books.length === 0 ? (
-          <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-semibold text-stone-900">
+      <section className="hero-band">
+        <div className="relative z-10">
+          <div className="accent-rule mb-5" />
+          <SectionHeading
+            eyebrow="Biblioteca publica"
+            title="Libros para descubrir, leer con interes y solicitar con facilidad"
+            description="Esta biblioteca muestra los titulos disponibles en Cafe Lectura. Puedes recorrer el catalogo con calma y escribirnos por WhatsApp para pedir informacion o solicitar un libro en particular."
+            titleClassName="display-title"
+            action={
+              <Link href="/" className="editorial-link">
+                Volver al inicio
+              </Link>
+            }
+          />
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="surface-card-muted px-5 py-5 md:px-6">
+              <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
+                Una biblioteca para recorrer sin prisa
+              </h2>
+              <p className="body-copy mt-3">
+                Los titulos se presentan con portada, autor y sinopsis para que
+                la consulta sea simple y directa. La solicitud siempre termina
+                en un contacto humano por WhatsApp.
+              </p>
+            </div>
+            <StatusBanner title="Sin descargas ni pasos confusos">
+              El catalogo es solo de consulta. Si un libro te interesa, la
+              accion principal te lleva directamente al canal de contacto del
+              club.
+            </StatusBanner>
+          </div>
+        </div>
+      </section>
+
+      {books.length === 0 ? (
+        <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
+          <div className="max-w-2xl">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-paper-soft)] text-[var(--color-casa)]">
+              <BookOpenText className="h-5 w-5" />
+            </div>
+            <h2 className="subsection-title mt-5 text-[var(--text-primary)]">
               Biblioteca en preparacion
             </h2>
-            <p className="mt-4 text-base leading-8 text-stone-700">
+            <p className="body-large mt-4">
               Todavia no hay libros publicados en el catalogo. En cuanto el
               equipo cargue nuevos titulos desde el panel admin, apareceran
               aqui.
             </p>
-          </section>
-        ) : (
-          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {books.map((book) => (
-              <article
-                key={book.id}
-                className="flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm"
-              >
-                <div className="aspect-[4/5] bg-stone-200">
-                  {book.coverImageUrl ? (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={book.coverImageUrl}
-                        alt={`Portada de ${book.title}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </>
-                  ) : null}
-                </div>
-
-                <div className="flex flex-1 flex-col p-6">
-                  <div className="space-y-3">
-                    <h2 className="text-2xl font-semibold text-stone-900">
-                      {book.title}
-                    </h2>
-                    <p className="text-base font-medium text-stone-700">
-                      {book.author}
-                    </p>
-                    <p className="text-base leading-8 text-stone-700">
-                      {book.synopsis}
-                    </p>
-                  </div>
-
-                  <div className="mt-6">
-                    <a
-                      href={buildBookRequestHref(book.title, book.author)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex min-h-12 items-center justify-center rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
-                    >
-                      Solicitar por WhatsApp
-                    </a>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </section>
-        )}
-      </div>
-    </main>
+          </div>
+        </section>
+      ) : (
+        <section className="content-grid md:grid-cols-2 xl:grid-cols-3">
+          {books.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              eyebrow="Catalogo disponible"
+              actionHref={buildBookRequestHref(book.title, book.author)}
+              actionLabel="Solicitar por WhatsApp"
+            />
+          ))}
+        </section>
+      )}
+    </PageShell>
   );
 }

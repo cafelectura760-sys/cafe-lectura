@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PageShell } from "@/components/page-shell";
 import { logoutAction } from "@/lib/auth/actions";
 import { requireActiveMembership } from "@/lib/auth/session";
 import { getColloquiumById } from "@/lib/colloquiums/data";
@@ -15,7 +16,7 @@ type ColloquiumDetailPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Colloquium Detail | Cafe Lectura",
+  title: "Detalle del coloquio",
   description: "Detailed private colloquium view for Cafe Lectura members.",
 };
 
@@ -29,7 +30,7 @@ function formatDateLabel(isoDate: string): string {
 export default async function ColloquiumDetailPage({
   params,
 }: ColloquiumDetailPageProps) {
-  await requireActiveMembership();
+  const session = await requireActiveMembership();
   const { id } = await params;
   const colloquium = await getColloquiumById(id);
 
@@ -38,93 +39,96 @@ export default async function ColloquiumDetailPage({
   }
 
   return (
-    <main className="flex flex-1 bg-stone-100 px-6 py-12">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-        <header className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-3">
-              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Coloquio privado
-              </p>
-              <h1 className="text-4xl font-semibold text-stone-900">
+    <PageShell width="reading">
+      <header className="hero-band">
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4">
+              <Link href="/colloquiums" className="editorial-link">
+                Volver a coloquios
+              </Link>
+              <Link href="/library" className="editorial-link">
+                Biblioteca
+              </Link>
+              <Link href="/" className="editorial-link">
+                Inicio
+              </Link>
+            </div>
+            <div>
+              <div className="accent-rule mb-5" />
+              <p className="eyebrow">Coloquio privado</p>
+              <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
                 {colloquium.title}
               </h1>
-              <p className="text-base leading-8 text-stone-700">
+              <p className="body-large mt-4 max-w-3xl">
                 Basado en{" "}
-                <span className="font-semibold">{colloquium.bookTitle}</span> de{" "}
-                {colloquium.bookAuthor}. Publicado el{" "}
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {colloquium.bookTitle}
+                </span>{" "}
+                de {colloquium.bookAuthor}. Publicado el{" "}
                 {formatDateLabel(colloquium.publishedAt)}.
               </p>
             </div>
+          </div>
 
+          <div className="flex flex-col gap-3 lg:items-end">
+            <div className="status-panel status-panel-default max-w-[320px]">
+              <p className="text-[16px] font-semibold text-[var(--text-primary)]">
+                Acceso de miembro
+              </p>
+              <p className="mt-2 text-[16px] leading-7 text-[var(--text-secondary)]">
+                Estas leyendo como{" "}
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {session.profile.full_name}
+                </span>
+                .
+              </p>
+            </div>
             <form action={logoutAction}>
-              <button
-                type="submit"
-                className="rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
-              >
+              <button type="submit" className="btn-ghost">
                 Cerrar sesion
               </button>
             </form>
           </div>
+        </div>
+      </header>
 
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link
-              href="/colloquiums"
-              className="font-semibold text-stone-900 underline underline-offset-4"
-            >
-              Volver a coloquios
-            </Link>
-            <Link
-              href="/"
-              className="font-semibold text-stone-900 underline underline-offset-4"
-            >
-              Volver al inicio
-            </Link>
-            <Link
-              href="/library"
-              className="font-semibold text-stone-900 underline underline-offset-4"
-            >
-              Ver biblioteca
-            </Link>
+      <section className="reader-panel">
+        <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
+          <div className="book-cover-frame max-w-[220px]">
+            {colloquium.bookCoverImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={colloquium.bookCoverImageUrl}
+                alt={`Portada de ${colloquium.bookTitle}`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full min-h-[280px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
+                Portada no disponible
+              </div>
+            )}
           </div>
-        </header>
 
-        <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-          <div className="grid gap-0 md:grid-cols-[220px_minmax(0,1fr)]">
-            <div className="min-h-64 bg-stone-200">
-              {colloquium.bookCoverImageUrl ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={colloquium.bookCoverImageUrl}
-                    alt={`Portada de ${colloquium.bookTitle}`}
-                    className="h-full w-full object-cover"
-                  />
-                </>
-              ) : (
-                <div className="flex h-full min-h-64 items-center justify-center p-6 text-center text-base font-semibold text-stone-600">
-                  Portada no disponible
-                </div>
-              )}
-            </div>
-            <div className="p-8">
-              <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Libro relacionado
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold text-stone-900">
-                {colloquium.bookTitle}
-              </h2>
-              <p className="mt-3 text-base leading-8 text-stone-700">
-                {colloquium.bookAuthor}
-              </p>
-            </div>
+          <div className="max-w-2xl py-2">
+            <p className="eyebrow">Libro relacionado</p>
+            <h2 className="section-title mt-3 text-[var(--text-primary)]">
+              {colloquium.bookTitle}
+            </h2>
+            <p className="body-copy mt-3">{colloquium.bookAuthor}</p>
+            <p className="body-copy mt-5">
+              Esta lectura se presenta en un formato continuo para favorecer la
+              concentracion. Los tramos de moderacion y participacion se
+              distinguen con un enfasis visual suave, sin romper el ritmo de
+              lectura.
+            </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <article className="space-y-6">
-          {renderSafeMarkdown(colloquium.content)}
-        </article>
-      </div>
-    </main>
+      <article className="reader-prose">
+        {renderSafeMarkdown(colloquium.content)}
+      </article>
+    </PageShell>
   );
 }

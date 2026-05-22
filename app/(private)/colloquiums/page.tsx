@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ColloquiumCard } from "@/components/colloquium-card";
+import { PageShell } from "@/components/page-shell";
+import { SectionHeading } from "@/components/section-heading";
+import { SiteHeader } from "@/components/site-header";
+import { StatusBanner } from "@/components/status-banner";
 import { logoutAction } from "@/lib/auth/actions";
 import { requireActiveMembership } from "@/lib/auth/session";
 import { getAvailableColloquiums } from "@/lib/colloquiums/data";
@@ -11,137 +16,103 @@ type ColloquiumsPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Colloquiums | Cafe Lectura",
+  title: "Coloquios",
   description: "Private colloquium area for active members.",
 };
-
-function getExcerpt(content: string): string {
-  const normalizedContent = content
-    .replace(/\r\n?/g, "\n")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^[-*]\s+/gm, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (normalizedContent.length <= 180) {
-    return normalizedContent;
-  }
-
-  return `${normalizedContent.slice(0, 177).trim()}...`;
-}
-
-function formatDateLabel(isoDate: string): string {
-  return new Intl.DateTimeFormat("es-VE", {
-    dateStyle: "long",
-  }).format(new Date(isoDate));
-}
 
 export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
   const session = await requireActiveMembership();
   const colloquiums = await getAvailableColloquiums();
 
   return (
-    <main className="flex flex-1 bg-stone-100 px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="flex flex-col gap-4 rounded-lg border border-stone-200 bg-white p-8 shadow-sm sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-3">
-            <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-              Area privada
-            </p>
-            <h1 className="text-3xl font-semibold text-stone-900">
-              Coloquios disponibles
-            </h1>
-            <p className="max-w-2xl text-base leading-8 text-stone-700">
-              Bienvenido, {session.profile.full_name}. Aqui puedes revisar los
-              coloquios publicados para miembros activos y abrir cada lectura en
-              detalle.
-            </p>
+    <PageShell width="regular">
+      <SiteHeader
+        items={[
+          { href: "/", label: "Inicio" },
+          { href: "/library", label: "Biblioteca" },
+          { href: "/colloquiums", label: "Coloquios" },
+        ]}
+        activeHref="/colloquiums"
+        description="Espacio privado para miembros activos con lecturas y conversaciones del club."
+        actions={
+          <>
+            <StatusBanner title="Acceso activo">
+              Bienvenido,{" "}
+              <span className="font-semibold text-[var(--text-primary)]">
+                {session.profile.full_name}
+              </span>
+              .
+            </StatusBanner>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/library" className="btn-secondary">
+                Ver biblioteca
+              </Link>
+              {session.profile.role === "admin" ? (
+                <Link href="/admin" className="btn-ghost">
+                  Panel admin
+                </Link>
+              ) : null}
+              <form action={logoutAction}>
+                <button type="submit" className="btn-ghost">
+                  Cerrar sesion
+                </button>
+              </form>
+            </div>
+          </>
+        }
+      />
+
+      <section className="hero-band">
+        <div className="relative z-10">
+          <div className="accent-rule mb-5" />
+          <SectionHeading
+            eyebrow="Area privada"
+            title="Coloquios disponibles"
+            description={`Bienvenido, ${session.profile.full_name}. Aqui puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
+          />
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="surface-card-muted px-5 py-5 md:px-6">
+              <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
+                Lectura con foco y contexto
+              </h2>
+              <p className="body-copy mt-3">
+                Cada coloquio muestra el libro relacionado, la fecha de
+                publicacion y un extracto inicial para ayudarte a elegir la
+                lectura que quieres abrir.
+              </p>
+            </div>
+            <StatusBanner title="Lectura privada y calmada">
+              La experiencia minimiza el ruido visual para que el contenido
+              tenga prioridad sobre la navegacion.
+            </StatusBanner>
           </div>
+        </div>
+      </section>
 
-          <div className="flex flex-col gap-3">
-            <Link
-              href="/library"
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
-            >
-              Ver biblioteca
-            </Link>
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="min-h-11 w-full rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
-              >
-                Cerrar sesion
-              </button>
-            </form>
-          </div>
-        </header>
-
-        {colloquiums.length === 0 ? (
-          <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-semibold text-stone-900">
-              Todavia no hay coloquios publicados
-            </h2>
-            <p className="mt-4 text-base leading-8 text-stone-700">
-              Cuando el equipo admin publique nuevos coloquios, apareceran aqui.
-              Tu acceso privado ya esta funcionando correctamente.
-            </p>
-          </section>
-        ) : (
-          <section className="grid gap-6" aria-label="Coloquios publicados">
-            <p className="text-base font-medium text-stone-700">
-              {colloquiums.length}{" "}
-              {colloquiums.length === 1
-                ? "coloquio publicado"
-                : "coloquios publicados"}
-            </p>
-            {colloquiums.map((colloquium) => (
-              <article
-                key={colloquium.id}
-                className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm"
-              >
-                <div className="flex flex-col gap-6 lg:flex-row">
-                  <div className="h-48 w-full max-w-40 overflow-hidden rounded-md bg-stone-200">
-                    {colloquium.bookCoverImageUrl ? (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={colloquium.bookCoverImageUrl}
-                          alt={`Portada de ${colloquium.bookTitle}`}
-                          className="h-full w-full object-cover"
-                        />
-                      </>
-                    ) : null}
-                  </div>
-
-                  <div className="flex flex-1 flex-col">
-                    <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                      {colloquium.bookTitle}
-                    </p>
-                    <h2 className="mt-3 text-2xl font-semibold text-stone-900">
-                      {colloquium.title}
-                    </h2>
-                    <p className="mt-3 text-base text-stone-700">
-                      {colloquium.bookAuthor} - Publicado el{" "}
-                      {formatDateLabel(colloquium.publishedAt)}
-                    </p>
-                    <p className="mt-4 text-base leading-8 text-stone-700">
-                      {getExcerpt(colloquium.content)}
-                    </p>
-                    <div className="mt-6">
-                      <Link
-                        href={`/colloquiums/${colloquium.id}`}
-                        className="inline-flex min-h-12 items-center justify-center rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
-                      >
-                        Abrir coloquio
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </section>
-        )}
-      </div>
-    </main>
+      {colloquiums.length === 0 ? (
+        <section className="surface-card px-6 py-7 md:px-8 md:py-8">
+          <h2 className="subsection-title text-[var(--text-primary)]">
+            Todavia no hay coloquios publicados
+          </h2>
+          <p className="body-copy mt-4">
+            Cuando el equipo admin publique nuevos coloquios, apareceran aqui.
+            Tu acceso privado ya esta funcionando correctamente.
+          </p>
+        </section>
+      ) : (
+        <section className="content-grid" aria-label="Coloquios publicados">
+          <p className="meta-copy">
+            {colloquiums.length}{" "}
+            {colloquiums.length === 1
+              ? "coloquio publicado"
+              : "coloquios publicados"}
+          </p>
+          {colloquiums.map((colloquium) => (
+            <ColloquiumCard key={colloquium.id} colloquium={colloquium} />
+          ))}
+        </section>
+      )}
+    </PageShell>
   );
 }

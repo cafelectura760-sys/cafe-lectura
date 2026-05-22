@@ -1,25 +1,42 @@
 import { NextResponse } from "next/server";
 
+import { runSupabaseKeepAliveCheck } from "@/lib/supabase/keepalive";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("books")
-    .select("id", { count: "exact", head: true });
 
-  if (error) {
+  try {
+    await runSupabaseKeepAliveCheck(supabase);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown Supabase health error.";
+
     return NextResponse.json(
       {
         ok: false,
-        error: error.message,
+        error: message,
       },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
     );
   }
 
-  return NextResponse.json({
-    ok: true,
-    service: "supabase",
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      service: "supabase",
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    },
+  );
 }

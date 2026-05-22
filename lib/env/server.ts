@@ -17,3 +17,7 @@ export { getSupabasePublishableKey, getSupabaseUrl };
 export function getSupabaseServiceRoleKey(): string {
   return getRequiredServerEnv("SUPABASE_SERVICE_ROLE_KEY");
 }
+
+export function getCronSecret(): string {
+  return getRequiredServerEnv("CRON_SECRET");
+}

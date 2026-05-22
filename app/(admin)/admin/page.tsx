@@ -23,6 +23,7 @@ import {
   getMembershipDateInputValue,
   listAdminMembers,
 } from "@/lib/admin/member-management";
+import { getAdminKeepAliveStatus } from "@/lib/admin/system-heartbeats";
 import { logoutAction } from "@/lib/auth/actions";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -171,13 +172,27 @@ function formatDateTimeLabel(isoDate: string | null): string {
   }).format(new Date(isoDate));
 }
 
+function getKeepAliveStatusLabel(status: "success" | "error" | "missing") {
+  switch (status) {
+    case "success":
+      return "Activo";
+    case "error":
+      return "Con error";
+    case "missing":
+      return "Sin registro";
+  }
+}
+
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const session = await requireAdmin();
   const resolvedSearchParams = await searchParams;
   const feedback = getFeedbackMessage(resolvedSearchParams);
-  const members = await listAdminMembers();
-  const books = await listAdminBooks();
-  const colloquiums = await listAdminColloquiums();
+  const [members, books, colloquiums, keepAliveStatus] = await Promise.all([
+    listAdminMembers(),
+    listAdminBooks(),
+    listAdminColloquiums(),
+    getAdminKeepAliveStatus(),
+  ]);
   const defaultMembershipDate = getDefaultMembershipDateInput();
   const defaultPublishedAt = getDefaultPublishedAtInput();
 
@@ -226,6 +241,45 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-base leading-7">{feedback.message}</p>
           </section>
         ) : null}
+
+        <section
+          className={`rounded-lg border p-6 shadow-sm ${
+            keepAliveStatus.isStale
+              ? "border-amber-200 bg-amber-50 text-amber-950"
+              : "border-emerald-200 bg-emerald-50 text-emerald-950"
+          }`}
+        >
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2">
+              <p className="text-sm font-medium tracking-[0.18em] uppercase">
+                Keep-alive de Supabase
+              </p>
+              <h2 className="text-2xl font-semibold">
+                {keepAliveStatus.isStale
+                  ? "Requiere atencion"
+                  : "Funcionando con normalidad"}
+              </h2>
+              <p className="text-base leading-7">
+                {keepAliveStatus.lastSucceededAt
+                  ? `Ultimo keep-alive exitoso: ${formatDateTimeLabel(
+                      keepAliveStatus.lastSucceededAt,
+                    )}.`
+                  : "Todavia no hay una ejecucion exitosa registrada."}
+              </p>
+              <p className="text-sm leading-6 opacity-80">
+                El cron diario corre en UTC y en Hobby puede desplazarse hasta
+                59 minutos dentro de la hora programada.
+              </p>
+            </div>
+
+            <div className="rounded-md border border-current/15 bg-white/60 px-4 py-3 text-sm leading-6">
+              <p className="font-semibold">Job</p>
+              <p>{keepAliveStatus.jobName}</p>
+              <p className="mt-2 font-semibold">Estado</p>
+              <p>{getKeepAliveStatusLabel(keepAliveStatus.lastStatus)}</p>
+            </div>
+          </div>
+        </section>
 
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <article className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">

@@ -66,8 +66,9 @@ Implemented:
 - Admin dashboard protected by server-side `role = admin` validation.
 - Admin-created user flow using the service-role Supabase client only on the server.
 - Manual admin management for members, books, and colloquiums using Server Actions.
+- Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
 - Safe Markdown rendering for colloquium content without raw HTML execution.
-- Supabase migration for `profiles`, `books`, and `colloquiums`, including constraints, indexes, Row Level Security, and policies.
+- Supabase migrations for `profiles`, `books`, `colloquiums`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
 - GitHub Actions CI for formatting, linting, typechecking, and production build.
 - Weekly dependency audit workflow.
 
@@ -125,6 +126,7 @@ Routes:
   - Internal administration dashboard.
   - Accessible only to authenticated users with `role = admin`.
   - Used for manual management of members, books, and colloquiums.
+  - Shows the latest recorded Supabase keep-alive status for operational verification.
 
 Administrators must also have a clear navigation action that takes them to the admin dashboard after login and from appropriate authenticated views.
 
@@ -236,6 +238,24 @@ Content format:
 - The UI should style moderator and participant sections differently where the Markdown structure allows it.
 - Raw HTML must not be trusted as user-safe content.
 
+### `system_heartbeats`
+
+Stores operational heartbeat records written by internal automation such as the Supabase keep-alive cron.
+
+Key fields:
+
+- `job_name`: text primary key that identifies the job.
+- `last_succeeded_at`: timestamp of the most recent successful execution.
+- `last_status`: last persisted status value.
+- `last_error`: nullable error message slot for future operational use.
+- `updated_at`: last write timestamp.
+
+Purpose:
+
+- Confirm that production automation is still running.
+- Support admin-side visibility for the Supabase keep-alive job.
+- Provide a minimal operational record without introducing external monitoring services.
+
 ## 6. Security and Access Control
 
 ### Authentication
@@ -269,11 +289,12 @@ Supabase RLS must be explicitly defined. It cannot be assumed to exist.
 Required expectations:
 
 - Enable Row Level Security on all application tables.
-- Define explicit policies for `profiles`, `books`, and `colloquiums`.
+- Define explicit policies for `profiles`, `books`, `colloquiums`, and `system_heartbeats`.
 - Allow public read access to `books` when appropriate.
 - Restrict `colloquiums` to authenticated users with active memberships.
 - Allow admin users to read and manage all protected data regardless of membership expiration.
 - Restrict `profiles` to tightly controlled access patterns.
+- Restrict `system_heartbeats` reads to admins only.
 - Ensure admin write permissions are controlled by role.
 - Test policies for anonymous visitors, regular active members, expired members, and admin users.
 
@@ -1069,12 +1090,21 @@ Required Supabase environment values:
 Server-only environment values:
 
 - `SUPABASE_SERVICE_ROLE_KEY`, only if required for admin-side user creation or privileged operations.
+- `CRON_SECRET`, required to authenticate Vercel Cron invocations for the Supabase keep-alive endpoint.
 
 Server-only values must never be imported into Client Components or exposed through public environment variables.
 
 Bootstrap note:
 
 - The first administrator may need to be created through a server-only privileged flow or a manual SQL/bootstrap process, because the application does not support public signup and admin creation is restricted.
+
+### Vercel Cron Keep-Alive
+
+- Production uses a Vercel Cron job at `/api/cron/supabase-keepalive`.
+- The schedule is `0 14 * * *` and must be interpreted in UTC.
+- On Vercel Hobby, the job still runs only once per day and may execute up to 59 minutes late within the scheduled hour.
+- Vercel does not retry failed cron invocations automatically, so production verification should use both Vercel runtime logs and the admin heartbeat surface.
+- The cron route must remain protected with `CRON_SECRET` and must not redirect.
 
 ## 10. Execution Plan
 

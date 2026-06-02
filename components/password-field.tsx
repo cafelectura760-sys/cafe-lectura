@@ -38,7 +38,7 @@ export function PasswordField({
         <button
           type="button"
           className="password-toggle"
-          aria-label={isVisible ? "Ocultar contrasena" : "Mostrar contrasena"}
+          aria-label={isVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
           aria-pressed={isVisible}
           onClick={() => setIsVisible((current) => !current)}
         >

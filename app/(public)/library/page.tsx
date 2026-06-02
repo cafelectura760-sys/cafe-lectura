@@ -12,7 +12,7 @@ import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Biblioteca",
-  description: "Public library catalog for Cafe Lectura.",
+  description: "Catálogo público de libros de Cafe Lectura.",
 };
 
 function buildBookRequestHref(title: string, author: string) {
@@ -30,14 +30,14 @@ export default async function LibraryPage() {
         items={[
           { href: "/", label: "Inicio" },
           { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Iniciar sesion" },
+          { href: "/login", label: "Iniciar sesión" },
         ]}
         activeHref="/library"
-        description="Catalogo publico de libros disponibles para consultar y solicitar por WhatsApp."
+        description="Catálogo público de libros disponibles para consultar y solicitar por WhatsApp."
         actions={
           <a
             href={createWhatsAppHref(
-              "Quiero recibir orientacion sobre un libro disponible en la biblioteca de Cafe Lectura.",
+              "Quiero recibir orientación sobre un libro disponible en la biblioteca de Cafe Lectura.",
             )}
             target="_blank"
             rel="noreferrer"
@@ -52,9 +52,9 @@ export default async function LibraryPage() {
         <div className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
-            eyebrow="Biblioteca publica"
-            title="Libros para descubrir, leer con interes y solicitar con facilidad"
-            description="Esta biblioteca muestra los titulos disponibles en Cafe Lectura. Puedes recorrer el catalogo con calma y escribirnos por WhatsApp para pedir informacion o solicitar un libro en particular."
+            eyebrow="Biblioteca pública"
+            title="Libros para descubrir, leer con interés y solicitar con facilidad"
+            description="Esta biblioteca muestra los títulos disponibles en Cafe Lectura. Puedes recorrer el catálogo con calma y escribirnos por WhatsApp para pedir información o solicitar un libro en particular."
             titleClassName="display-title"
             action={
               <Link href="/" className="editorial-link">
@@ -69,14 +69,14 @@ export default async function LibraryPage() {
                 Una biblioteca para recorrer sin prisa
               </h2>
               <p className="body-copy mt-3">
-                Los titulos se presentan con portada, autor y sinopsis para que
+                Los títulos se presentan con portada, autor y sinopsis para que
                 la consulta sea simple y directa. La solicitud siempre termina
                 en un contacto humano por WhatsApp.
               </p>
             </div>
             <StatusBanner title="Sin descargas ni pasos confusos">
-              El catalogo es solo de consulta. Si un libro te interesa, la
-              accion principal te lleva directamente al canal de contacto del
+              El catálogo es solo de consulta. Si un libro te interesa, la
+              acción principal te lleva directamente al canal de contacto del
               club.
             </StatusBanner>
           </div>
@@ -90,12 +90,12 @@ export default async function LibraryPage() {
               <BookOpenText className="h-5 w-5" />
             </div>
             <h2 className="subsection-title mt-5 text-[var(--text-primary)]">
-              Biblioteca en preparacion
+              Biblioteca en preparación
             </h2>
             <p className="body-large mt-4">
-              Todavia no hay libros publicados en el catalogo. En cuanto el
-              equipo cargue nuevos titulos desde el panel admin, apareceran
-              aqui.
+              Todavía no hay libros publicados en el catálogo. En cuanto el
+              equipo cargue nuevos títulos desde el panel de administración,
+              aparecerán aquí.
             </p>
           </div>
         </section>
@@ -105,7 +105,7 @@ export default async function LibraryPage() {
             <BookCard
               key={book.id}
               book={book}
-              eyebrow="Catalogo disponible"
+              eyebrow="Catálogo disponible"
               actionHref={buildBookRequestHref(book.title, book.author)}
               actionLabel="Solicitar por WhatsApp"
             />

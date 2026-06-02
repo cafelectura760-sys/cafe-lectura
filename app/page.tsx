@@ -21,12 +21,12 @@ import { createWhatsAppHref } from "@/lib/whatsapp";
 export const metadata: Metadata = {
   title: "Club privado de lectura",
   description:
-    "Cafe Lectura es un club privado de lectura con biblioteca publica, membresia anual y coloquios privados para miembros activos.",
+    "Cafe Lectura es un club privado de lectura con biblioteca pública, membresía anual y coloquios privados para miembros activos.",
 };
 
 function getMembershipHref() {
   return createWhatsAppHref(
-    "Me gustaria recibir informacion sobre la membresia anual de Cafe Lectura.",
+    "Me gustaría recibir información sobre la membresía anual de Cafe Lectura.",
   );
 }
 
@@ -45,12 +45,12 @@ export default async function Home() {
   const highlights = [
     {
       title: "Biblioteca visible",
-      text: "Consulta los libros disponibles y solicita informacion por WhatsApp sin descargar archivos.",
+      text: "Consulta los libros disponibles y solicita información por WhatsApp sin descargar archivos.",
       icon: Library,
     },
     {
-      title: "Membresia anual",
-      text: "La participacion se gestiona de forma manual, cercana y sin pagos dentro de la plataforma.",
+      title: "Membresía anual",
+      text: "La participación se gestiona de forma manual, cercana y sin pagos dentro de la plataforma.",
       icon: MessageCircleMore,
     },
     {
@@ -68,7 +68,7 @@ export default async function Home() {
           { href: "/library", label: "Biblioteca" },
           {
             href: session ? "/colloquiums" : "/login",
-            label: session ? "Coloquios" : "Iniciar sesion",
+            label: session ? "Coloquios" : "Iniciar sesión",
           },
         ]}
         activeHref="/"
@@ -77,7 +77,7 @@ export default async function Home() {
           session ? (
             <>
               <StatusBanner title="Acceso disponible">
-                Estas conectado como{" "}
+                Estás conectado como{" "}
                 <span className="font-semibold text-[var(--text-primary)]">
                   {session.profile?.full_name ?? session.email}
                 </span>
@@ -89,12 +89,12 @@ export default async function Home() {
                 </Link>
                 {session.profile?.role === "admin" ? (
                   <Link href="/admin" className="btn-secondary">
-                    Panel admin
+                    Panel de administración
                   </Link>
                 ) : null}
                 <form action={logoutAction}>
                   <button type="submit" className="btn-ghost">
-                    Cerrar sesion
+                    Cerrar sesión
                   </button>
                 </form>
               </div>
@@ -102,7 +102,7 @@ export default async function Home() {
           ) : (
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/login" className="btn-secondary">
-                Iniciar sesion
+                Iniciar sesión
               </Link>
               <a
                 href={getMembershipHref()}
@@ -110,7 +110,7 @@ export default async function Home() {
                 rel="noreferrer"
                 className="btn-warm"
               >
-                Consultar membresia
+                Consultar membresía
               </a>
             </div>
           )
@@ -126,8 +126,8 @@ export default async function Home() {
               Un club de lectura que se siente cercano desde la primera visita.
             </h1>
             <p className="body-large mt-6 max-w-3xl">
-              Cafe Lectura acompana a sus miembros con una biblioteca publica
-              para consulta, una membresia anual gestionada de forma cercana y
+              Cafe Lectura acompaña a sus miembros con una biblioteca pública
+              para consulta, una membresía anual gestionada de forma cercana y
               coloquios privados preparados para leer sin prisa.
             </p>
 
@@ -138,7 +138,7 @@ export default async function Home() {
                 rel="noreferrer"
                 className="btn-primary"
               >
-                Consultar membresia
+                Consultar membresía
                 <ArrowRight className="h-[18px] w-[18px]" />
               </a>
               <Link href="/library" className="btn-secondary">
@@ -176,19 +176,19 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Biblioteca"
           title="Una biblioteca visible para descubrir con calma"
-          description="Estos son algunos de los titulos disponibles en Cafe Lectura. La consulta y las solicitudes se realizan de manera directa por WhatsApp."
+          description="Estos son algunos de los títulos disponibles en Cafe Lectura. La consulta y las solicitudes se realizan de manera directa por WhatsApp."
           action={
             <Link href="/library" className="editorial-link">
-              Ver catalogo completo
+              Ver catálogo completo
             </Link>
           }
         />
 
         {featuredBooks.length === 0 ? (
           <div className="mt-8">
-            <StatusBanner title="Biblioteca en preparacion">
-              La biblioteca publica esta en preparacion. Pronto veras aqui los
-              primeros titulos disponibles.
+            <StatusBanner title="Biblioteca en preparación">
+              La biblioteca pública está en preparación. Pronto verás aquí los
+              primeros títulos disponibles.
             </StatusBanner>
           </div>
         ) : (
@@ -210,9 +210,9 @@ export default async function Home() {
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <SectionHeading
-            eyebrow="Membresia"
-            title="Una forma sencilla de sostener el habito de leer durante todo el ano"
-            description="Cafe Lectura no funciona como una plataforma de suscripcion automatizada. La membresia es anual, cercana y pensada para acompanar con claridad, sin pasos innecesarios."
+            eyebrow="Membresía"
+            title="Una forma sencilla de sostener el hábito de leer durante todo el año"
+            description="Cafe Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
           />
 
           <div className="content-grid mt-8 md:grid-cols-3">
@@ -222,7 +222,7 @@ export default async function Home() {
               </h3>
               <p className="body-copy mt-3">
                 El primer contacto se hace por WhatsApp para resolver dudas y
-                explicar como funciona el club.
+                explicar cómo funciona el club.
               </p>
             </article>
             <article className="surface-card-muted px-5 py-5">
@@ -231,7 +231,7 @@ export default async function Home() {
               </h3>
               <p className="body-copy mt-3">
                 Los miembros activos encuentran sus coloquios en un espacio
-                discreto, legible y facil de recorrer.
+                discreto, legible y fácil de recorrer.
               </p>
             </article>
             <article className="surface-card-muted px-5 py-5">
@@ -248,14 +248,14 @@ export default async function Home() {
 
         <aside className="surface-card-strong px-6 py-7 md:px-7 md:py-8">
           <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
-            Conversacion cercana
+            Conversación cercana
           </p>
           <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-            Quieres saber si Cafe Lectura puede ser para ti?
+            ¿Quieres saber si Cafe Lectura puede ser para ti?
           </h2>
           <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
-            Escribenos por WhatsApp y te contamos como funciona la membresia,
-            que libros estan disponibles y de que forma se organizan los
+            Escríbenos por WhatsApp y te contamos cómo funciona la membresía,
+            qué libros están disponibles y de qué forma se organizan los
             coloquios del club.
           </p>
           <div className="mt-8">

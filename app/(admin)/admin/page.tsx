@@ -33,8 +33,8 @@ type AdminPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Admin | Cafe Lectura",
-  description: "Administrative area for Cafe Lectura.",
+  title: "Administración | Cafe Lectura",
+  description: "Área administrativa de Cafe Lectura.",
 };
 
 function getSearchParamValue(
@@ -69,7 +69,7 @@ function getFeedbackMessage(
     return {
       tone: "success" as const,
       message:
-        "La configuracion del miembro fue actualizada y la ruta /admin ya fue revalidada.",
+        "La configuración del miembro fue actualizada y la ruta /admin ya fue revalidada.",
     };
   }
 
@@ -77,7 +77,7 @@ function getFeedbackMessage(
     return {
       tone: "success" as const,
       message:
-        "La membresia fue extendida por un ano a partir de la fecha vigente o de hoy.",
+        "La membresía fue extendida por un año a partir de la fecha vigente o de hoy.",
     };
   }
 
@@ -85,7 +85,7 @@ function getFeedbackMessage(
     return {
       tone: "success" as const,
       message:
-        "El libro fue creado correctamente y ya forma parte del catalogo interno.",
+        "El libro fue creado correctamente y ya forma parte del catálogo interno.",
     };
   }
 
@@ -101,7 +101,7 @@ function getFeedbackMessage(
     return {
       tone: "success" as const,
       message:
-        "El coloquio fue creado correctamente y ya queda relacionado con un libro del catalogo.",
+        "El coloquio fue creado correctamente y ya queda relacionado con un libro del catálogo.",
     };
   }
 
@@ -118,32 +118,32 @@ function getFeedbackMessage(
   }
 
   const errorMessages: Record<string, string> = {
-    "invalid-full-name": "Debes indicar un nombre completo valido.",
-    "invalid-email": "Debes indicar un correo electronico valido.",
+    "invalid-full-name": "Debes indicar un nombre completo válido.",
+    "invalid-email": "Debes indicar un correo electrónico válido.",
     "invalid-password":
-      "La contrasena debe tener al menos 8 caracteres para crear la cuenta.",
-    "invalid-role": "El rol recibido no es valido.",
+      "La contraseña debe tener al menos 8 caracteres para crear la cuenta.",
+    "invalid-role": "El rol recibido no es válido.",
     "invalid-membership-date":
-      "La fecha de membresia no es valida. Usa una fecha del calendario.",
+      "La fecha de membresía no es válida. Usa una fecha del calendario.",
     "email-already-exists":
-      "Ya existe una cuenta con ese correo electronico en Supabase Auth.",
+      "Ya existe una cuenta con ese correo electrónico en Supabase Auth.",
     "member-not-found": "No pudimos encontrar el miembro solicitado.",
     "cannot-demote-yourself":
-      "No puedes quitarte a ti mismo el rol admin desde esta base de gestion.",
-    "invalid-book-title": "Debes indicar un titulo de libro valido.",
-    "invalid-book-author": "Debes indicar un autor valido.",
-    "invalid-book-synopsis": "Debes indicar una sinopsis valida para el libro.",
+      "No puedes quitarte a ti mismo el rol de administrador desde este panel de gestión.",
+    "invalid-book-title": "Debes indicar un título de libro válido.",
+    "invalid-book-author": "Debes indicar un autor válido.",
+    "invalid-book-synopsis": "Debes indicar una sinopsis válida para el libro.",
     "invalid-book-cover-image-url":
-      "La portada debe ser una URL valida con protocolo http o https.",
+      "La portada debe ser una URL válida con protocolo http o https.",
     "book-not-found": "No pudimos encontrar el libro solicitado.",
     "invalid-colloquium-title":
-      "Debes indicar un titulo valido para el coloquio.",
+      "Debes indicar un título válido para el coloquio.",
     "invalid-colloquium-content":
-      "Debes indicar contenido Markdown valido para el coloquio.",
+      "Debes indicar contenido Markdown válido para el coloquio.",
     "invalid-colloquium-book-id":
-      "Debes seleccionar un libro valido para relacionar el coloquio.",
+      "Debes seleccionar un libro válido para relacionar el coloquio.",
     "invalid-colloquium-published-at":
-      "La fecha de publicacion del coloquio no es valida.",
+      "La fecha de publicación del coloquio no es válida.",
     "colloquium-not-found": "No pudimos encontrar el coloquio solicitado.",
   };
 
@@ -151,7 +151,7 @@ function getFeedbackMessage(
     tone: "error" as const,
     message:
       errorMessages[error] ??
-      "Ocurrio un error inesperado durante la operacion administrativa.",
+      "Ocurrió un error inesperado durante la operación administrativa.",
   };
 }
 
@@ -207,7 +207,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             />
             <div className="space-y-3">
               <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Administracion
+                Administración
               </p>
               <h1 className="text-3xl font-semibold text-stone-900">
                 Panel interno
@@ -225,7 +225,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               type="submit"
               className="rounded-md border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
             >
-              Cerrar sesion
+              Cerrar sesión
             </button>
           </form>
         </header>
@@ -256,15 +256,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </p>
               <h2 className="text-2xl font-semibold">
                 {keepAliveStatus.isStale
-                  ? "Requiere atencion"
+                  ? "Requiere atención"
                   : "Funcionando con normalidad"}
               </h2>
               <p className="text-base leading-7">
                 {keepAliveStatus.lastSucceededAt
-                  ? `Ultimo keep-alive exitoso: ${formatDateTimeLabel(
+                  ? `Último keep-alive exitoso: ${formatDateTimeLabel(
                       keepAliveStatus.lastSucceededAt,
                     )}.`
-                  : "Todavia no hay una ejecucion exitosa registrada."}
+                  : "Todavía no hay una ejecución exitosa registrada."}
               </p>
               <p className="text-sm leading-6 opacity-80">
                 El cron diario corre en UTC y en Hobby puede desplazarse hasta
@@ -285,15 +285,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <article className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
             <div className="space-y-3">
               <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Backend foundation
+                Base técnica
               </p>
               <h2 className="text-2xl font-semibold text-stone-900">
                 Crear cuenta manual
               </h2>
               <p className="text-base leading-7 text-stone-700">
                 Este formulario crea el usuario en Supabase Auth usando
-                service-role solo en el servidor y luego crea su fila en{" "}
-                <code>public.profiles</code>.
+                credenciales privilegiadas solo en el servidor y luego crea su
+                fila en <code>public.profiles</code>.
               </p>
             </div>
 
@@ -309,7 +309,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </label>
 
               <label className="grid gap-2 text-sm font-medium text-stone-800">
-                Correo electronico
+                Correo electrónico
                 <input
                   type="email"
                   name="email"
@@ -319,7 +319,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </label>
 
               <label className="grid gap-2 text-sm font-medium text-stone-800">
-                Contrasena temporal
+                Contraseña temporal
                 <input
                   type="password"
                   name="password"
@@ -337,13 +337,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     defaultValue="member"
                     className="rounded-md border border-stone-300 px-4 py-3 text-base text-stone-900"
                   >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
+                    <option value="member">Miembro</option>
+                    <option value="admin">Administrador</option>
                   </select>
                 </label>
 
                 <label className="grid gap-2 text-sm font-medium text-stone-800">
-                  Vencimiento de membresia
+                  Vencimiento de membresía
                   <input
                     type="date"
                     name="membership_date"
@@ -366,15 +366,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <article className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
             <div className="space-y-3">
               <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-                Member management
+                Gestión de miembros
               </p>
               <h2 className="text-2xl font-semibold text-stone-900">
                 Miembros actuales
               </h2>
               <p className="text-base leading-7 text-stone-700">
-                La tabla permite ajustar rol y fecha de vencimiento o extender
-                la membresia un ano, manteniendo toda la mutacion en Server
-                Actions.
+                La tabla permite ajustar el rol y la fecha de vencimiento, o
+                extender la membresía un año, manteniendo toda la mutación en
+                Server Actions.
               </p>
             </div>
 
@@ -392,7 +392,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       {member.email ?? "Sin correo disponible"}
                     </p>
                     <p className="text-sm leading-6 text-stone-600">
-                      Creado: {formatDateLabel(member.createdAt)}. Ultimo
+                      Creado: {formatDateLabel(member.createdAt)}. Último
                       acceso: {formatDateTimeLabel(member.lastSignInAt)}.
                     </p>
                   </div>
@@ -410,8 +410,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         defaultValue={member.role}
                         className="rounded-md border border-stone-300 bg-white px-4 py-3 text-base text-stone-900"
                       >
-                        <option value="member">Member</option>
-                        <option value="admin">Admin</option>
+                        <option value="member">Miembro</option>
+                        <option value="admin">Administrador</option>
                       </select>
                     </label>
 
@@ -448,7 +448,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         type="submit"
                         className="rounded-md border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-900 transition hover:bg-stone-100"
                       >
-                        Extender 1 ano
+                        Extender 1 año
                       </button>
                     </form>
                   </div>
@@ -457,7 +457,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               {members.length === 0 ? (
                 <p className="text-base leading-7 text-stone-700">
-                  Todavia no hay perfiles disponibles para administracion.
+                  Todavía no hay perfiles disponibles para administración.
                 </p>
               ) : null}
             </div>
@@ -467,14 +467,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
           <div className="space-y-3">
             <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-              Books management
+              Gestión de libros
             </p>
             <h2 className="text-2xl font-semibold text-stone-900">
-              Catalogo interno de libros
+              Catálogo interno de libros
             </h2>
             <p className="text-base leading-7 text-stone-700">
               Esta base permite cargar y editar libros manualmente desde el
-              panel admin usando Server Actions y las politicas RLS ya vigentes.
+              panel de administración usando Server Actions y las políticas RLS
+              ya vigentes.
             </p>
           </div>
 
@@ -486,7 +487,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               <form action={createBookAction} className="mt-6 grid gap-5">
                 <label className="grid gap-2 text-sm font-medium text-stone-800">
-                  Titulo
+                  Título
                   <input
                     type="text"
                     name="title"
@@ -545,8 +546,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       {book.title}
                     </h3>
                     <p className="text-base text-stone-700">
-                      {book.author} · Creado el{" "}
-                      {formatDateLabel(book.createdAt)}
+                      {book.author}, creado el {formatDateLabel(book.createdAt)}
                     </p>
                   </div>
 
@@ -555,7 +555,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
                     <div className="grid gap-5 sm:grid-cols-2">
                       <label className="grid gap-2 text-sm font-medium text-stone-800">
-                        Titulo
+                        Título
                         <input
                           type="text"
                           name="title"
@@ -611,7 +611,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               {books.length === 0 ? (
                 <p className="rounded-lg border border-stone-200 bg-stone-50 p-6 text-base leading-7 text-stone-700">
-                  Todavia no hay libros cargados para administracion.
+                  Todavía no hay libros cargados para administración.
                 </p>
               ) : null}
             </article>
@@ -621,20 +621,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <section className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm">
           <div className="space-y-3">
             <p className="text-sm font-medium tracking-[0.18em] text-stone-500 uppercase">
-              Colloquiums management
+              Gestión de coloquios
             </p>
             <h2 className="text-2xl font-semibold text-stone-900">
-              Gestion manual de coloquios
+              Gestión manual de coloquios
             </h2>
             <p className="text-base leading-7 text-stone-700">
               El contenido se guarda como Markdown y cada coloquio queda
-              asociado a un libro del catalogo interno.
+              asociado a un libro del catálogo interno.
             </p>
           </div>
 
           {books.length === 0 ? (
             <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-6 text-base leading-7 text-amber-950">
-              Primero necesitas al menos un libro en el catalogo para poder
+              Primero necesitas al menos un libro en el catálogo para poder
               crear coloquios relacionados.
             </p>
           ) : (
@@ -649,7 +649,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   className="mt-6 grid gap-5"
                 >
                   <label className="grid gap-2 text-sm font-medium text-stone-800">
-                    Titulo
+                    Título
                     <input
                       type="text"
                       name="title"
@@ -714,7 +714,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         {colloquium.title}
                       </h3>
                       <p className="text-base text-stone-700">
-                        {colloquium.bookTitle} · Publicado el{" "}
+                        {colloquium.bookTitle}, publicado el{" "}
                         {formatDateTimeLabel(colloquium.publishedAt)}
                       </p>
                     </div>
@@ -730,7 +730,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       />
 
                       <label className="grid gap-2 text-sm font-medium text-stone-800">
-                        Titulo
+                        Título
                         <input
                           type="text"
                           name="title"
@@ -794,7 +794,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
                 {colloquiums.length === 0 ? (
                   <p className="rounded-lg border border-stone-200 bg-stone-50 p-6 text-base leading-7 text-stone-700">
-                    Todavia no hay coloquios cargados para administracion.
+                    Todavía no hay coloquios cargados para administración.
                   </p>
                 ) : null}
               </article>
@@ -807,9 +807,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             Siguiente paso sugerido
           </h2>
           <p className="mt-4 text-base leading-7 text-stone-700">
-            Con members, books y colloquiums ya cubiertos en admin manual
-            management, el siguiente salto natural es consumir estos datos en
-            las areas publica y privada del producto.
+            Con miembros, libros y coloquios ya cubiertos en la gestión manual
+            del panel, el siguiente paso natural es consumir estos datos en las
+            áreas pública y privada del producto.
           </p>
           <div className="mt-6">
             <Link

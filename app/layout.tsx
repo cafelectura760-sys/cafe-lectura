@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: "Cafe Lectura",
     template: "%s | Cafe Lectura",
   },
-  description: "Plataforma privada para el club de lectura Cafe Lectura.",
+  description: "Plataforma privada del club de lectura Cafe Lectura.",
   icons: {
     icon: "/cafe-lectura-logo.svg",
   },

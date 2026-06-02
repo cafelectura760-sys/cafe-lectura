@@ -38,7 +38,7 @@ export function SiteHeader({
           </div>
         </div>
 
-        <nav className="flex flex-wrap gap-2" aria-label="Navegacion principal">
+        <nav className="flex flex-wrap gap-2" aria-label="Navegación principal">
           {items.map((item) => (
             <Link
               key={item.href}

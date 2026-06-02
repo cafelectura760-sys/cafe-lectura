@@ -12,14 +12,14 @@ export default function ColloquiumNotFound() {
         </h1>
         <p className="mt-4 text-base leading-8 text-stone-700">
           Es posible que el contenido haya sido movido, eliminado o que el
-          enlace ya no este disponible.
+          enlace ya no esté disponible.
         </p>
         <div className="mt-6 flex flex-col gap-4 sm:flex-row">
           <Link
             href="/colloquiums"
             className="inline-flex min-h-12 items-center justify-center rounded-md bg-stone-900 px-5 py-3 text-base font-semibold text-white transition hover:bg-stone-800"
           >
-            Volver a coloquios
+            Volver a los coloquios
           </Link>
           <Link
             href="/"

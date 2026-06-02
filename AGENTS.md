@@ -44,8 +44,10 @@ For implementation, auditing, hardening, or repository-quality tasks:
 
 - Repository documentation must be written in English.
 - Code, comments, file names, commit text, technical copy, and implementation artifacts must be written in English.
-- Conversation with the user may happen in Spanish, but repository artifacts must remain in English.
-- End-user UI copy may be Spanish when it appears in the product experience.
+- Conversation with the user may happen in Spanish, but repository artifacts must remain in English unless they are end-user-facing product copy.
+- All end-user-facing frontend copy must be written in Spanish.
+- End-user-facing Spanish must follow correct grammar and orthography, including accents, punctuation, and the letter `ñ` whenever appropriate.
+- Do not use accentless substitutions, degraded Spanish, or mixed-language UI in visible product copy, validation messages, ARIA labels, metadata intended for users, or admin screens.
 
 ## Next.js and Implementation Rules
 
@@ -102,6 +104,7 @@ For implementation, auditing, hardening, or repository-quality tasks:
 - Optimize the interface for older adults.
 - Prefer large readable typography, high contrast, simple navigation, and low visual density.
 - Use realistic Spanish copy for end-user product text.
+- Treat every user-visible string as product copy and keep it in correct Spanish, including titles, buttons, helper text, empty states, status messages, ARIA labels, and admin-facing UI.
 - Avoid Lorem Ipsum, generic filler, clutter, and unnecessary interactions.
 
 ## Quality Rules

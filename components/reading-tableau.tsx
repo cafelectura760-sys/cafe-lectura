@@ -38,10 +38,10 @@ export function ReadingTableau() {
           <div className="tableau-quote">
             <div className="accent-rule" />
             <p className="mt-5 font-serif text-[30px] leading-[1.18] font-semibold text-[var(--text-primary)] md:text-[34px]">
-              Leer aqui se siente como llegar a una mesa ya preparada.
+              Leer aquí se siente como llegar a una mesa ya preparada.
             </p>
             <p className="mt-4 text-[17px] leading-7 text-[var(--text-secondary)]">
-              Biblioteca, conversacion y acompanamiento en un espacio hecho para
+              Biblioteca, conversación y acompañamiento en un espacio hecho para
               entrar sin prisa.
             </p>
           </div>
@@ -66,10 +66,10 @@ export function ReadingTableau() {
                 <CalendarDays className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
                 <div>
                   <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                    Membresia anual
+                    Membresía anual
                   </p>
                   <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                    Gestion directa y cercana.
+                    Gestión directa y cercana.
                   </p>
                 </div>
               </div>

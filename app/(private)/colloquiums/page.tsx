@@ -17,7 +17,8 @@ type ColloquiumsPageProps = {
 
 export const metadata: Metadata = {
   title: "Coloquios",
-  description: "Private colloquium area for active members.",
+  description:
+    "Espacio privado de coloquios para miembros activos de Cafe Lectura.",
 };
 
 export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
@@ -49,12 +50,12 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
               </Link>
               {session.profile.role === "admin" ? (
                 <Link href="/admin" className="btn-ghost">
-                  Panel admin
+                  Panel de administración
                 </Link>
               ) : null}
               <form action={logoutAction}>
                 <button type="submit" className="btn-ghost">
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </form>
             </div>
@@ -66,9 +67,9 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
         <div className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
-            eyebrow="Area privada"
+            eyebrow="Área privada"
             title="Coloquios disponibles"
-            description={`Bienvenido, ${session.profile.full_name}. Aqui puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
+            description={`Bienvenido, ${session.profile.full_name}. Aquí puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
           />
 
           <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -78,13 +79,13 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
               </h2>
               <p className="body-copy mt-3">
                 Cada coloquio muestra el libro relacionado, la fecha de
-                publicacion y un extracto inicial para ayudarte a elegir la
+                publicación y un extracto inicial para ayudarte a elegir la
                 lectura que quieres abrir.
               </p>
             </div>
             <StatusBanner title="Lectura privada y calmada">
               La experiencia minimiza el ruido visual para que el contenido
-              tenga prioridad sobre la navegacion.
+              tenga prioridad sobre la navegación.
             </StatusBanner>
           </div>
         </div>
@@ -93,11 +94,12 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
       {colloquiums.length === 0 ? (
         <section className="surface-card px-6 py-7 md:px-8 md:py-8">
           <h2 className="subsection-title text-[var(--text-primary)]">
-            Todavia no hay coloquios publicados
+            Todavía no hay coloquios publicados
           </h2>
           <p className="body-copy mt-4">
-            Cuando el equipo admin publique nuevos coloquios, apareceran aqui.
-            Tu acceso privado ya esta funcionando correctamente.
+            Cuando el equipo de administración publique nuevos coloquios,
+            aparecerán aquí. Tu acceso privado ya está funcionando
+            correctamente.
           </p>
         </section>
       ) : (

@@ -325,6 +325,8 @@ Cafe Lectura is optimized for older adults. The interface must be calm, readable
 ### Copywriting
 
 - End-user copy must be realistic Spanish.
+- End-user copy must use correct grammar, spelling, accents, punctuation, and the letter `ñ` whenever appropriate.
+- All user-facing surfaces, including public pages, private pages, admin screens, validation messages, status banners, metadata shown to users, and accessibility labels, must keep that Spanish standard consistently.
 - Do not use Lorem Ipsum.
 - Do not use generic placeholder text.
 - Text should feel connected to books, reading, conversation, and the local club context.

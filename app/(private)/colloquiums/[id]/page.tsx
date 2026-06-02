@@ -17,7 +17,8 @@ type ColloquiumDetailPageProps = {
 
 export const metadata: Metadata = {
   title: "Detalle del coloquio",
-  description: "Detailed private colloquium view for Cafe Lectura members.",
+  description:
+    "Vista detallada de un coloquio privado para miembros de Cafe Lectura.",
 };
 
 function formatDateLabel(isoDate: string): string {
@@ -77,7 +78,7 @@ export default async function ColloquiumDetailPage({
                 Acceso de miembro
               </p>
               <p className="mt-2 text-[16px] leading-7 text-[var(--text-secondary)]">
-                Estas leyendo como{" "}
+                Estás leyendo como{" "}
                 <span className="font-semibold text-[var(--text-primary)]">
                   {session.profile.full_name}
                 </span>
@@ -86,7 +87,7 @@ export default async function ColloquiumDetailPage({
             </div>
             <form action={logoutAction}>
               <button type="submit" className="btn-ghost">
-                Cerrar sesion
+                Cerrar sesión
               </button>
             </form>
           </div>
@@ -118,8 +119,8 @@ export default async function ColloquiumDetailPage({
             <p className="body-copy mt-3">{colloquium.bookAuthor}</p>
             <p className="body-copy mt-5">
               Esta lectura se presenta en un formato continuo para favorecer la
-              concentracion. Los tramos de moderacion y participacion se
-              distinguen con un enfasis visual suave, sin romper el ritmo de
+              concentración. Los tramos de moderación y participación se
+              distinguen con un énfasis visual suave, sin romper el ritmo de
               lectura.
             </p>
           </div>

@@ -16,15 +16,15 @@ type LoginPageProps = {
 
 const errorMessages: Record<string, string> = {
   "invalid-credentials":
-    "No pudimos iniciar sesion con esas credenciales. Revisa el correo y la contrasena.",
-  "missing-fields": "Por favor completa el correo y la contrasena.",
+    "No pudimos iniciar sesión con esas credenciales. Revisa el correo y la contraseña.",
+  "missing-fields": "Por favor, completa el correo y la contraseña.",
   unexpected:
-    "Ocurrio un problema al preparar tu acceso. Intenta nuevamente en unos segundos.",
+    "Ocurrió un problema al preparar tu acceso. Intenta nuevamente en unos segundos.",
 };
 
 export const metadata: Metadata = {
-  title: "Iniciar sesion",
-  description: "Private member access for Cafe Lectura.",
+  title: "Iniciar sesión",
+  description: "Acceso privado para miembros de Cafe Lectura.",
 };
 
 function normalizeErrorCode(error: string | string[] | undefined) {
@@ -42,16 +42,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         items={[
           { href: "/", label: "Inicio" },
           { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Iniciar sesion" },
+          { href: "/login", label: "Iniciar sesión" },
         ]}
         activeHref="/login"
-        description="Acceso para miembros existentes y administracion del club."
+        description="Acceso para miembros existentes y administración del club."
       />
 
       <GatePanel
         eyebrow="Cafe Lectura"
-        title="Iniciar sesion"
-        description="Accede con las credenciales entregadas por la administracion del club."
+        title="Iniciar sesión"
+        description="Accede con las credenciales entregadas por la administración del club."
         footer={
           <Link href="/" className="editorial-link">
             Volver al inicio
@@ -59,8 +59,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         }
       >
         {session ? (
-          <StatusBanner tone="success" title="Sesion ya iniciada">
-            Ya hay una sesion activa para{" "}
+          <StatusBanner tone="success" title="Sesión ya iniciada">
+            Ya hay una sesión activa para{" "}
             <span className="font-semibold text-[var(--text-primary)]">
               {session.email ?? "este usuario"}
             </span>
@@ -83,7 +83,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <form action={loginAction} className="space-y-5">
           <div className="space-y-2">
             <label htmlFor="email" className="field-label">
-              Correo electronico
+              Correo electrónico
             </label>
             <input
               id="email"
@@ -98,7 +98,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <PasswordField
             id="password"
             name="password"
-            label="Contrasena"
+            label="Contraseña"
             autoComplete="current-password"
             required
           />

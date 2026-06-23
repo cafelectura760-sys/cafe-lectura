@@ -21,3 +21,15 @@ export function getSupabaseServiceRoleKey(): string {
 export function getCronSecret(): string {
   return getRequiredServerEnv("CRON_SECRET");
 }
+
+export function getSupabaseColloquiumMediaBucket(): string {
+  return getRequiredServerEnv("SUPABASE_COLLOQUIUM_MEDIA_BUCKET");
+}
+
+export function isSupabaseColloquiumStorageConfigured(): boolean {
+  return [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_COLLOQUIUM_MEDIA_BUCKET",
+  ].every((name) => Boolean(process.env[name]));
+}

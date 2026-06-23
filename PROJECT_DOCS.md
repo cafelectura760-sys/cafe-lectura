@@ -11,7 +11,8 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 - Public landing page for the reading club.
 - Public visual library of available books.
 - Private colloquium area for active members.
-- Admin dashboard for manual internal management.
+- Structured private colloquium module with ordered sections, participant entries, and managed multimedia.
+- Admin dashboard for manual internal management, including the colloquium builder workflow.
 - Login-only authentication flow with no public signup.
 - WhatsApp-based membership and book requests.
 
@@ -20,7 +21,7 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 - Make the club easy to understand for visitors.
 - Allow members with active memberships to access colloquium content.
 - Keep administration manual, simple, and reliable.
-- Avoid unnecessary automation, payment complexity, and heavy media handling.
+- Avoid unnecessary automation and payment complexity while keeping colloquium multimedia tightly scoped and maintainable.
 - Provide a trustworthy, readable interface for older adults.
 
 ### Business Model
@@ -51,7 +52,7 @@ The technical stack is fixed and must not be changed without explicit approval.
 
 ## 2.1 Current Implementation Status
 
-This section reflects the repository state directly observed in version-controlled files on April 23, 2026.
+This section reflects the repository state directly observed in version-controlled files on June 3, 2026 after the simplified structured colloquium refactor pass.
 
 Implemented:
 
@@ -62,21 +63,24 @@ Implemented:
 - Public home page and public library page backed by Supabase book data.
 - Login-only authentication flow for existing Supabase users.
 - Private colloquium list and detail pages protected by server-side membership checks.
+- Private colloquium detail rendering based on structured sections, entries, images, and audio only.
 - Expired-membership page with environment-driven WhatsApp renewal link.
 - Admin dashboard protected by server-side `role = admin` validation.
 - Admin-created user flow using the service-role Supabase client only on the server.
-- Manual admin management for members, books, and colloquiums using Server Actions.
+- Manual admin management for members and books using Server Actions.
+- Dedicated admin colloquium create/edit/preview pages for the structured colloquium workflow.
+- Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
+- Simplified admin colloquium editor flow with shadcn/ui controls, advanced slug editing, destructive delete confirmation, and a Spanish calendar-based publication date picker.
 - Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
-- Safe Markdown rendering for colloquium content without raw HTML execution.
-- Supabase migrations for `profiles`, `books`, `colloquiums`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
+- Supabase migrations for `profiles`, `books`, `colloquiums`, `colloquium_sections`, `colloquium_entries`, `media_assets`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
 - GitHub Actions CI for formatting, linting, typechecking, and production build.
 - Weekly dependency audit workflow.
 
 Observed gaps or repository-only limitations:
 
-- The UI uses plain Tailwind classes and does not yet include a committed shadcn/ui component directory.
-- Admin management supports create/update workflows, but delete workflows are not implemented.
+- The colloquium workflow now includes a committed `components/ui` shadcn/ui primitive directory.
 - Route-level loading states exist for library and colloquium routes, but error boundaries are not yet present.
+- The structured colloquium refactor now depends on structured sections as its only runtime content source, but it still depends on runtime Supabase Storage configuration and on applying the latest migration in real environments before production use.
 - Supabase project settings are not represented in version-controlled files, so public self-registration still needs manual verification in the Supabase dashboard.
 - Real RLS runtime behavior against anonymous visitors, active members, expired members, and admins cannot be confirmed from repository files alone.
 - Production deployment readiness on Vercel cannot be confirmed from repository files alone.
@@ -110,7 +114,8 @@ Routes:
 - `(private)/colloquiums/[id]/page.tsx`
   - URL: `/colloquiums/[id]`
   - Shows the detail page for a single colloquium.
-  - Displays text-based content with clear visual distinction between moderator and participant contributions.
+  - Remains private and must never be exposed publicly.
+  - The current repository version renders a private editorial colloquium view with ordered sections, structured participant contributions, and managed audio/image media.
 - `(private)/membership-expired/page.tsx`
   - URL: `/membership-expired`
   - Dedicated expired-membership screen with a WhatsApp renewal call to action.
@@ -125,8 +130,18 @@ Routes:
   - URL: `/admin`
   - Internal administration dashboard.
   - Accessible only to authenticated users with `role = admin`.
-  - Used for manual management of members, books, and colloquiums.
+  - Used for manual management of members and books, and as the launch point for the dedicated colloquium editor flow.
   - Shows the latest recorded Supabase keep-alive status for operational verification.
+
+- `(admin)/admin/colloquiums/new/page.tsx`
+  - URL: `/admin/colloquiums/new`
+  - Creates a new structured colloquium draft or published record.
+- `(admin)/admin/colloquiums/[id]/page.tsx`
+  - URL: `/admin/colloquiums/[id]`
+  - Dedicated editor for metadata, sections, participant entries, and media.
+- `(admin)/admin/colloquiums/[id]/preview/page.tsx`
+  - URL: `/admin/colloquiums/[id]/preview`
+  - Admin-only preview route for draft and published colloquiums.
 
 Administrators must also have a clear navigation action that takes them to the admin dashboard after login and from appropriate authenticated views.
 
@@ -153,10 +168,15 @@ Routes:
 - WhatsApp number and default message must come from environment variables.
 - Books are not downloadable.
 - The public library must provide a "Request Book" action that opens WhatsApp.
-- Colloquiums must not store audio, video, or heavy media files.
-- Colloquium content must use Markdown as the MVP source format.
+- Colloquiums remain private. They must be accessible only to authenticated users with active memberships, while admins retain full access regardless of membership expiration.
+- The previous MVP restriction against colloquium multimedia no longer applies.
+- The approved colloquium MVP includes structured support for audio and images.
+- Colloquium media files must not be committed to the repository or stored on the Vercel filesystem.
+- Supabase Storage private buckets are the approved object storage provider for colloquium media in the MVP.
+- Colloquium content must no longer use one flat Markdown field as its primary source of truth.
+- Colloquium text fields now use plain text with preserved paragraphs and line breaks, not Markdown.
 - Raw enriched HTML should not be accepted for MVP colloquium content.
-- Markdown rendering must use a safe rendering strategy and must not allow unsafe HTML execution.
+- Existing legacy colloquiums must be migrated once into structured sections and must not remain on any fallback runtime path.
 - Private colloquium access requires:
   - an authenticated user, and
   - `membership_expires_at` greater than the current date.
@@ -214,29 +234,157 @@ Purpose:
 
 ### `colloquiums`
 
-Stores private text-based colloquium content.
+Stores the canonical private colloquium record.
 
-Key fields:
+Current repository fields:
 
 - `id`: UUID primary key.
 - `title`: colloquium title.
-- `content`: Markdown content.
 - `book_id`: foreign key referencing `books.id`.
 - `published_at`: publication timestamp.
+- `slug`: stable human-readable identifier.
+- `status`: expected values `draft` and `published`.
+- `excerpt`: optional short summary text.
+- `hero_image_asset_id`: optional relation to the colloquium hero image.
+- `created_at` and `updated_at`: lifecycle timestamps.
 
 Purpose:
 
 - Provide members with private reading club content.
 - Associate discussions with books.
-- Keep content lightweight and text-focused.
-- Support readable discussion formatting using Markdown conventions.
+- Provide the parent record for the structured colloquium module.
 
-Content format:
+Content model rules:
 
-- Markdown is the MVP format for colloquium content.
-- Use clear headings or labels for moderator and participant sections.
-- The UI should style moderator and participant sections differently where the Markdown structure allows it.
+- The refactored colloquium module must use structured sections and entries as the primary source of truth.
+- Text content inside structured colloquium records is plain text.
 - Raw HTML must not be trusted as user-safe content.
+
+### `colloquium_sections`
+
+Implemented in the repository.
+
+Purpose:
+
+- Represent ordered sections within a colloquium.
+- Support flexible editorial composition without forcing every colloquium into one rigid template.
+
+Expected fields:
+
+- `id`: UUID primary key.
+- `colloquium_id`: foreign key referencing `colloquiums.id`.
+- `type`: section type such as `intro`, `content`, `qa`, `audio`, `image`, or `closing`.
+- `title`: optional section title.
+- `content`: optional textual body for the section.
+- `display_order`: integer ordering field.
+- `created_at` and `updated_at`: lifecycle timestamps.
+
+### `colloquium_entries`
+
+Implemented in the repository.
+
+Purpose:
+
+- Represent structured participant-level contributions inside a section, especially for question-and-answer and discussion flows.
+
+Expected fields:
+
+- `id`: UUID primary key.
+- `colloquium_id`: foreign key referencing `colloquiums.id`.
+- `section_id`: foreign key referencing `colloquium_sections.id`.
+- `type`: entry type such as `question`, `answer`, `contribution`, `comment`, `central_idea`, `closing`, or `other`.
+- `role`: expected values such as `reader`, `host`, `presenter`, `anonymous`, or `other`.
+- `label`: optional short label.
+- `participant_name`: optional participant name.
+- `participant_location`: optional location label.
+- `central_idea`: optional highlighted idea.
+- `content`: optional main textual content.
+- `related_to_entry_id`: optional self-reference for linked entries.
+- `display_order`: integer ordering field.
+- `created_at` and `updated_at`: lifecycle timestamps.
+
+### `media_assets`
+
+Implemented in the repository.
+
+Purpose:
+
+- Store metadata for colloquium media files hosted outside the repository.
+- Support ordered audio and image rendering across colloquiums, sections, and entries.
+
+Expected fields:
+
+- `id`: UUID primary key.
+- `colloquium_id`: foreign key referencing `colloquiums.id`.
+- `section_id`: optional foreign key referencing `colloquium_sections.id`.
+- `entry_id`: optional foreign key referencing `colloquium_entries.id`.
+- `type`: expected values `image` and `audio`.
+- `provider`: fixed value `supabase-storage`.
+- `bucket`: storage bucket name.
+- `storage_key`: provider object key.
+- `asset_path`: provider object path used for private signed delivery.
+- `mime_type`: MIME type.
+- `size_bytes`: optional size in bytes.
+- `duration_seconds`: optional duration for audio.
+- `title`: optional short title.
+- `caption`: optional caption text.
+- `alt_text`: required or strongly recommended descriptive text for images.
+- `display_order`: integer ordering field.
+- `created_at` and `updated_at`: lifecycle timestamps.
+
+### Structured Colloquium Behavior
+
+These rules are approved for the refactor target and should guide implementation even before every table and UI surface exists.
+
+#### Editorial structure
+
+- A colloquium is not a generic blog post and must not be modeled as one long unstructured body.
+- A colloquium may include introduction, editorial content blocks, ordered audio, images, question-and-answer blocks, reader contributions, comments, and closing content.
+- The structure must remain flexible. Not every colloquium is required to use every section type.
+- Ordered sections are the top-level composition mechanism.
+- Structured entries are the second-level mechanism for participant-specific interventions within a section.
+- Media assets may belong to the colloquium root, a section, or an entry.
+
+#### Publication model
+
+- `draft` means the colloquium is editable in the admin experience and is not visible to ordinary members.
+- `published` means the colloquium is visible in the private member-facing colloquium area.
+- Admin users may review both draft and published colloquiums in the administration flow.
+- Member-facing list and detail screens must only expose published colloquiums.
+- `published_at` should represent the intended publication timestamp for published colloquiums.
+
+#### Section rules
+
+- Minimum supported section types are `intro`, `content`, `qa`, `audio`, `image`, and `closing`.
+- Every section must have a stable `display_order`.
+- A section title is optional, but the UI must preserve a coherent heading hierarchy when titles are present.
+- Text-bearing sections store plain text only.
+- Sections must be reorderable without rewriting unrelated content.
+- Deleting a section must require an explicit admin confirmation step in the UI.
+
+#### Entry rules
+
+- Entries are primarily intended for question-and-answer, reader contributions, commentary, central ideas, and closing interventions.
+- `participant_name` is optional because some legacy content may be anonymous or incompletely attributed.
+- `participant_location` is optional and should be stored only when the source material provides it.
+- `related_to_entry_id` may be used for linked answers or follow-up relationships, but the initial implementation should avoid complex thread trees unless they are truly needed.
+- Entries must support explicit ordering inside their parent section.
+
+#### Long intervention behavior
+
+- Long text interventions must not be summarized with AI.
+- The initial implementation should collapse an intervention when it exceeds either roughly `500` characters or `125` words.
+- The collapsed state must preserve the original text, truncated visually with an ellipsis and an explicit toggle action.
+- Toggle labels should use clear Spanish product copy such as `Ver más`, `Mostrar más`, or `Leer intervención completa`.
+- The expand/collapse control must be implemented as a real button and remain keyboard accessible.
+
+#### Media semantics
+
+- `hero_image_asset_id` is reserved for the main colloquium image.
+- Images used inside reading flow sections must support optional caption text and meaningful alt text.
+- Audio assets must support ordered playback blocks within their section.
+- The application must store metadata in the database and store binary files only in Supabase Storage.
+- The original filename may be displayed to admins, but it must not be the sole source of the storage key.
 
 ### `system_heartbeats`
 
@@ -290,8 +438,9 @@ Required expectations:
 
 - Enable Row Level Security on all application tables.
 - Define explicit policies for `profiles`, `books`, `colloquiums`, and `system_heartbeats`.
+- Explicit policies must exist for `colloquium_sections`, `colloquium_entries`, and `media_assets`.
 - Allow public read access to `books` when appropriate.
-- Restrict `colloquiums` to authenticated users with active memberships.
+- Restrict `colloquiums` and all colloquium-related child records to authenticated users with active memberships.
 - Allow admin users to read and manage all protected data regardless of membership expiration.
 - Restrict `profiles` to tightly controlled access patterns.
 - Restrict `system_heartbeats` reads to admins only.
@@ -299,6 +448,16 @@ Required expectations:
 - Test policies for anonymous visitors, regular active members, expired members, and admin users.
 
 Any database setup SQL generated for this project must include complete RLS policies.
+
+### Colloquium Media Security
+
+- All colloquium media upload flows must validate authenticated admin access on the server before issuing any upload capability.
+- Supabase Storage administrative credentials must remain server-only.
+- The client must never receive raw privileged Storage credentials.
+- Signed uploads must be scoped to a system-generated storage key, limited content type, and a bounded confirmation window.
+- The server must verify the colloquium context before persisting confirmed media metadata.
+- The storage key namespace must be owned by the system and must not be accepted as arbitrary free text from the client.
+- If file deletion is supported later, the server must authorize the action and delete both provider object and local metadata consistently.
 
 ## 7. UI/UX Guidelines
 
@@ -1051,6 +1210,18 @@ The redesign must not introduce:
 - Prefer simple, explicit, maintainable code.
 - Keep each implementation task tightly scoped.
 
+### Colloquium Refactor Implementation Rules
+
+- Keep the colloquium refactor domain-oriented and organized around the existing project structure.
+- Prefer a dedicated colloquium feature surface for types, schemas, read models, and admin/editor logic rather than scattering new concerns across unrelated files.
+- Use Route Handlers for presigned-upload and upload-confirmation flows when a browser client needs to exchange JSON payloads with the server.
+- Use Server Actions for authenticated admin form mutations that fit the existing project pattern.
+- Validate authentication and admin authorization inside every upload-related Route Handler and every colloquium mutation.
+- Use `server-only` for any module that constructs privileged storage clients or reads private Supabase Storage credentials.
+- Do not proxy large file bodies through Server Actions or ordinary app server endpoints when direct signed upload is available.
+- Keep the first implementation compatible with the current private routes instead of introducing a second colloquium delivery surface.
+- Remove legacy runtime reads once the structured data migration has been applied.
+
 ### CI/CD Baseline
 
 - Continuous Integration must run through GitHub Actions.
@@ -1069,7 +1240,7 @@ The redesign must not introduce:
 - Admin protection, membership checks, and private-content access must be enforced on the server and at the database policy layer.
 - Every privileged mutation must validate authentication and authorization explicitly.
 - Supabase RLS must be written as if an attacker can read the entire codebase and understand the schema.
-- Unsafe HTML execution is forbidden. Any rich content pipeline must default to safe Markdown or sanitized rendering.
+- Unsafe HTML execution is forbidden. Colloquium text handling must default to plain text, or to an explicitly sanitized renderer if a future product decision reintroduces rich formatting.
 - Before opening a pull request, review the diff for secrets, private notes, copied dashboard values, and accidental environment leakage.
 
 ## 9. Environment Configuration
@@ -1089,12 +1260,66 @@ Required Supabase environment values:
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` as a legacy fallback only, if the project has not switched to the publishable key naming yet.
 
+Additional server-only environment values for the colloquium media refactor:
+
+- `SUPABASE_COLLOQUIUM_MEDIA_BUCKET`
+
+This value is used to resolve the private Supabase Storage bucket that stores colloquium media objects.
+
 Server-only environment values:
 
 - `SUPABASE_SERVICE_ROLE_KEY`, only if required for admin-side user creation or privileged operations.
 - `CRON_SECRET`, required to authenticate Vercel Cron invocations for the Supabase keep-alive endpoint.
 
 Server-only values must never be imported into Client Components or exposed through public environment variables.
+
+### Colloquium Media Validation Baseline
+
+The first implementation should enforce at least the following validation rules on the server:
+
+- Supported image types: `image/jpeg`, `image/png`, and `image/webp`.
+- Supported audio types: `audio/mpeg`, `audio/mp4`, `audio/aac`, `audio/ogg`, and any additional type only if explicitly approved during implementation.
+- The project should define explicit maximum size limits for images and audio before production launch, rather than leaving them implicit.
+- The server should reject uploads whose MIME type, extension, or intended usage context do not match the request.
+- The server should persist `mime_type` and `size_bytes` for every confirmed media asset.
+- The server should persist `duration_seconds` for audio whenever that value can be obtained reliably.
+
+### Storage Key Convention
+
+The colloquium media namespace should remain predictable and system-controlled.
+
+Recommended patterns:
+
+- `colloquiums/{colloquium-slug}/images/{uuid}.{ext}`
+- `colloquiums/{colloquium-slug}/audio/{uuid}.{ext}`
+
+Rules:
+
+- The slug segment should be derived from the canonical colloquium record, not typed freely by the client.
+- The filename suffix should use a generated identifier such as a UUID.
+- Original filenames may be stored as display metadata for admins, but not as the sole object key.
+- The server should sanitize or derive the extension from validated file metadata.
+
+### Upload Flow
+
+The approved media upload flow is:
+
+1. The authenticated admin selects a file in the editor.
+2. The client requests a signed upload capability from the backend for a specific colloquium context.
+3. The backend validates admin access, file intent, type, size, and destination context.
+4. The backend generates a signed upload token for Supabase Storage using a system-owned storage key.
+5. The client uploads the file directly to the private Supabase Storage bucket.
+6. The client calls a server endpoint or action to confirm the successful upload.
+7. The server persists the `media_assets` metadata record only after successful confirmation.
+8. The asset becomes selectable or attached within the colloquium editor.
+
+The backend should expose functions or equivalent service responsibilities matching:
+
+- `createSignedUploadToken`
+- `confirmMediaUpload`
+- `deleteMediaAsset`
+- `createSignedReadUrl`
+- `validateMediaFile`
 
 Bootstrap note:
 
@@ -1121,18 +1346,22 @@ The repository has already progressed beyond the original early-step plan. The f
 - Supabase SSR auth foundation with `proxy.ts`, login, logout, and server-side session helpers.
 - Public home and library routes with WhatsApp calls to action.
 - Membership gate and expired-membership flow.
-- Private colloquium list and detail routes with safe Markdown rendering.
+- Private colloquium list and detail routes with structured section rendering.
 - Admin dashboard and manual management flows for members, books, and colloquiums.
 - GitHub Actions CI and dependency audit workflows.
 
-### Current Focus: MVP Hardening and Release Readiness
+### Current Focus: Colloquium Refactor and MVP Completion
 
 Objective:
 
-- Validate and harden the already implemented MVP without expanding product scope.
+- Deliver the approved private colloquium refactor as part of the MVP while preserving existing security and membership-gating rules.
 
 Scope:
 
+- Complete the structured private colloquium domain and remove legacy runtime dependencies.
+- Keep legacy-content handling limited to one-time data migration, not ongoing runtime support.
+- Add Supabase Storage-backed colloquium media support for audio and images using server-validated uploads.
+- Build the administrative colloquium editor workflow required to create, edit, save drafts, and publish structured colloquiums.
 - Verify required environment variables and server-only credential boundaries.
 - Confirm all privileged Server Actions validate admin authorization.
 - Confirm public WhatsApp flows use shared environment-driven helpers.
@@ -1142,12 +1371,21 @@ Scope:
 - Keep documentation aligned with implementation status.
 - Run formatting, linting, typechecking, and production build checks.
 
+Operational implementation phases:
+
+- Phase 1: create the structured colloquium data model, member-facing read models, and the one-time migration path required to retire legacy colloquium content.
+- Phase 2: add Supabase Storage integration, signed upload generation, upload confirmation, and persisted media metadata.
+- Phase 3: build the admin colloquium editor for metadata, sections, entries, hero media, ordered section media, draft/published transitions, and reorder flows.
+- Phase 4: refine preview, accessibility, migration tooling, and higher-quality editorial presentation details.
+
 Out of scope:
 
 - Payment gateway integration.
 - Public signup.
 - Member self-service account creation.
-- Audio, video, downloads, or heavy media workflows.
+- Public colloquium access.
+- General-purpose media management unrelated to colloquiums.
+- Any video workflow that has not been explicitly specified and designed for the colloquium module.
 - Complex role systems beyond `admin` and `member`.
 - Analytics, marketing automation, or feature expansion.
 
@@ -1155,21 +1393,31 @@ Deliverables:
 
 - Passing local checks or clearly documented failures.
 - Updated documentation for any discovered project conventions or verified limitations.
-- Minimal fixes for obvious security, consistency, accessibility, or operational issues.
+- Minimal secure infrastructure for the colloquium refactor, including database, authorization, and media-upload foundations.
+- A documented migration path from legacy colloquium rows to structured colloquium records.
 - Deployment-readiness notes for Vercel and Supabase.
 
 Completion criteria:
 
-- Core public, private, auth, and admin flows are understood and checked.
+- Core public, private, auth, and admin flows remain coherent during the refactor.
 - Security rules are enforced in Server Components, Server Actions, Route Handlers, and Supabase RLS.
+- Private colloquiums remain visible only to authenticated users with active memberships, while admins retain override access.
+- The colloquium module uses structured sections and managed media as its only runtime reading model.
+- The upload flow stores binary objects in Supabase Storage and stores only metadata in the database.
+- The member-facing reader can render ordered sections, structured interventions, and managed media without exposing drafts publicly.
 - Environment configuration is documented and contains no committed secrets.
 - The app is ready for initial Vercel deployment once Supabase project settings and production environment variables are verified.
 
+### Legacy Migration Rules
+
+- Existing colloquium rows must not be discarded during the refactor.
+- Legacy colloquium bodies must be migrated once into structured sections before the deprecated source field is removed.
+
 ### Deferred Work
 
-These items remain valid but should be handled only when explicitly requested or when required for release readiness:
+These items remain valid but should be handled only when explicitly requested or when required after the colloquium refactor foundation is in place:
 
-- Add delete workflows for admin-managed books, colloquiums, or members if the business process requires them.
+- Add delete workflows for admin-managed books or members if the business process requires them.
 - Add route-level `error.tsx` boundaries where operational testing shows meaningful failure modes.
-- Introduce a committed shadcn/ui component directory if the project starts standardizing reusable UI primitives.
+- Continue extending the committed shadcn/ui primitive directory only where it improves clarity and accessibility.
 - Add formal automated tests after the MVP behavior stabilizes enough to justify the maintenance cost.

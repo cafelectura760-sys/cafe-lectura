@@ -1,25 +1,10 @@
 import Link from "next/link";
 
-import type { ColloquiumSummary } from "@/lib/colloquiums/data";
+import type { ColloquiumSummary } from "@/lib/colloquiums/types";
 
 type ColloquiumCardProps = {
   colloquium: ColloquiumSummary;
 };
-
-function getExcerpt(content: string): string {
-  const normalizedContent = content
-    .replace(/\r\n?/g, "\n")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^[-*]\s+/gm, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (normalizedContent.length <= 220) {
-    return normalizedContent;
-  }
-
-  return `${normalizedContent.slice(0, 217).trim()}...`;
-}
 
 function formatDateLabel(isoDate: string): string {
   return new Intl.DateTimeFormat("es-VE", {
@@ -32,7 +17,18 @@ export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
     <article className="surface-card lift-on-hover overflow-hidden p-4 md:p-5">
       <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)]">
         <div className="book-cover-frame max-w-[168px]">
-          {colloquium.bookCoverImageUrl ? (
+          {colloquium.heroImage?.signedUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={colloquium.heroImage.signedUrl}
+              alt={
+                colloquium.heroImage.altText ??
+                colloquium.heroImage.title ??
+                `Imagen principal de ${colloquium.title}`
+              }
+              className="h-full w-full object-cover"
+            />
+          ) : colloquium.bookCoverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={colloquium.bookCoverImageUrl}
@@ -54,14 +50,19 @@ export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
             </h2>
             <p className="meta-copy mt-3">
               {colloquium.bookAuthor} - Publicado el{" "}
-              {formatDateLabel(colloquium.publishedAt)}
+              {formatDateLabel(
+                colloquium.publishedAt ?? new Date().toISOString(),
+              )}
             </p>
-            <p className="body-copy mt-4">{getExcerpt(colloquium.content)}</p>
+            <p className="body-copy mt-4">
+              {colloquium.excerpt ??
+                "Este coloquio ya está disponible para lectura privada."}
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/colloquiums/${colloquium.id}`}
+              href={`/colloquiums/${colloquium.slug}`}
               className="btn-primary"
             >
               Abrir coloquio

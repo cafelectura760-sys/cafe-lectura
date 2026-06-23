@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
   --color-ink: #1f1a17;
@@ -51,11 +52,33 @@
   --focus-ring-offset: 2px;
   --background: var(--background-app);
   --foreground: var(--text-primary);
+  --radius: 0.75rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--surface-default);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface-default);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--color-verde);
+  --color-primary-foreground: var(--text-on-dark);
+  --color-secondary: var(--surface-subtle);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-subtle);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--surface-emphasis);
+  --color-accent-foreground: var(--text-primary);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--text-on-dark);
+  --color-border: var(--border-default);
+  --color-input: var(--border-default);
+  --color-ring: var(--focus-ring-color);
   --font-sans:
     "Source Sans 3", "Source Sans 3 Fallback", ui-sans-serif, system-ui,
     sans-serif;

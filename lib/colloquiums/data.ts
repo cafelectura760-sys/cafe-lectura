@@ -7,10 +7,12 @@ import type {
   AdminColloquiumListItem,
   BookOption,
   ColloquiumDetail,
-  ColloquiumEntryRecord,
-  ColloquiumSectionRecord,
+  ColloquiumParticipantRecord,
   ColloquiumSummary,
   MediaAssetRecord,
+  PresentationAudioBlockRecord,
+  PresentationBlockRecord,
+  PresentationTextBlockRecord,
 } from "@/lib/colloquiums/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +23,6 @@ type ColloquiumRow = {
   excerpt: string | null;
   status: "draft" | "published";
   book_id: string;
-  hero_image_asset_id: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -34,29 +35,25 @@ type BookLookupRow = {
   cover_image_url: string;
 };
 
-type SectionRow = {
+type ParticipantRow = {
   id: string;
   colloquium_id: string;
-  type: ColloquiumSectionRecord["type"];
-  title: string | null;
-  content: string | null;
+  name: string;
+  role: ColloquiumParticipantRecord["role"];
   display_order: number;
   created_at: string;
   updated_at: string;
 };
 
-type EntryRow = {
+type PresentationBlockRow = {
   id: string;
   colloquium_id: string;
-  section_id: string;
-  type: ColloquiumEntryRecord["type"];
-  role: ColloquiumEntryRecord["role"];
-  label: string | null;
-  participant_name: string | null;
-  participant_location: string | null;
-  central_idea: string | null;
+  type: PresentationBlockRecord["type"];
+  title: string | null;
   content: string | null;
-  related_to_entry_id: string | null;
+  participant_id: string | null;
+  speaker_role: PresentationAudioBlockRecord["speakerRole"] | null;
+  speaker_name: string | null;
   display_order: number;
   created_at: string;
   updated_at: string;
@@ -93,9 +90,10 @@ async function fetchMediaAssetsForColloquium(
   const { data, error } = await supabase
     .from("media_assets")
     .select(
-      "id, colloquium_id, section_id, entry_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, alt_text, display_order, created_at, updated_at",
+      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, display_order, created_at, updated_at",
     )
     .eq("colloquium_id", colloquiumId)
+    .eq("type", "audio")
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -122,7 +120,6 @@ function mapColloquiumSummary(
       coverImageUrl: string;
     }
   >,
-  heroImage: MediaAssetRecord | null,
 ): ColloquiumSummary {
   const relatedBook = booksById.get(colloquium.book_id);
 
@@ -136,111 +133,92 @@ function mapColloquiumSummary(
     bookTitle: relatedBook?.title ?? "Libro no disponible",
     bookAuthor: relatedBook?.author ?? "Autor no disponible",
     bookCoverImageUrl: relatedBook?.coverImageUrl ?? "",
-    heroImage,
     publishedAt: colloquium.published_at,
   };
 }
 
-async function getColloquiumSectionsAndEntries(colloquiumId: string) {
+async function getColloquiumParticipants(
+  colloquiumId: string,
+): Promise<ColloquiumParticipantRecord[]> {
   const supabase = await createClient();
-  const [
-    { data: sections, error: sectionsError },
-    { data: entries, error: entriesError },
-  ] = await Promise.all([
-    supabase
-      .from("colloquium_sections")
-      .select(
-        "id, colloquium_id, type, title, content, display_order, created_at, updated_at",
-      )
-      .eq("colloquium_id", colloquiumId)
-      .order("display_order", { ascending: true })
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("colloquium_entries")
-      .select(
-        "id, colloquium_id, section_id, type, role, label, participant_name, participant_location, central_idea, content, related_to_entry_id, display_order, created_at, updated_at",
-      )
-      .eq("colloquium_id", colloquiumId)
-      .order("display_order", { ascending: true })
-      .order("created_at", { ascending: true }),
-  ]);
+  const { data, error } = await supabase
+    .from("colloquium_participants")
+    .select(
+      "id, colloquium_id, name, role, display_order, created_at, updated_at",
+    )
+    .eq("colloquium_id", colloquiumId)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: true });
 
-  if (sectionsError) {
-    throw new Error(
-      `Failed to load colloquium sections: ${sectionsError.message}`,
-    );
+  if (error) {
+    throw new Error(`Failed to load colloquium participants: ${error.message}`);
   }
 
-  if (entriesError) {
-    throw new Error(
-      `Failed to load colloquium entries: ${entriesError.message}`,
-    );
-  }
-
-  return {
-    sections: sections satisfies SectionRow[],
-    entries: entries satisfies EntryRow[],
-  };
+  return (data satisfies ParticipantRow[]).map((participant) => ({
+    id: participant.id,
+    colloquiumId: participant.colloquium_id,
+    name: participant.name,
+    role: participant.role,
+    displayOrder: participant.display_order,
+    createdAt: participant.created_at,
+    updatedAt: participant.updated_at,
+  }));
 }
 
-function buildSectionTree(input: {
-  sections: SectionRow[];
-  entries: EntryRow[];
-  assets: MediaAssetRecord[];
-}): ColloquiumSectionRecord[] {
-  const assetsBySectionId = new Map<string, MediaAssetRecord[]>();
-  const assetsByEntryId = new Map<string, MediaAssetRecord[]>();
+async function getPresentationBlocks(
+  colloquiumId: string,
+  assets: MediaAssetRecord[],
+): Promise<PresentationBlockRecord[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("colloquium_sections")
+    .select(
+      "id, colloquium_id, type, title, content, participant_id, speaker_role, speaker_name, display_order, created_at, updated_at",
+    )
+    .eq("colloquium_id", colloquiumId)
+    .in("type", ["text", "audio"])
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: true });
 
-  input.assets.forEach((asset) => {
-    if (asset.sectionId) {
-      const sectionAssets = assetsBySectionId.get(asset.sectionId) ?? [];
-      sectionAssets.push(asset);
-      assetsBySectionId.set(asset.sectionId, sectionAssets);
-    }
+  if (error) {
+    throw new Error(`Failed to load presentation blocks: ${error.message}`);
+  }
 
-    if (asset.entryId) {
-      const entryAssets = assetsByEntryId.get(asset.entryId) ?? [];
-      entryAssets.push(asset);
-      assetsByEntryId.set(asset.entryId, entryAssets);
+  const assetsBySectionId = new Map<string, MediaAssetRecord>();
+
+  assets.forEach((asset) => {
+    if (asset.sectionId && !assetsBySectionId.has(asset.sectionId)) {
+      assetsBySectionId.set(asset.sectionId, asset);
     }
   });
 
-  const entriesBySectionId = new Map<string, ColloquiumEntryRecord[]>();
+  return (data satisfies PresentationBlockRow[]).map((block) => {
+    if (block.type === "text") {
+      return {
+        id: block.id,
+        colloquiumId: block.colloquium_id,
+        type: "text",
+        content: block.content?.trim() || "",
+        displayOrder: block.display_order,
+        createdAt: block.created_at,
+        updatedAt: block.updated_at,
+      } satisfies PresentationTextBlockRecord;
+    }
 
-  input.entries.forEach((entry) => {
-    const sectionEntries = entriesBySectionId.get(entry.section_id) ?? [];
-    sectionEntries.push({
-      id: entry.id,
-      colloquiumId: entry.colloquium_id,
-      sectionId: entry.section_id,
-      type: entry.type,
-      role: entry.role,
-      label: entry.label,
-      participantName: entry.participant_name,
-      participantLocation: entry.participant_location,
-      centralIdea: entry.central_idea,
-      content: entry.content,
-      relatedToEntryId: entry.related_to_entry_id,
-      displayOrder: entry.display_order,
-      createdAt: entry.created_at,
-      updatedAt: entry.updated_at,
-      assets: assetsByEntryId.get(entry.id) ?? [],
-    });
-    entriesBySectionId.set(entry.section_id, sectionEntries);
+    return {
+      id: block.id,
+      colloquiumId: block.colloquium_id,
+      type: "audio",
+      label: block.title?.trim() || null,
+      participantId: block.participant_id,
+      speakerRole: block.speaker_role ?? "other",
+      speakerName: block.speaker_name?.trim() || "Participación",
+      asset: assetsBySectionId.get(block.id) ?? null,
+      displayOrder: block.display_order,
+      createdAt: block.created_at,
+      updatedAt: block.updated_at,
+    } satisfies PresentationAudioBlockRecord;
   });
-
-  return input.sections.map((section) => ({
-    id: section.id,
-    colloquiumId: section.colloquium_id,
-    type: section.type,
-    title: section.title,
-    content: section.content,
-    displayOrder: section.display_order,
-    createdAt: section.created_at,
-    updatedAt: section.updated_at,
-    assets: assetsBySectionId.get(section.id) ?? [],
-    entries: entriesBySectionId.get(section.id) ?? [],
-  }));
 }
 
 async function findColloquiumBySegment(
@@ -252,7 +230,7 @@ async function findColloquiumBySegment(
   let query = supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, hero_image_asset_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
     )
     .eq("slug", segment)
     .limit(1);
@@ -281,7 +259,7 @@ async function findColloquiumBySegment(
   let byIdQuery = supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, hero_image_asset_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
     )
     .eq("id", segment)
     .limit(1);
@@ -306,7 +284,7 @@ export async function getAvailableColloquiums(): Promise<ColloquiumSummary[]> {
   const { data, error } = await supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, hero_image_asset_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
     )
     .eq("status", "published")
     .order("published_at", { ascending: false });
@@ -318,29 +296,8 @@ export async function getAvailableColloquiums(): Promise<ColloquiumSummary[]> {
   const booksById = await booksByIdPromise;
   const colloquiums = data satisfies ColloquiumRow[];
 
-  if (colloquiums.length === 0) {
-    return [];
-  }
-
-  const assetsByColloquium = new Map<string, MediaAssetRecord[]>();
-
-  await Promise.all(
-    colloquiums.map(async (colloquium) => {
-      assetsByColloquium.set(
-        colloquium.id,
-        await fetchMediaAssetsForColloquium(colloquium.id),
-      );
-    }),
-  );
-
   return colloquiums.map((colloquium) =>
-    mapColloquiumSummary(
-      colloquium,
-      booksById,
-      (assetsByColloquium.get(colloquium.id) ?? []).find(
-        (asset) => asset.id === colloquium.hero_image_asset_id,
-      ) ?? null,
-    ),
+    mapColloquiumSummary(colloquium, booksById),
   );
 }
 
@@ -356,25 +313,18 @@ export async function getColloquiumBySegment(
 
   const booksById = await getBooksLookup();
   const assets = await fetchMediaAssetsForColloquium(colloquium.id);
-  const { sections, entries } = await getColloquiumSectionsAndEntries(
-    colloquium.id,
-  );
-  const summary = mapColloquiumSummary(
-    colloquium,
-    booksById,
-    assets.find((asset) => asset.id === colloquium.hero_image_asset_id) ?? null,
-  );
+  const [participants, presentationBlocks] = await Promise.all([
+    getColloquiumParticipants(colloquium.id),
+    getPresentationBlocks(colloquium.id, assets),
+  ]);
+  const summary = mapColloquiumSummary(colloquium, booksById);
 
   return {
     ...summary,
     createdAt: colloquium.created_at,
     updatedAt: colloquium.updated_at,
-    rootAssets: assets.filter((asset) => !asset.sectionId && !asset.entryId),
-    sections: buildSectionTree({
-      sections,
-      entries,
-      assets,
-    }),
+    participants,
+    presentationBlocks,
   };
 }
 
@@ -386,7 +336,7 @@ export async function listAdminColloquiums(): Promise<
   const { data, error } = await supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, hero_image_asset_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
     )
     .order("updated_at", { ascending: false });
 
@@ -399,40 +349,55 @@ export async function listAdminColloquiums(): Promise<
     return [];
   }
 
-  const booksById = await booksByIdPromise;
-  const assetsByColloquium = new Map<string, MediaAssetRecord[]>();
+  const colloquiumIds = colloquiums.map((colloquium) => colloquium.id);
 
-  await Promise.all(
-    colloquiums.map(async (colloquium) => {
-      assetsByColloquium.set(
-        colloquium.id,
-        await fetchMediaAssetsForColloquium(colloquium.id),
-      );
-    }),
-  );
+  const [booksById, sectionsResult, participantsResult] = await Promise.all([
+    booksByIdPromise,
+    supabase
+      .from("colloquium_sections")
+      .select("colloquium_id, type")
+      .in("colloquium_id", colloquiumIds)
+      .in("type", ["text", "audio"]),
+    supabase
+      .from("colloquium_participants")
+      .select("colloquium_id")
+      .in("colloquium_id", colloquiumIds),
+  ]);
 
-  const { data: sections, error: sectionsError } = await supabase
-    .from("colloquium_sections")
-    .select("id, colloquium_id")
-    .in(
-      "colloquium_id",
-      colloquiums.length
-        ? colloquiums.map((colloquium) => colloquium.id)
-        : [""],
-    );
-
-  if (sectionsError) {
+  if (sectionsResult.error) {
     throw new Error(
-      `Failed to count colloquium sections: ${sectionsError.message}`,
+      `Failed to count presentation blocks: ${sectionsResult.error.message}`,
     );
   }
 
-  const sectionCounts = new Map<string, number>();
+  if (participantsResult.error) {
+    throw new Error(
+      `Failed to count colloquium participants: ${participantsResult.error.message}`,
+    );
+  }
 
-  (sections ?? []).forEach((section: { colloquium_id: string }) => {
-    sectionCounts.set(
+  const blockCounts = new Map<string, number>();
+  const audioBlockCounts = new Map<string, number>();
+  const participantCounts = new Map<string, number>();
+
+  (sectionsResult.data ?? []).forEach((section) => {
+    blockCounts.set(
       section.colloquium_id,
-      (sectionCounts.get(section.colloquium_id) ?? 0) + 1,
+      (blockCounts.get(section.colloquium_id) ?? 0) + 1,
+    );
+
+    if (section.type === "audio") {
+      audioBlockCounts.set(
+        section.colloquium_id,
+        (audioBlockCounts.get(section.colloquium_id) ?? 0) + 1,
+      );
+    }
+  });
+
+  (participantsResult.data ?? []).forEach((participant) => {
+    participantCounts.set(
+      participant.colloquium_id,
+      (participantCounts.get(participant.colloquium_id) ?? 0) + 1,
     );
   });
 
@@ -445,14 +410,12 @@ export async function listAdminColloquiums(): Promise<
     bookId: colloquium.book_id,
     bookTitle:
       booksById.get(colloquium.book_id)?.title ?? "Libro no disponible",
-    heroImage:
-      (assetsByColloquium.get(colloquium.id) ?? []).find(
-        (asset) => asset.id === colloquium.hero_image_asset_id,
-      ) ?? null,
     publishedAt: colloquium.published_at,
     createdAt: colloquium.created_at,
     updatedAt: colloquium.updated_at,
-    sectionCount: sectionCounts.get(colloquium.id) ?? 0,
+    blockCount: blockCounts.get(colloquium.id) ?? 0,
+    audioBlockCount: audioBlockCounts.get(colloquium.id) ?? 0,
+    participantCount: participantCounts.get(colloquium.id) ?? 0,
   }));
 }
 

@@ -8,9 +8,6 @@ type ConfirmRequestBody = {
   storageKey?: string;
   mimeType?: string;
   sizeBytes?: number;
-  title?: string | null;
-  caption?: string | null;
-  altText?: string | null;
   durationSeconds?: number | null;
 };
 
@@ -35,9 +32,6 @@ export async function POST(request: Request) {
       storageKey: body.storageKey ?? "",
       mimeType: body.mimeType ?? "",
       sizeBytes: body.sizeBytes ?? 0,
-      title: body.title ?? null,
-      caption: body.caption ?? null,
-      altText: body.altText ?? null,
       durationSeconds: body.durationSeconds ?? null,
     });
 

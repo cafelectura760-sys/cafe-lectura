@@ -46,7 +46,7 @@ export default async function AdminColloquiumPreviewPage({
 
       <ColloquiumReader
         colloquium={colloquium}
-        previewLabel="Previsualización administrativa. Este contenido puede incluir secciones en borrador y no está expuesto a miembros ordinarios."
+        previewLabel="Previsualización administrativa. Este contenido puede incluir bloques de presentación en borrador y no está expuesto a miembros ordinarios."
       />
     </PageShell>
   );

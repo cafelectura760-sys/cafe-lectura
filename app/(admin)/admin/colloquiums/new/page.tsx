@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 
-import {
-  AdminColloquiumEditor,
-  getColloquiumEditorFeedbackMessage,
-} from "@/components/colloquiums/admin-colloquium-editor";
 import { listColloquiumBookOptions } from "@/lib/colloquiums/data";
+import { getColloquiumEditorFeedbackMessage } from "@/lib/colloquiums/editor-feedback";
 import { requireAdmin } from "@/lib/auth/session";
 import { getSupabaseColloquiumMediaBucket } from "@/lib/env/server";
+import { AdminColloquiumEditor } from "@/components/colloquiums/admin-colloquium-editor";
 
 type NewAdminColloquiumPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

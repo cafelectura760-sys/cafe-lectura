@@ -54,8 +54,8 @@ export function DeleteColloquiumDialog({
           <AlertDialogTitle>Eliminar coloquio</AlertDialogTitle>
           <AlertDialogDescription>
             Vas a eliminar de forma irreversible <strong>{title}</strong>, junto
-            con sus secciones, intervenciones y archivos privados. Esta acción
-            no se puede deshacer.
+            con sus participantes, bloques de presentación y audios privados.
+            Esta acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import {
-  AdminColloquiumEditor,
-  getColloquiumEditorFeedbackMessage,
-} from "@/components/colloquiums/admin-colloquium-editor";
-import {
   getAdminColloquiumEditorRecord,
   listColloquiumBookOptions,
 } from "@/lib/colloquiums/data";
+import { getColloquiumEditorFeedbackMessage } from "@/lib/colloquiums/editor-feedback";
 import { requireAdmin } from "@/lib/auth/session";
 import { getSupabaseColloquiumMediaBucket } from "@/lib/env/server";
+import { AdminColloquiumEditor } from "@/components/colloquiums/admin-colloquium-editor";
 
 type AdminColloquiumEditorPageProps = {
   params: Promise<{

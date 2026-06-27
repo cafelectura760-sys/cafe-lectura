@@ -4,21 +4,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
-  addColloquiumEntry,
-  addColloquiumSection,
+  addColloquiumParticipant,
+  addPresentationAudioBlock,
+  addPresentationTextBlock,
   ColloquiumEditorError,
   createAdminColloquium,
   deleteColloquium,
-  deleteColloquiumEntry,
-  deleteColloquiumSection,
-  moveColloquiumEntry,
-  moveColloquiumSection,
-  setColloquiumHeroImage,
+  deleteColloquiumParticipant,
+  deletePresentationBlock,
+  moveColloquiumParticipant,
+  movePresentationBlock,
   updateAdminColloquium,
-  updateColloquiumEntry,
-  updateColloquiumSection,
+  updateColloquiumParticipant,
   updateColloquiumSlug,
-  updateMediaAssetMetadata,
+  updatePresentationAudioBlock,
+  updatePresentationTextBlock,
 } from "@/lib/colloquiums/editor";
 
 function getStringEntry(
@@ -174,7 +174,7 @@ export async function updateColloquiumSlugAction(formData: FormData) {
   redirectWithFeedback(redirectPath, "status", "colloquium-slug-updated");
 }
 
-export async function addColloquiumSectionAction(formData: FormData) {
+export async function addColloquiumParticipantAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -183,11 +183,10 @@ export async function addColloquiumSectionAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await addColloquiumSection({
+    await addColloquiumParticipant({
       colloquiumId,
-      type: getStringEntry(formData.get("type"), "invalid-section-type"),
-      title: getOptionalStringEntry(formData.get("title")),
-      content: getOptionalStringEntry(formData.get("content")),
+      name: getStringEntry(formData.get("name"), "invalid-participant-name"),
+      role: getStringEntry(formData.get("role"), "invalid-participant-role"),
     });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
@@ -198,10 +197,10 @@ export async function addColloquiumSectionAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "section-created");
+  redirectWithFeedback(redirectPath, "status", "participant-created");
 }
 
-export async function updateColloquiumSectionAction(formData: FormData) {
+export async function updateColloquiumParticipantAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -210,15 +209,14 @@ export async function updateColloquiumSectionAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await updateColloquiumSection({
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
+    await updateColloquiumParticipant({
+      participantId: getStringEntry(
+        formData.get("participant_id"),
+        "participant-not-found",
       ),
       colloquiumId,
-      type: getStringEntry(formData.get("type"), "invalid-section-type"),
-      title: getOptionalStringEntry(formData.get("title")),
-      content: getOptionalStringEntry(formData.get("content")),
+      name: getStringEntry(formData.get("name"), "invalid-participant-name"),
+      role: getStringEntry(formData.get("role"), "invalid-participant-role"),
     });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
@@ -229,10 +227,10 @@ export async function updateColloquiumSectionAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "section-updated");
+  redirectWithFeedback(redirectPath, "status", "participant-updated");
 }
 
-export async function deleteColloquiumSectionAction(formData: FormData) {
+export async function deleteColloquiumParticipantAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -241,10 +239,10 @@ export async function deleteColloquiumSectionAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await deleteColloquiumSection({
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
+    await deleteColloquiumParticipant({
+      participantId: getStringEntry(
+        formData.get("participant_id"),
+        "participant-not-found",
       ),
       colloquiumId,
     });
@@ -257,10 +255,10 @@ export async function deleteColloquiumSectionAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "section-deleted");
+  redirectWithFeedback(redirectPath, "status", "participant-deleted");
 }
 
-export async function moveColloquiumSectionAction(formData: FormData) {
+export async function moveColloquiumParticipantAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -269,14 +267,14 @@ export async function moveColloquiumSectionAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await moveColloquiumSection({
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
+    await moveColloquiumParticipant({
+      participantId: getStringEntry(
+        formData.get("participant_id"),
+        "participant-not-found",
       ),
       colloquiumId,
       direction:
-        getStringEntry(formData.get("direction"), "invalid-section-order") ===
+        getStringEntry(formData.get("direction"), "invalid-block-order") ===
         "up"
           ? "up"
           : "down",
@@ -290,10 +288,10 @@ export async function moveColloquiumSectionAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "section-moved");
+  redirectWithFeedback(redirectPath, "status", "participant-moved");
 }
 
-export async function addColloquiumEntryAction(formData: FormData) {
+export async function addPresentationTextBlockAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -302,21 +300,69 @@ export async function addColloquiumEntryAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await addColloquiumEntry({
+    await addPresentationTextBlock({
       colloquiumId,
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
+      content: getStringEntry(
+        formData.get("content"),
+        "invalid-text-block-content",
       ),
-      type: getStringEntry(formData.get("type"), "invalid-entry-type"),
-      role: getStringEntry(formData.get("role"), "invalid-entry-role"),
+    });
+  } catch (error) {
+    handleEditorActionError(error, redirectPath);
+  }
+
+  revalidateColloquiumSurface({
+    colloquiumId,
+    currentSlug,
+    nextSlug: currentSlug,
+  });
+  redirectWithFeedback(redirectPath, "status", "text-block-created");
+}
+
+export async function updatePresentationTextBlockAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+  const colloquiumId = getStringEntry(
+    formData.get("colloquium_id"),
+    "colloquium-not-found",
+  );
+  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
+
+  try {
+    await updatePresentationTextBlock({
+      blockId: getStringEntry(formData.get("block_id"), "block-not-found"),
+      colloquiumId,
+      content: getStringEntry(
+        formData.get("content"),
+        "invalid-text-block-content",
+      ),
+    });
+  } catch (error) {
+    handleEditorActionError(error, redirectPath);
+  }
+
+  revalidateColloquiumSurface({
+    colloquiumId,
+    currentSlug,
+    nextSlug: currentSlug,
+  });
+  redirectWithFeedback(redirectPath, "status", "text-block-updated");
+}
+
+export async function addPresentationAudioBlockAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+  const colloquiumId = getStringEntry(
+    formData.get("colloquium_id"),
+    "colloquium-not-found",
+  );
+  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
+
+  try {
+    await addPresentationAudioBlock({
+      colloquiumId,
       label: getOptionalStringEntry(formData.get("label")),
-      participantName: getOptionalStringEntry(formData.get("participant_name")),
-      participantLocation: getOptionalStringEntry(
-        formData.get("participant_location"),
-      ),
-      centralIdea: getOptionalStringEntry(formData.get("central_idea")),
-      content: getOptionalStringEntry(formData.get("content")),
+      participantId: getOptionalStringEntry(formData.get("participant_id")),
+      speakerName: getOptionalStringEntry(formData.get("speaker_name")),
+      speakerRole: getOptionalStringEntry(formData.get("speaker_role")),
     });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
@@ -327,10 +373,10 @@ export async function addColloquiumEntryAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "entry-created");
+  redirectWithFeedback(redirectPath, "status", "audio-block-created");
 }
 
-export async function updateColloquiumEntryAction(formData: FormData) {
+export async function updatePresentationAudioBlockAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -339,21 +385,13 @@ export async function updateColloquiumEntryAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await updateColloquiumEntry({
-      entryId: getStringEntry(formData.get("entry_id"), "entry-not-found"),
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
-      ),
-      type: getStringEntry(formData.get("type"), "invalid-entry-type"),
-      role: getStringEntry(formData.get("role"), "invalid-entry-role"),
+    await updatePresentationAudioBlock({
+      blockId: getStringEntry(formData.get("block_id"), "block-not-found"),
+      colloquiumId,
       label: getOptionalStringEntry(formData.get("label")),
-      participantName: getOptionalStringEntry(formData.get("participant_name")),
-      participantLocation: getOptionalStringEntry(
-        formData.get("participant_location"),
-      ),
-      centralIdea: getOptionalStringEntry(formData.get("central_idea")),
-      content: getOptionalStringEntry(formData.get("content")),
+      participantId: getOptionalStringEntry(formData.get("participant_id")),
+      speakerName: getOptionalStringEntry(formData.get("speaker_name")),
+      speakerRole: getOptionalStringEntry(formData.get("speaker_role")),
     });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
@@ -364,10 +402,10 @@ export async function updateColloquiumEntryAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "entry-updated");
+  redirectWithFeedback(redirectPath, "status", "audio-block-updated");
 }
 
-export async function deleteColloquiumEntryAction(formData: FormData) {
+export async function deletePresentationBlockAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -376,12 +414,9 @@ export async function deleteColloquiumEntryAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await deleteColloquiumEntry({
-      entryId: getStringEntry(formData.get("entry_id"), "entry-not-found"),
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
-      ),
+    await deletePresentationBlock({
+      blockId: getStringEntry(formData.get("block_id"), "block-not-found"),
+      colloquiumId,
     });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
@@ -392,10 +427,10 @@ export async function deleteColloquiumEntryAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "entry-deleted");
+  redirectWithFeedback(redirectPath, "status", "block-deleted");
 }
 
-export async function moveColloquiumEntryAction(formData: FormData) {
+export async function movePresentationBlockAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
@@ -404,14 +439,11 @@ export async function moveColloquiumEntryAction(formData: FormData) {
   const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await moveColloquiumEntry({
-      entryId: getStringEntry(formData.get("entry_id"), "entry-not-found"),
-      sectionId: getStringEntry(
-        formData.get("section_id"),
-        "section-not-found",
-      ),
+    await movePresentationBlock({
+      blockId: getStringEntry(formData.get("block_id"), "block-not-found"),
+      colloquiumId,
       direction:
-        getStringEntry(formData.get("direction"), "invalid-entry-order") ===
+        getStringEntry(formData.get("direction"), "invalid-block-order") ===
         "up"
           ? "up"
           : "down",
@@ -425,74 +457,19 @@ export async function moveColloquiumEntryAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-  redirectWithFeedback(redirectPath, "status", "entry-moved");
-}
-
-export async function setColloquiumHeroImageAction(formData: FormData) {
-  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
-  const colloquiumId = getStringEntry(
-    formData.get("colloquium_id"),
-    "colloquium-not-found",
-  );
-  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
-
-  try {
-    await setColloquiumHeroImage({
-      colloquiumId,
-      assetId: getOptionalStringEntry(formData.get("asset_id")),
-    });
-  } catch (error) {
-    handleEditorActionError(error, redirectPath);
-  }
-
-  revalidateColloquiumSurface({
-    colloquiumId,
-    currentSlug,
-    nextSlug: currentSlug,
-  });
-  redirectWithFeedback(redirectPath, "status", "hero-updated");
-}
-
-export async function updateMediaAssetMetadataAction(formData: FormData) {
-  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
-  const colloquiumId = getStringEntry(
-    formData.get("colloquium_id"),
-    "colloquium-not-found",
-  );
-  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
-
-  try {
-    await updateMediaAssetMetadata({
-      assetId: getStringEntry(formData.get("asset_id"), "invalid-media-asset"),
-      title: getOptionalStringEntry(formData.get("title")),
-      caption: getOptionalStringEntry(formData.get("caption")),
-      altText: getOptionalStringEntry(formData.get("alt_text")),
-      displayOrder: getOptionalStringEntry(formData.get("display_order")),
-    });
-  } catch (error) {
-    handleEditorActionError(error, redirectPath);
-  }
-
-  revalidateColloquiumSurface({
-    colloquiumId,
-    currentSlug,
-    nextSlug: currentSlug,
-  });
-  redirectWithFeedback(redirectPath, "status", "asset-updated");
+  redirectWithFeedback(redirectPath, "status", "block-moved");
 }
 
 export async function deleteColloquiumAction(formData: FormData) {
   const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
   const colloquiumId = getStringEntry(
     formData.get("colloquium_id"),
     "colloquium-not-found",
   );
-  const currentSlug = getOptionalStringEntry(formData.get("current_slug"));
 
   try {
-    await deleteColloquium({
-      colloquiumId,
-    });
+    await deleteColloquium({ colloquiumId });
   } catch (error) {
     handleEditorActionError(error, redirectPath);
   }
@@ -502,6 +479,5 @@ export async function deleteColloquiumAction(formData: FormData) {
     currentSlug,
     nextSlug: currentSlug,
   });
-
-  redirectWithFeedback("/admin", "status", "colloquium-deleted");
+  redirectWithFeedback(redirectPath, "status", "colloquium-deleted");
 }

@@ -1,30 +1,14 @@
 export type ColloquiumStatus = "draft" | "published";
 
-export type ColloquiumSectionType =
-  | "intro"
-  | "content"
-  | "audio"
-  | "image"
-  | "qa"
-  | "closing";
-
-export type ColloquiumEntryRole =
-  | "reader"
+export type ColloquiumParticipantRole =
   | "host"
   | "presenter"
-  | "anonymous"
+  | "guest"
   | "other";
 
-export type ColloquiumEntryType =
-  | "question"
-  | "answer"
-  | "contribution"
-  | "comment"
-  | "central_idea"
-  | "closing"
-  | "other";
+export type PresentationBlockType = "text" | "audio";
 
-export type MediaAssetType = "image" | "audio";
+export type MediaAssetType = "audio";
 
 export type BookOption = {
   id: string;
@@ -36,7 +20,6 @@ export type MediaAssetRecord = {
   id: string;
   colloquiumId: string;
   sectionId: string | null;
-  entryId: string | null;
   type: MediaAssetType;
   provider: "supabase-storage";
   bucket: string;
@@ -47,43 +30,47 @@ export type MediaAssetRecord = {
   durationSeconds: number | null;
   title: string | null;
   caption: string | null;
-  altText: string | null;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
   signedUrl: string | null;
 };
 
-export type ColloquiumEntryRecord = {
+export type ColloquiumParticipantRecord = {
   id: string;
   colloquiumId: string;
-  sectionId: string;
-  type: ColloquiumEntryType;
-  role: ColloquiumEntryRole;
-  label: string | null;
-  participantName: string | null;
-  participantLocation: string | null;
-  centralIdea: string | null;
-  content: string | null;
-  relatedToEntryId: string | null;
+  name: string;
+  role: ColloquiumParticipantRole;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
-  assets: MediaAssetRecord[];
 };
 
-export type ColloquiumSectionRecord = {
+type PresentationBlockBase = {
   id: string;
   colloquiumId: string;
-  type: ColloquiumSectionType;
-  title: string | null;
-  content: string | null;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
-  assets: MediaAssetRecord[];
-  entries: ColloquiumEntryRecord[];
 };
+
+export type PresentationTextBlockRecord = PresentationBlockBase & {
+  type: "text";
+  content: string;
+};
+
+export type PresentationAudioBlockRecord = PresentationBlockBase & {
+  type: "audio";
+  label: string | null;
+  participantId: string | null;
+  speakerRole: ColloquiumParticipantRole;
+  speakerName: string;
+  asset: MediaAssetRecord | null;
+};
+
+export type PresentationBlockRecord =
+  | PresentationTextBlockRecord
+  | PresentationAudioBlockRecord;
 
 export type ColloquiumSummary = {
   id: string;
@@ -95,15 +82,14 @@ export type ColloquiumSummary = {
   bookTitle: string;
   bookAuthor: string;
   bookCoverImageUrl: string;
-  heroImage: MediaAssetRecord | null;
   publishedAt: string | null;
 };
 
 export type ColloquiumDetail = ColloquiumSummary & {
   createdAt: string;
   updatedAt: string;
-  rootAssets: MediaAssetRecord[];
-  sections: ColloquiumSectionRecord[];
+  participants: ColloquiumParticipantRecord[];
+  presentationBlocks: PresentationBlockRecord[];
 };
 
 export type AdminColloquiumListItem = {
@@ -114,11 +100,12 @@ export type AdminColloquiumListItem = {
   status: ColloquiumStatus;
   bookId: string;
   bookTitle: string;
-  heroImage: MediaAssetRecord | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  sectionCount: number;
+  blockCount: number;
+  audioBlockCount: number;
+  participantCount: number;
 };
 
 export type AdminColloquiumEditorRecord = ColloquiumDetail;
@@ -129,8 +116,7 @@ export type ColloquiumFormState = {
 
 export type MediaUploadIntent = {
   colloquiumId: string;
-  sectionId?: string | null;
-  entryId?: string | null;
+  sectionId: string;
   assetType: MediaAssetType;
   fileName: string;
   mimeType: string;
@@ -139,8 +125,7 @@ export type MediaUploadIntent = {
 
 export type MediaUploadTokenPayload = {
   colloquiumId: string;
-  sectionId: string | null;
-  entryId: string | null;
+  sectionId: string;
   assetType: MediaAssetType;
   storageKey: string;
   mimeType: string;

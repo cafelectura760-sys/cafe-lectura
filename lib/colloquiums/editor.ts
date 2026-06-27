@@ -3,20 +3,18 @@ import "server-only";
 import { requireAdmin } from "@/lib/auth/session";
 import {
   createSlugCandidate,
-  normalizeColloquiumEntryRole,
-  normalizeColloquiumEntryType,
-  normalizeColloquiumSectionType,
   normalizeColloquiumStatus,
-  normalizeDisplayOrder,
   normalizeOptionalText,
+  normalizeParticipantRole,
   normalizePublishedDate,
   normalizeRequiredText,
   slugifyValue,
 } from "@/lib/colloquiums/schemas";
 import { deleteObjectFromStorage } from "@/lib/colloquiums/storage";
 import type {
-  ColloquiumSectionType,
+  ColloquiumParticipantRole,
   ColloquiumStatus,
+  PresentationBlockType,
 } from "@/lib/colloquiums/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,17 +24,18 @@ export type ColloquiumEditorErrorCode =
   | "invalid-colloquium-status"
   | "invalid-colloquium-book-id"
   | "invalid-colloquium-published-at"
-  | "published-colloquium-needs-sections"
+  | "published-colloquium-needs-audio"
   | "colloquium-not-found"
   | "slug-already-exists"
-  | "invalid-section-type"
-  | "invalid-section-content"
-  | "invalid-section-order"
-  | "section-not-found"
-  | "invalid-entry-type"
-  | "invalid-entry-role"
-  | "invalid-entry-order"
-  | "entry-not-found"
+  | "invalid-participant-name"
+  | "invalid-participant-role"
+  | "participant-not-found"
+  | "invalid-block-type"
+  | "invalid-text-block-content"
+  | "invalid-audio-speaker-name"
+  | "invalid-audio-speaker-role"
+  | "invalid-block-order"
+  | "block-not-found"
   | "invalid-media-asset";
 
 type ColloquiumIdentityRow = {
@@ -45,16 +44,9 @@ type ColloquiumIdentityRow = {
   status: ColloquiumStatus;
 };
 
-type ColloquiumOrderRow = {
+type OrderedRow = {
   id: string;
   display_order: number;
-};
-
-type ExistingSectionRow = {
-  id: string;
-  type: ColloquiumSectionType;
-  title: string | null;
-  content: string | null;
 };
 
 type ColloquiumEditorInput = {
@@ -66,30 +58,24 @@ type ColloquiumEditorInput = {
   publishedAt?: string | null;
 };
 
-type SectionInput = {
+type ParticipantInput = {
   colloquiumId: string;
-  type: string;
-  title?: string | null;
-  content?: string | null;
-};
-
-type EntryInput = {
-  colloquiumId: string;
-  sectionId: string;
-  type: string;
+  name: string;
   role: string;
-  label?: string | null;
-  participantName?: string | null;
-  participantLocation?: string | null;
-  centralIdea?: string | null;
-  content?: string | null;
 };
 
-const TEXT_SECTION_TYPES = new Set<ColloquiumSectionType>([
-  "intro",
-  "content",
-  "closing",
-]);
+type PresentationTextBlockInput = {
+  colloquiumId: string;
+  content: string;
+};
+
+type PresentationAudioBlockInput = {
+  colloquiumId: string;
+  label?: string | null;
+  participantId?: string | null;
+  speakerName?: string | null;
+  speakerRole?: string | null;
+};
 
 export class ColloquiumEditorError extends Error {
   constructor(public readonly code: ColloquiumEditorErrorCode) {
@@ -117,39 +103,6 @@ function parsePublishedAtToIso(value?: string | null): string | null {
     return normalizePublishedDate(value);
   } catch {
     throw new ColloquiumEditorError("invalid-colloquium-published-at");
-  }
-}
-
-function normalizeSectionText(input: Pick<SectionInput, "title" | "content">) {
-  return {
-    title: normalizeOptionalText(input.title),
-    content: normalizeOptionalText(input.content),
-  };
-}
-
-function isSectionValid(section: {
-  type: ColloquiumSectionType;
-  title: string | null;
-  content: string | null;
-}): boolean {
-  if (!TEXT_SECTION_TYPES.has(section.type)) {
-    return true;
-  }
-
-  return Boolean(section.title?.trim() || section.content?.trim());
-}
-
-function assertSectionContentRequirements(section: {
-  type: ColloquiumSectionType;
-  title: string | null;
-  content: string | null;
-}) {
-  if (!TEXT_SECTION_TYPES.has(section.type)) {
-    return;
-  }
-
-  if (!isSectionValid(section)) {
-    throw new ColloquiumEditorError("invalid-section-content");
   }
 }
 
@@ -224,10 +177,36 @@ function normalizeColloquiumInput(input: ColloquiumEditorInput) {
   };
 }
 
-async function getNextSectionOrder(colloquiumId: string) {
+function normalizeParticipantInput(input: ParticipantInput) {
+  const colloquiumId = input.colloquiumId.trim();
+  const name = normalizeOptionalText(input.name);
+
+  if (!colloquiumId) {
+    throw new ColloquiumEditorError("colloquium-not-found");
+  }
+
+  if (!name) {
+    throw new ColloquiumEditorError("invalid-participant-name");
+  }
+
+  try {
+    return {
+      colloquiumId,
+      name,
+      role: normalizeParticipantRole(input.role),
+    };
+  } catch {
+    throw new ColloquiumEditorError("invalid-participant-role");
+  }
+}
+
+async function getNextDisplayOrder(
+  table: "colloquium_participants" | "colloquium_sections",
+  colloquiumId: string,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("colloquium_sections")
+    .from(table)
     .select("display_order")
     .eq("colloquium_id", colloquiumId)
     .order("display_order", { ascending: false })
@@ -235,24 +214,7 @@ async function getNextSectionOrder(colloquiumId: string) {
     .maybeSingle<{ display_order: number }>();
 
   if (error) {
-    throw new Error(`Failed to load next section order: ${error.message}`);
-  }
-
-  return (data?.display_order ?? -1) + 1;
-}
-
-async function getNextEntryOrder(sectionId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("colloquium_entries")
-    .select("display_order")
-    .eq("section_id", sectionId)
-    .order("display_order", { ascending: false })
-    .limit(1)
-    .maybeSingle<{ display_order: number }>();
-
-  if (error) {
-    throw new Error(`Failed to load next entry order: ${error.message}`);
+    throw new Error(`Failed to load next display order: ${error.message}`);
   }
 
   return (data?.display_order ?? -1) + 1;
@@ -277,154 +239,238 @@ async function assertColloquiumExists(colloquiumId: string) {
   return data;
 }
 
-async function assertSectionExists(sectionId: string, colloquiumId?: string) {
+async function assertParticipantExists(
+  participantId: string,
+  colloquiumId?: string,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("colloquium_sections")
-    .select("id, colloquium_id, display_order")
-    .eq("id", sectionId)
+    .from("colloquium_participants")
+    .select("id, colloquium_id, name, role")
+    .eq("id", participantId)
     .maybeSingle<{
       id: string;
       colloquium_id: string;
-      display_order: number;
+      name: string;
+      role: ColloquiumParticipantRole;
     }>();
 
   if (error) {
-    throw new Error(`Failed to load colloquium section: ${error.message}`);
+    throw new Error(`Failed to load colloquium participant: ${error.message}`);
   }
 
   if (!data || (colloquiumId && data.colloquium_id !== colloquiumId)) {
-    throw new ColloquiumEditorError("section-not-found");
+    throw new ColloquiumEditorError("participant-not-found");
   }
 
   return data;
 }
 
-async function assertEntryExists(entryId: string, sectionId?: string) {
+async function assertPresentationBlockExists(
+  blockId: string,
+  colloquiumId?: string,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("colloquium_entries")
-    .select("id, section_id, display_order")
-    .eq("id", entryId)
-    .maybeSingle<{ id: string; section_id: string; display_order: number }>();
+    .from("colloquium_sections")
+    .select("id, colloquium_id, type")
+    .eq("id", blockId)
+    .maybeSingle<{
+      id: string;
+      colloquium_id: string;
+      type: PresentationBlockType | "qa" | "image";
+    }>();
 
   if (error) {
-    throw new Error(`Failed to load colloquium entry: ${error.message}`);
+    throw new Error(`Failed to load presentation block: ${error.message}`);
   }
 
-  if (!data || (sectionId && data.section_id !== sectionId)) {
-    throw new ColloquiumEditorError("entry-not-found");
+  if (
+    !data ||
+    (colloquiumId && data.colloquium_id !== colloquiumId) ||
+    (data.type !== "text" && data.type !== "audio")
+  ) {
+    throw new ColloquiumEditorError("block-not-found");
   }
 
   return data;
 }
 
 async function moveOrderedRecord(input: {
-  table: "colloquium_sections" | "colloquium_entries";
+  table: "colloquium_participants" | "colloquium_sections";
   id: string;
-  scopeColumn: "colloquium_id" | "section_id";
-  scopeId: string;
+  colloquiumId: string;
   direction: "up" | "down";
 }) {
   const supabase = await createClient();
-  const { data: currentRecord, error: currentRecordError } = await supabase
+  const { data: records, error } = await supabase
     .from(input.table)
     .select("id, display_order")
-    .eq("id", input.id)
-    .maybeSingle<ColloquiumOrderRow>();
-
-  if (currentRecordError) {
-    throw new Error(
-      `Failed to load current ordered record: ${currentRecordError.message}`,
-    );
-  }
-
-  if (!currentRecord) {
-    throw new Error("Ordered record not found");
-  }
-
-  const ordering = input.direction === "up";
-  let swapRecordQuery = supabase
-    .from(input.table)
-    .select("id, display_order")
-    .eq(input.scopeColumn, input.scopeId);
-
-  swapRecordQuery =
-    input.direction === "up"
-      ? swapRecordQuery.lt("display_order", currentRecord.display_order)
-      : swapRecordQuery.gt("display_order", currentRecord.display_order);
-
-  const { data: swapRecord, error: swapRecordError } = await swapRecordQuery
-    .order("display_order", { ascending: ordering })
-    .limit(1)
-    .maybeSingle<ColloquiumOrderRow>();
-
-  if (swapRecordError) {
-    throw new Error(
-      `Failed to load adjacent ordered record: ${swapRecordError.message}`,
-    );
-  }
-
-  if (!swapRecord) {
-    return;
-  }
-
-  const { error: currentUpdateError } = await supabase
-    .from(input.table)
-    .update({ display_order: swapRecord.display_order })
-    .eq("id", currentRecord.id);
-
-  if (currentUpdateError) {
-    throw new Error(
-      `Failed to move ordered record: ${currentUpdateError.message}`,
-    );
-  }
-
-  const { error: swapUpdateError } = await supabase
-    .from(input.table)
-    .update({ display_order: currentRecord.display_order })
-    .eq("id", swapRecord.id);
-
-  if (swapUpdateError) {
-    throw new Error(
-      `Failed to move adjacent ordered record: ${swapUpdateError.message}`,
-    );
-  }
-}
-
-async function listSectionsForColloquium(colloquiumId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("colloquium_sections")
-    .select("id, type, title, content")
-    .eq("colloquium_id", colloquiumId);
+    .eq("colloquium_id", input.colloquiumId)
+    .order("display_order", { ascending: true });
 
   if (error) {
-    throw new Error(`Failed to load colloquium sections: ${error.message}`);
+    throw new Error(`Failed to load ordered records: ${error.message}`);
   }
 
-  return data satisfies ExistingSectionRow[];
-}
+  const orderedRecords = records satisfies OrderedRow[];
+  const currentIndex = orderedRecords.findIndex(
+    (record) => record.id === input.id,
+  );
 
-async function ensurePublishedColloquiumHasValidSections(
-  colloquiumId: string,
-  options?: {
-    nextStatus?: ColloquiumStatus;
-    nextSections?: ExistingSectionRow[];
-  },
-) {
-  const colloquium = await assertColloquiumExists(colloquiumId);
-  const targetStatus = options?.nextStatus ?? colloquium.status;
+  if (currentIndex === -1) {
+    throw new ColloquiumEditorError("invalid-block-order");
+  }
 
-  if (targetStatus !== "published") {
+  const swapIndex =
+    input.direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+  if (swapIndex < 0 || swapIndex >= orderedRecords.length) {
     return;
   }
 
-  const sections =
-    options?.nextSections ?? (await listSectionsForColloquium(colloquiumId));
+  const currentRecord = orderedRecords[currentIndex];
+  const swapRecord = orderedRecords[swapIndex];
 
-  if (!sections.some((section) => isSectionValid(section))) {
-    throw new ColloquiumEditorError("published-colloquium-needs-sections");
+  const { error: firstUpdateError } = await supabase
+    .from(input.table)
+    .update({
+      display_order: swapRecord.display_order,
+    })
+    .eq("id", currentRecord.id);
+
+  if (firstUpdateError) {
+    throw new Error(
+      `Failed to move ordered record: ${firstUpdateError.message}`,
+    );
+  }
+
+  const { error: secondUpdateError } = await supabase
+    .from(input.table)
+    .update({
+      display_order: currentRecord.display_order,
+    })
+    .eq("id", swapRecord.id);
+
+  if (secondUpdateError) {
+    throw new Error(
+      `Failed to move ordered record: ${secondUpdateError.message}`,
+    );
+  }
+}
+
+async function deleteMediaAssetsForSection(sectionId: string) {
+  const supabase = await createClient();
+  const { data: assets, error } = await supabase
+    .from("media_assets")
+    .select("id, storage_key")
+    .eq("section_id", sectionId)
+    .eq("type", "audio");
+
+  if (error) {
+    throw new Error(`Failed to load section media assets: ${error.message}`);
+  }
+
+  for (const asset of assets ?? []) {
+    await deleteObjectFromStorage(asset.storage_key);
+
+    const { error: deleteError } = await supabase
+      .from("media_assets")
+      .delete()
+      .eq("id", asset.id);
+
+    if (deleteError) {
+      throw new Error(
+        `Failed to delete section media asset: ${deleteError.message}`,
+      );
+    }
+  }
+}
+
+async function countPublishableAudioBlocks(colloquiumId: string) {
+  const supabase = await createClient();
+  const { data: blocks, error: blocksError } = await supabase
+    .from("colloquium_sections")
+    .select("id")
+    .eq("colloquium_id", colloquiumId)
+    .eq("type", "audio");
+
+  if (blocksError) {
+    throw new Error(
+      `Failed to inspect colloquium audio blocks: ${blocksError.message}`,
+    );
+  }
+
+  const audioBlockIds = (blocks ?? []).map((block: { id: string }) => block.id);
+
+  if (audioBlockIds.length === 0) {
+    return 0;
+  }
+
+  const { data: assets, error: assetsError } = await supabase
+    .from("media_assets")
+    .select("section_id")
+    .eq("colloquium_id", colloquiumId)
+    .eq("type", "audio")
+    .in("section_id", audioBlockIds);
+
+  if (assetsError) {
+    throw new Error(
+      `Failed to inspect colloquium audio assets: ${assetsError.message}`,
+    );
+  }
+
+  return new Set(
+    (assets ?? [])
+      .map((asset: { section_id: string | null }) => asset.section_id)
+      .filter((sectionId): sectionId is string => Boolean(sectionId)),
+  ).size;
+}
+
+async function ensurePublishedColloquiumHasAudio(colloquiumId: string) {
+  const publishableAudioBlockCount =
+    await countPublishableAudioBlocks(colloquiumId);
+
+  if (publishableAudioBlockCount === 0) {
+    throw new ColloquiumEditorError("published-colloquium-needs-audio");
+  }
+}
+
+async function resolveAudioSpeaker(input: {
+  colloquiumId: string;
+  participantId?: string | null;
+  speakerName?: string | null;
+  speakerRole?: string | null;
+}) {
+  const participantId = input.participantId?.trim();
+
+  if (participantId) {
+    const participant = await assertParticipantExists(
+      participantId,
+      input.colloquiumId,
+    );
+
+    return {
+      participantId: participant.id,
+      speakerName: participant.name,
+      speakerRole: participant.role,
+    };
+  }
+
+  const speakerName = normalizeOptionalText(input.speakerName);
+
+  if (!speakerName) {
+    throw new ColloquiumEditorError("invalid-audio-speaker-name");
+  }
+
+  try {
+    return {
+      participantId: null,
+      speakerName,
+      speakerRole: normalizeParticipantRole(input.speakerRole ?? ""),
+    };
+  } catch {
+    throw new ColloquiumEditorError("invalid-audio-speaker-role");
   }
 }
 
@@ -433,17 +479,11 @@ export async function createAdminColloquium(input: ColloquiumEditorInput) {
 
   const supabase = await createClient();
   const normalizedInput = normalizeColloquiumInput(input);
-
-  if (normalizedInput.status === "published") {
-    throw new ColloquiumEditorError("published-colloquium-needs-sections");
-  }
-
+  await assertBookExists(normalizedInput.bookId);
   const slug = await resolveUniqueSlug({
     desiredSlug:
       normalizedInput.slugSource ?? createSlugCandidate(normalizedInput.title),
   });
-
-  await assertBookExists(normalizedInput.bookId);
 
   const { data, error } = await supabase
     .from("colloquiums")
@@ -453,17 +493,30 @@ export async function createAdminColloquium(input: ColloquiumEditorInput) {
       excerpt: normalizedInput.excerpt,
       status: normalizedInput.status,
       book_id: normalizedInput.bookId,
-      published_at: normalizedInput.publishedAt,
+      published_at:
+        normalizedInput.status === "published"
+          ? (normalizedInput.publishedAt ?? new Date().toISOString())
+          : normalizedInput.publishedAt,
     })
     .select("id")
     .maybeSingle<{ id: string }>();
 
   if (error) {
+    if (error.message.includes('column "content"')) {
+      throw new Error(
+        "Failed to create colloquium: the Supabase schema is outdated and still requires the legacy public.colloquiums.content column. Apply the colloquium recovery migration before creating new records.",
+      );
+    }
+
     throw new Error(`Failed to create colloquium: ${error.message}`);
   }
 
   if (!data) {
-    throw new Error("Colloquium creation did not return a record");
+    throw new Error("Failed to return the created colloquium");
+  }
+
+  if (normalizedInput.status === "published") {
+    await ensurePublishedColloquiumHasAudio(data.id);
   }
 
   return data.id;
@@ -477,26 +530,13 @@ export async function updateAdminColloquium(
 
   const supabase = await createClient();
   const normalizedInput = normalizeColloquiumInput(input);
-  const existingColloquium = await assertColloquiumExists(colloquiumId);
+  const colloquium = await assertColloquiumExists(colloquiumId.trim());
   await assertBookExists(normalizedInput.bookId);
-
-  const slug = await resolveUniqueSlug(
-    {
-      desiredSlug: normalizedInput.slugSource ?? existingColloquium.slug,
-      existingColloquiumId: colloquiumId,
-    },
-    { allowExact: true },
-  );
-
-  await ensurePublishedColloquiumHasValidSections(colloquiumId, {
-    nextStatus: normalizedInput.status,
-  });
 
   const { error } = await supabase
     .from("colloquiums")
     .update({
       title: normalizedInput.title,
-      slug,
       excerpt: normalizedInput.excerpt,
       status: normalizedInput.status,
       book_id: normalizedInput.bookId,
@@ -505,10 +545,14 @@ export async function updateAdminColloquium(
           ? (normalizedInput.publishedAt ?? new Date().toISOString())
           : normalizedInput.publishedAt,
     })
-    .eq("id", colloquiumId);
+    .eq("id", colloquium.id);
 
   if (error) {
     throw new Error(`Failed to update colloquium: ${error.message}`);
+  }
+
+  if (normalizedInput.status === "published") {
+    await ensurePublishedColloquiumHasAudio(colloquium.id);
   }
 }
 
@@ -519,18 +563,11 @@ export async function updateColloquiumSlug(input: {
   await requireAdmin();
 
   const supabase = await createClient();
-  const colloquiumId = input.colloquiumId.trim();
-
-  if (!colloquiumId) {
-    throw new ColloquiumEditorError("colloquium-not-found");
-  }
-
-  await assertColloquiumExists(colloquiumId);
-
+  const colloquium = await assertColloquiumExists(input.colloquiumId.trim());
   const slug = await resolveUniqueSlug(
     {
       desiredSlug: input.slug,
-      existingColloquiumId: colloquiumId,
+      existingColloquiumId: colloquium.id,
     },
     { allowExact: true },
   );
@@ -538,379 +575,338 @@ export async function updateColloquiumSlug(input: {
   const { error } = await supabase
     .from("colloquiums")
     .update({ slug })
-    .eq("id", colloquiumId);
+    .eq("id", colloquium.id);
 
   if (error) {
     throw new Error(`Failed to update colloquium slug: ${error.message}`);
   }
 }
 
-export async function addColloquiumSection(input: SectionInput) {
+export async function addColloquiumParticipant(input: ParticipantInput) {
   await requireAdmin();
 
   const supabase = await createClient();
-  const colloquiumId = input.colloquiumId.trim();
-  const sectionType = normalizeColloquiumSectionType(input.type);
+  const normalizedInput = normalizeParticipantInput(input);
+  await assertColloquiumExists(normalizedInput.colloquiumId);
 
-  if (!colloquiumId) {
-    throw new ColloquiumEditorError("colloquium-not-found");
-  }
-
-  const normalizedSectionText = normalizeSectionText(input);
-  assertSectionContentRequirements({
-    type: sectionType,
-    ...normalizedSectionText,
-  });
-
-  await assertColloquiumExists(colloquiumId);
-
-  const { error } = await supabase.from("colloquium_sections").insert({
-    colloquium_id: colloquiumId,
-    type: sectionType,
-    title: normalizedSectionText.title,
-    content: normalizedSectionText.content,
-    display_order: await getNextSectionOrder(colloquiumId),
+  const { error } = await supabase.from("colloquium_participants").insert({
+    colloquium_id: normalizedInput.colloquiumId,
+    name: normalizedInput.name,
+    role: normalizedInput.role,
+    display_order: await getNextDisplayOrder(
+      "colloquium_participants",
+      normalizedInput.colloquiumId,
+    ),
   });
 
   if (error) {
-    throw new Error(`Failed to add colloquium section: ${error.message}`);
+    throw new Error(`Failed to add colloquium participant: ${error.message}`);
   }
 }
 
-export async function updateColloquiumSection(input: {
-  sectionId: string;
+export async function updateColloquiumParticipant(input: {
+  participantId: string;
   colloquiumId: string;
-  type: string;
-  title?: string | null;
-  content?: string | null;
+  name: string;
+  role: string;
 }) {
   await requireAdmin();
 
-  const supabase = await createClient();
-  const sectionId = input.sectionId.trim();
-  const colloquiumId = input.colloquiumId.trim();
-
-  if (!sectionId || !colloquiumId) {
-    throw new ColloquiumEditorError("section-not-found");
-  }
-
-  await assertSectionExists(sectionId, colloquiumId);
-
-  const type = normalizeColloquiumSectionType(input.type);
-  const normalizedSectionText = normalizeSectionText(input);
-  assertSectionContentRequirements({
-    type,
-    ...normalizedSectionText,
+  const normalizedInput = normalizeParticipantInput({
+    colloquiumId: input.colloquiumId,
+    name: input.name,
+    role: input.role,
   });
-
-  const sections = await listSectionsForColloquium(colloquiumId);
-  const nextSections = sections.map((section) =>
-    section.id === sectionId
-      ? {
-          ...section,
-          type,
-          title: normalizedSectionText.title,
-          content: normalizedSectionText.content,
-        }
-      : section,
+  await assertParticipantExists(
+    input.participantId.trim(),
+    normalizedInput.colloquiumId,
   );
 
-  await ensurePublishedColloquiumHasValidSections(colloquiumId, {
-    nextSections,
-  });
-
+  const supabase = await createClient();
   const { error } = await supabase
-    .from("colloquium_sections")
+    .from("colloquium_participants")
     .update({
-      type,
-      title: normalizedSectionText.title,
-      content: normalizedSectionText.content,
+      name: normalizedInput.name,
+      role: normalizedInput.role,
     })
-    .eq("id", sectionId);
+    .eq("id", input.participantId.trim());
 
   if (error) {
-    throw new Error(`Failed to update colloquium section: ${error.message}`);
+    throw new Error(
+      `Failed to update colloquium participant: ${error.message}`,
+    );
   }
 }
 
-export async function deleteColloquiumSection(input: {
-  sectionId: string;
+export async function deleteColloquiumParticipant(input: {
+  participantId: string;
   colloquiumId: string;
 }) {
   await requireAdmin();
 
-  const sectionId = input.sectionId.trim();
+  await assertParticipantExists(
+    input.participantId.trim(),
+    input.colloquiumId.trim(),
+  );
+
+  const supabase = await createClient();
+  const { error: resetBlocksError } = await supabase
+    .from("colloquium_sections")
+    .update({
+      participant_id: null,
+    })
+    .eq("participant_id", input.participantId.trim());
+
+  if (resetBlocksError) {
+    throw new Error(
+      `Failed to detach participant from blocks: ${resetBlocksError.message}`,
+    );
+  }
+
+  const { error } = await supabase
+    .from("colloquium_participants")
+    .delete()
+    .eq("id", input.participantId.trim());
+
+  if (error) {
+    throw new Error(
+      `Failed to delete colloquium participant: ${error.message}`,
+    );
+  }
+}
+
+export async function moveColloquiumParticipant(input: {
+  participantId: string;
+  colloquiumId: string;
+  direction: "up" | "down";
+}) {
+  await requireAdmin();
+
+  await assertParticipantExists(
+    input.participantId.trim(),
+    input.colloquiumId.trim(),
+  );
+  await moveOrderedRecord({
+    table: "colloquium_participants",
+    id: input.participantId.trim(),
+    colloquiumId: input.colloquiumId.trim(),
+    direction: input.direction,
+  });
+}
+
+export async function addPresentationTextBlock(
+  input: PresentationTextBlockInput,
+) {
+  await requireAdmin();
+
+  const colloquiumId = input.colloquiumId.trim();
+  const content = normalizeOptionalText(input.content);
+
+  if (!colloquiumId) {
+    throw new ColloquiumEditorError("colloquium-not-found");
+  }
+
+  if (!content) {
+    throw new ColloquiumEditorError("invalid-text-block-content");
+  }
+
+  await assertColloquiumExists(colloquiumId);
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("colloquium_sections").insert({
+    colloquium_id: colloquiumId,
+    type: "text",
+    title: null,
+    content,
+    participant_id: null,
+    speaker_role: null,
+    speaker_name: null,
+    display_order: await getNextDisplayOrder(
+      "colloquium_sections",
+      colloquiumId,
+    ),
+  });
+
+  if (error) {
+    throw new Error(`Failed to add presentation text block: ${error.message}`);
+  }
+}
+
+export async function updatePresentationTextBlock(input: {
+  blockId: string;
+  colloquiumId: string;
+  content: string;
+}) {
+  await requireAdmin();
+
+  const blockId = input.blockId.trim();
+  const colloquiumId = input.colloquiumId.trim();
+  const content = normalizeOptionalText(input.content);
+
+  if (!blockId || !colloquiumId) {
+    throw new ColloquiumEditorError("block-not-found");
+  }
+
+  if (!content) {
+    throw new ColloquiumEditorError("invalid-text-block-content");
+  }
+
+  await assertPresentationBlockExists(blockId, colloquiumId);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("colloquium_sections")
+    .update({
+      content,
+      title: null,
+      participant_id: null,
+      speaker_role: null,
+      speaker_name: null,
+    })
+    .eq("id", blockId)
+    .eq("type", "text");
+
+  if (error) {
+    throw new Error(
+      `Failed to update presentation text block: ${error.message}`,
+    );
+  }
+}
+
+export async function addPresentationAudioBlock(
+  input: PresentationAudioBlockInput,
+) {
+  await requireAdmin();
+
   const colloquiumId = input.colloquiumId.trim();
 
-  await assertSectionExists(sectionId, colloquiumId);
+  if (!colloquiumId) {
+    throw new ColloquiumEditorError("colloquium-not-found");
+  }
 
-  const sections = await listSectionsForColloquium(colloquiumId);
-  const nextSections = sections.filter((section) => section.id !== sectionId);
+  await assertColloquiumExists(colloquiumId);
+  const speaker = await resolveAudioSpeaker({
+    colloquiumId,
+    participantId: input.participantId,
+    speakerName: input.speakerName,
+    speakerRole: input.speakerRole,
+  });
 
-  await ensurePublishedColloquiumHasValidSections(colloquiumId, {
-    nextSections,
+  const supabase = await createClient();
+  const { error } = await supabase.from("colloquium_sections").insert({
+    colloquium_id: colloquiumId,
+    type: "audio",
+    title: normalizeOptionalText(input.label),
+    content: null,
+    participant_id: speaker.participantId,
+    speaker_role: speaker.speakerRole,
+    speaker_name: speaker.speakerName,
+    display_order: await getNextDisplayOrder(
+      "colloquium_sections",
+      colloquiumId,
+    ),
+  });
+
+  if (error) {
+    throw new Error(`Failed to add presentation audio block: ${error.message}`);
+  }
+}
+
+export async function updatePresentationAudioBlock(input: {
+  blockId: string;
+  colloquiumId: string;
+  label?: string | null;
+  participantId?: string | null;
+  speakerName?: string | null;
+  speakerRole?: string | null;
+}) {
+  await requireAdmin();
+
+  const blockId = input.blockId.trim();
+  const colloquiumId = input.colloquiumId.trim();
+
+  if (!blockId || !colloquiumId) {
+    throw new ColloquiumEditorError("block-not-found");
+  }
+
+  await assertPresentationBlockExists(blockId, colloquiumId);
+  const speaker = await resolveAudioSpeaker({
+    colloquiumId,
+    participantId: input.participantId,
+    speakerName: input.speakerName,
+    speakerRole: input.speakerRole,
   });
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("colloquium_sections")
-    .delete()
-    .eq("id", sectionId);
+    .update({
+      title: normalizeOptionalText(input.label),
+      content: null,
+      participant_id: speaker.participantId,
+      speaker_role: speaker.speakerRole,
+      speaker_name: speaker.speakerName,
+    })
+    .eq("id", blockId)
+    .eq("type", "audio");
 
   if (error) {
-    throw new Error(`Failed to delete colloquium section: ${error.message}`);
+    throw new Error(
+      `Failed to update presentation audio block: ${error.message}`,
+    );
   }
 }
 
-export async function moveColloquiumSection(input: {
-  sectionId: string;
+export async function deletePresentationBlock(input: {
+  blockId: string;
+  colloquiumId: string;
+}) {
+  await requireAdmin();
+
+  const blockId = input.blockId.trim();
+  const colloquiumId = input.colloquiumId.trim();
+  await assertPresentationBlockExists(blockId, colloquiumId);
+  await deleteMediaAssetsForSection(blockId);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("colloquium_sections")
+    .delete()
+    .eq("id", blockId);
+
+  if (error) {
+    throw new Error(`Failed to delete presentation block: ${error.message}`);
+  }
+}
+
+export async function movePresentationBlock(input: {
+  blockId: string;
   colloquiumId: string;
   direction: "up" | "down";
 }) {
   await requireAdmin();
-  await assertSectionExists(input.sectionId.trim(), input.colloquiumId.trim());
 
+  await assertPresentationBlockExists(
+    input.blockId.trim(),
+    input.colloquiumId.trim(),
+  );
   await moveOrderedRecord({
     table: "colloquium_sections",
-    id: input.sectionId.trim(),
-    scopeColumn: "colloquium_id",
-    scopeId: input.colloquiumId.trim(),
+    id: input.blockId.trim(),
+    colloquiumId: input.colloquiumId.trim(),
     direction: input.direction,
   });
-}
-
-export async function addColloquiumEntry(input: EntryInput) {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  const colloquiumId = input.colloquiumId.trim();
-  const sectionId = input.sectionId.trim();
-
-  if (!colloquiumId) {
-    throw new ColloquiumEditorError("colloquium-not-found");
-  }
-
-  if (!sectionId) {
-    throw new ColloquiumEditorError("section-not-found");
-  }
-
-  await assertColloquiumExists(colloquiumId);
-  await assertSectionExists(sectionId, colloquiumId);
-
-  const { error } = await supabase.from("colloquium_entries").insert({
-    colloquium_id: colloquiumId,
-    section_id: sectionId,
-    type: normalizeColloquiumEntryType(input.type),
-    role: normalizeColloquiumEntryRole(input.role),
-    label: normalizeOptionalText(input.label),
-    participant_name: normalizeOptionalText(input.participantName),
-    participant_location: normalizeOptionalText(input.participantLocation),
-    central_idea: normalizeOptionalText(input.centralIdea),
-    content: normalizeOptionalText(input.content),
-    display_order: await getNextEntryOrder(sectionId),
-  });
-
-  if (error) {
-    throw new Error(`Failed to add colloquium entry: ${error.message}`);
-  }
-}
-
-export async function updateColloquiumEntry(input: {
-  entryId: string;
-  sectionId: string;
-  type: string;
-  role: string;
-  label?: string | null;
-  participantName?: string | null;
-  participantLocation?: string | null;
-  centralIdea?: string | null;
-  content?: string | null;
-}) {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  const entryId = input.entryId.trim();
-  const sectionId = input.sectionId.trim();
-
-  if (!entryId || !sectionId) {
-    throw new ColloquiumEditorError("entry-not-found");
-  }
-
-  await assertEntryExists(entryId, sectionId);
-
-  const { error } = await supabase
-    .from("colloquium_entries")
-    .update({
-      type: normalizeColloquiumEntryType(input.type),
-      role: normalizeColloquiumEntryRole(input.role),
-      label: normalizeOptionalText(input.label),
-      participant_name: normalizeOptionalText(input.participantName),
-      participant_location: normalizeOptionalText(input.participantLocation),
-      central_idea: normalizeOptionalText(input.centralIdea),
-      content: normalizeOptionalText(input.content),
-    })
-    .eq("id", entryId);
-
-  if (error) {
-    throw new Error(`Failed to update colloquium entry: ${error.message}`);
-  }
-}
-
-export async function deleteColloquiumEntry(input: {
-  entryId: string;
-  sectionId: string;
-}) {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  await assertEntryExists(input.entryId.trim(), input.sectionId.trim());
-
-  const { error } = await supabase
-    .from("colloquium_entries")
-    .delete()
-    .eq("id", input.entryId.trim());
-
-  if (error) {
-    throw new Error(`Failed to delete colloquium entry: ${error.message}`);
-  }
-}
-
-export async function moveColloquiumEntry(input: {
-  entryId: string;
-  sectionId: string;
-  direction: "up" | "down";
-}) {
-  await requireAdmin();
-  await assertEntryExists(input.entryId.trim(), input.sectionId.trim());
-
-  await moveOrderedRecord({
-    table: "colloquium_entries",
-    id: input.entryId.trim(),
-    scopeColumn: "section_id",
-    scopeId: input.sectionId.trim(),
-    direction: input.direction,
-  });
-}
-
-export async function updateMediaAssetMetadata(input: {
-  assetId: string;
-  title?: string | null;
-  caption?: string | null;
-  altText?: string | null;
-  displayOrder?: string | number | null;
-}) {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  const assetId = input.assetId.trim();
-
-  if (!assetId) {
-    throw new ColloquiumEditorError("invalid-media-asset");
-  }
-
-  const { data: asset, error: assetError } = await supabase
-    .from("media_assets")
-    .select("id")
-    .eq("id", assetId)
-    .maybeSingle<{ id: string }>();
-
-  if (assetError) {
-    throw new Error(`Failed to load media asset: ${assetError.message}`);
-  }
-
-  if (!asset) {
-    throw new ColloquiumEditorError("invalid-media-asset");
-  }
-
-  const { error } = await supabase
-    .from("media_assets")
-    .update({
-      title: normalizeOptionalText(input.title),
-      caption: normalizeOptionalText(input.caption),
-      alt_text: normalizeOptionalText(input.altText),
-      display_order:
-        input.displayOrder === null || input.displayOrder === undefined
-          ? undefined
-          : normalizeDisplayOrder(input.displayOrder),
-    })
-    .eq("id", assetId);
-
-  if (error) {
-    throw new Error(`Failed to update media asset metadata: ${error.message}`);
-  }
-}
-
-export async function setColloquiumHeroImage(input: {
-  colloquiumId: string;
-  assetId: string | null;
-}) {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  const colloquiumId = input.colloquiumId.trim();
-
-  if (!colloquiumId) {
-    throw new ColloquiumEditorError("colloquium-not-found");
-  }
-
-  await assertColloquiumExists(colloquiumId);
-
-  if (input.assetId) {
-    const { data: asset, error: assetError } = await supabase
-      .from("media_assets")
-      .select("id, colloquium_id, type, section_id, entry_id")
-      .eq("id", input.assetId)
-      .maybeSingle<{
-        id: string;
-        colloquium_id: string;
-        type: string;
-        section_id: string | null;
-        entry_id: string | null;
-      }>();
-
-    if (assetError) {
-      throw new Error(`Failed to load hero image asset: ${assetError.message}`);
-    }
-
-    if (
-      !asset ||
-      asset.colloquium_id !== colloquiumId ||
-      asset.type !== "image" ||
-      asset.section_id !== null ||
-      asset.entry_id !== null
-    ) {
-      throw new ColloquiumEditorError("invalid-media-asset");
-    }
-  }
-
-  const { error } = await supabase
-    .from("colloquiums")
-    .update({
-      hero_image_asset_id: input.assetId,
-    })
-    .eq("id", colloquiumId);
-
-  if (error) {
-    throw new Error(`Failed to set colloquium hero image: ${error.message}`);
-  }
 }
 
 export async function deleteColloquium(input: { colloquiumId: string }) {
   await requireAdmin();
 
+  const colloquium = await assertColloquiumExists(input.colloquiumId.trim());
   const supabase = await createClient();
-  const colloquiumId = input.colloquiumId.trim();
-
-  if (!colloquiumId) {
-    throw new ColloquiumEditorError("colloquium-not-found");
-  }
-
-  await assertColloquiumExists(colloquiumId);
-
   const { data: assets, error: assetsError } = await supabase
     .from("media_assets")
     .select("id, storage_key")
-    .eq("colloquium_id", colloquiumId);
+    .eq("colloquium_id", colloquium.id);
 
   if (assetsError) {
     throw new Error(
@@ -925,7 +921,7 @@ export async function deleteColloquium(input: { colloquiumId: string }) {
   const { error } = await supabase
     .from("colloquiums")
     .delete()
-    .eq("id", colloquiumId);
+    .eq("id", colloquium.id);
 
   if (error) {
     throw new Error(`Failed to delete colloquium: ${error.message}`);

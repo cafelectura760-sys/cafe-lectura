@@ -1,10 +1,10 @@
-import { ExpandableText } from "@/components/colloquiums/expandable-text";
-import { shouldCollapseIntervention } from "@/lib/colloquiums/schemas";
+import { getParticipantRoleLabel } from "@/lib/colloquiums/schemas";
 import type {
   ColloquiumDetail,
-  ColloquiumEntryRecord,
-  ColloquiumSectionRecord,
+  ColloquiumParticipantRecord,
   MediaAssetRecord,
+  PresentationAudioBlockRecord,
+  PresentationBlockRecord,
 } from "@/lib/colloquiums/types";
 
 type ColloquiumReaderProps = {
@@ -43,178 +43,106 @@ function renderPlainText(content: string) {
   );
 }
 
-function getRoleLabel(entry: ColloquiumEntryRecord): string {
-  if (entry.participantName?.trim()) {
-    return entry.participantName.trim();
-  }
-
-  switch (entry.role) {
-    case "host":
-      return "Anfitrión";
-    case "presenter":
-      return "Ponente";
-    case "reader":
-      return "Lector";
-    case "anonymous":
-      return "Participación anónima";
-    default:
-      return "Intervención";
-  }
-}
-
-function getSectionHeading(section: ColloquiumSectionRecord): string {
-  if (section.title?.trim()) {
-    return section.title.trim();
-  }
-
-  const fallbackLabels: Record<ColloquiumSectionRecord["type"], string> = {
-    intro: "Introducción",
-    content: "Bloque de contenido",
-    qa: "Preguntas y respuestas",
-    audio: "Audio",
-    image: "Imagen",
-    closing: "Cierre",
-  };
-
-  return fallbackLabels[section.type];
-}
-
-function renderMediaAsset(asset: MediaAssetRecord) {
-  if (!asset.signedUrl) {
+function renderAudioAsset(asset: MediaAssetRecord | null) {
+  if (!asset?.signedUrl) {
     return (
       <div className="rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_68%,white)] px-4 py-4 text-[16px] text-[var(--text-secondary)]">
-        Este archivo requiere configuración de Supabase Storage para mostrarse.
-      </div>
-    );
-  }
-
-  if (asset.type === "audio") {
-    return (
-      <div className="rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_68%,white)] px-4 py-4">
-        <audio controls preload="metadata" className="w-full">
-          <source src={asset.signedUrl} type={asset.mimeType} />
-          Tu navegador no soporta la reproducción de audio.
-        </audio>
-        {asset.title ? (
-          <p className="mt-3 text-[16px] font-semibold text-[var(--text-primary)]">
-            {asset.title}
-          </p>
-        ) : null}
-        {asset.caption ? (
-          <p className="body-copy mt-2">{asset.caption}</p>
-        ) : null}
+        Este audio necesita la configuración de Supabase Storage para
+        reproducirse.
       </div>
     );
   }
 
   return (
-    <figure className="space-y-3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={asset.signedUrl}
-        alt={asset.altText ?? asset.title ?? "Imagen del coloquio"}
-        className="w-full rounded-[10px] border border-[var(--border-default)] object-cover shadow-[0_14px_32px_rgba(31,26,23,0.06)]"
-      />
-      {asset.caption ? (
-        <figcaption className="text-[16px] leading-7 text-[var(--text-secondary)]">
-          {asset.caption}
-        </figcaption>
-      ) : null}
-    </figure>
+    <div className="rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_68%,white)] px-4 py-4">
+      <audio controls preload="metadata" className="w-full">
+        <source src={asset.signedUrl} type={asset.mimeType} />
+        Tu navegador no soporta la reproducción de audio.
+      </audio>
+    </div>
   );
 }
 
-function renderEntry(entry: ColloquiumEntryRecord) {
-  const hasLongContent = entry.content
-    ? shouldCollapseIntervention(entry.content)
-    : false;
+function renderParticipantList(
+  title: string,
+  participants: ColloquiumParticipantRecord[],
+) {
+  if (participants.length === 0) {
+    return null;
+  }
 
   return (
-    <article
-      key={entry.id}
-      className="space-y-4 rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-default)_88%,white)] px-5 py-5"
+    <div className="space-y-3">
+      <p className="eyebrow">{title}</p>
+      <div className="flex flex-wrap gap-3">
+        {participants.map((participant) => (
+          <span
+            key={participant.id}
+            className="rounded-full border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_78%,white)] px-4 py-2 text-[15px] font-semibold text-[var(--text-primary)]"
+          >
+            {participant.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function renderAudioBlock(block: PresentationAudioBlockRecord) {
+  return (
+    <section
+      key={block.id}
+      className="reader-section space-y-5 rounded-[12px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-default)_88%,white)] px-6 py-6"
     >
       <div className="space-y-2">
-        <p className="eyebrow">{entry.type.replace(/_/g, " ")}</p>
-        <h4 className="text-[22px] leading-[1.35] font-semibold text-[var(--text-primary)]">
-          {getRoleLabel(entry)}
-        </h4>
-        {entry.participantLocation ? (
-          <p className="meta-copy">{entry.participantLocation}</p>
-        ) : null}
-        {entry.label ? (
-          <p className="text-[16px] font-semibold text-[var(--text-secondary)]">
-            {entry.label}
-          </p>
-        ) : null}
-        {entry.centralIdea ? (
-          <p className="rounded-[8px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_78%,white)] px-4 py-3 text-[16px] leading-7 text-[var(--text-primary)]">
-            Idea central: {entry.centralIdea}
-          </p>
-        ) : null}
-      </div>
-
-      {entry.content ? (
-        hasLongContent ? (
-          <ExpandableText content={entry.content} />
-        ) : (
-          renderPlainText(entry.content)
-        )
-      ) : null}
-
-      {entry.assets.length > 0 ? (
-        <div className="space-y-4">
-          {entry.assets.map((asset) => (
-            <div key={asset.id}>{renderMediaAsset(asset)}</div>
-          ))}
-        </div>
-      ) : null}
-    </article>
-  );
-}
-
-function renderSection(section: ColloquiumSectionRecord) {
-  return (
-    <section key={section.id} className="reader-section space-y-6">
-      <div className="space-y-3">
-        <p className="eyebrow">{SECTION_LABELS[section.type]}</p>
+        <p className="eyebrow">{getParticipantRoleLabel(block.speakerRole)}</p>
         <h2 className="subsection-title text-[var(--text-primary)]">
-          {getSectionHeading(section)}
+          {block.speakerName}
         </h2>
+        {block.label ? (
+          <p className="body-copy text-[var(--text-secondary)]">
+            {block.label}
+          </p>
+        ) : null}
       </div>
 
-      {section.content ? renderPlainText(section.content) : null}
-
-      {section.assets.length > 0 ? (
-        <div className="grid gap-5">
-          {section.assets.map((asset) => (
-            <div key={asset.id}>{renderMediaAsset(asset)}</div>
-          ))}
-        </div>
-      ) : null}
-
-      {section.entries.length > 0 ? (
-        <div className="space-y-5">
-          {section.entries.map((entry) => renderEntry(entry))}
-        </div>
-      ) : null}
+      {renderAudioAsset(block.asset)}
     </section>
   );
 }
 
-const SECTION_LABELS: Record<ColloquiumSectionRecord["type"], string> = {
-  intro: "Introducción",
-  content: "Bloque de contenido",
-  qa: "Preguntas y respuestas",
-  audio: "Audio",
-  image: "Imagen",
-  closing: "Cierre",
-};
+function renderPresentationBlock(block: PresentationBlockRecord) {
+  if (block.type === "text") {
+    return (
+      <section key={block.id} className="reader-section space-y-5">
+        <div className="space-y-2">
+          <p className="eyebrow">Presentación</p>
+        </div>
+        {renderPlainText(block.content)}
+      </section>
+    );
+  }
+
+  return renderAudioBlock(block);
+}
 
 export function ColloquiumReader({
   colloquium,
   previewLabel,
 }: ColloquiumReaderProps) {
+  const hosts = colloquium.participants.filter(
+    (participant) => participant.role === "host",
+  );
+  const presenters = colloquium.participants.filter(
+    (participant) => participant.role === "presenter",
+  );
+  const guests = colloquium.participants.filter(
+    (participant) => participant.role === "guest",
+  );
+  const others = colloquium.participants.filter(
+    (participant) => participant.role === "other",
+  );
+
   return (
     <div className="space-y-8">
       {previewLabel ? (
@@ -253,19 +181,8 @@ export function ColloquiumReader({
       <section className="reader-panel">
         <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
           <div className="book-cover-frame max-w-[220px]">
-            {colloquium.heroImage?.signedUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={colloquium.heroImage.signedUrl}
-                alt={
-                  colloquium.heroImage.altText ??
-                  colloquium.heroImage.title ??
-                  `Imagen principal de ${colloquium.title}`
-                }
-                className="h-full w-full object-cover"
-              />
-            ) : colloquium.bookCoverImageUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
+            {colloquium.bookCoverImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={colloquium.bookCoverImageUrl}
                 alt={`Portada de ${colloquium.bookTitle}`}
@@ -278,32 +195,36 @@ export function ColloquiumReader({
             )}
           </div>
 
-          <div className="max-w-2xl py-2">
-            <p className="eyebrow">Libro relacionado</p>
-            <h2 className="section-title mt-3 text-[var(--text-primary)]">
-              {colloquium.bookTitle}
-            </h2>
-            <p className="body-copy mt-3">{colloquium.bookAuthor}</p>
-            <p className="body-copy mt-5">
-              Esta lectura conserva un ritmo editorial claro y ordenado,
-              combinando texto, imágenes y audio sin abandonar el foco de
-              lectura pausada del club.
-            </p>
+          <div className="max-w-2xl space-y-6 py-2">
+            <div>
+              <p className="eyebrow">Libro relacionado</p>
+              <h2 className="section-title mt-3 text-[var(--text-primary)]">
+                {colloquium.bookTitle}
+              </h2>
+              <p className="body-copy mt-3">{colloquium.bookAuthor}</p>
+            </div>
+
+            {renderParticipantList("Anfitriones", hosts)}
+            {renderParticipantList("Ponentes", presenters)}
+            {renderParticipantList("Invitados", guests)}
+            {renderParticipantList("Otros participantes", others)}
           </div>
         </div>
       </section>
 
-      {colloquium.sections.length > 0 ? (
+      {colloquium.presentationBlocks.length > 0 ? (
         <article className="reader-prose space-y-8">
-          {colloquium.sections.map((section) => renderSection(section))}
+          {colloquium.presentationBlocks.map((block) =>
+            renderPresentationBlock(block),
+          )}
         </article>
       ) : (
         <section className="surface-card px-6 py-7 md:px-8 md:py-8">
           <h2 className="subsection-title text-[var(--text-primary)]">
-            Todavía no hay contenido publicado
+            Todavía no hay presentación publicada
           </h2>
           <p className="body-copy mt-4">
-            Este coloquio todavía no tiene secciones visibles para lectura.
+            Este coloquio todavía no tiene bloques visibles en la presentación.
           </p>
         </section>
       )}

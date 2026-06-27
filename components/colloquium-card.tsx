@@ -17,18 +17,7 @@ export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
     <article className="surface-card lift-on-hover overflow-hidden p-4 md:p-5">
       <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)]">
         <div className="book-cover-frame max-w-[168px]">
-          {colloquium.heroImage?.signedUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={colloquium.heroImage.signedUrl}
-              alt={
-                colloquium.heroImage.altText ??
-                colloquium.heroImage.title ??
-                `Imagen principal de ${colloquium.title}`
-              }
-              className="h-full w-full object-cover"
-            />
-          ) : colloquium.bookCoverImageUrl ? (
+          {colloquium.bookCoverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={colloquium.bookCoverImageUrl}

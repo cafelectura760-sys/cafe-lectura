@@ -5,9 +5,7 @@ import { createColloquiumPresignedUpload } from "@/lib/colloquiums/media";
 
 type PresignRequestBody = {
   colloquiumId?: string;
-  sectionId?: string | null;
-  entryId?: string | null;
-  assetType?: "image" | "audio";
+  sectionId?: string;
   fileName?: string;
   mimeType?: string;
   sizeBytes?: number;
@@ -31,9 +29,8 @@ export async function POST(request: Request) {
   try {
     const result = await createColloquiumPresignedUpload({
       colloquiumId: body.colloquiumId ?? "",
-      sectionId: body.sectionId ?? null,
-      entryId: body.entryId ?? null,
-      assetType: body.assetType ?? "image",
+      sectionId: body.sectionId ?? "",
+      assetType: "audio",
       fileName: body.fileName ?? "",
       mimeType: body.mimeType ?? "",
       sizeBytes: body.sizeBytes ?? 0,

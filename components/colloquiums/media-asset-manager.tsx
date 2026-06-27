@@ -8,7 +8,7 @@ import {
   getAllowedMimeTypes,
   getMediaSizeLimit,
 } from "@/lib/colloquiums/schemas";
-import type { MediaAssetRecord, MediaAssetType } from "@/lib/colloquiums/types";
+import type { MediaAssetRecord } from "@/lib/colloquiums/types";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,15 +20,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 type MediaAssetManagerProps = {
   bucketName: string;
   colloquiumId: string;
-  assetType: MediaAssetType;
-  assets: MediaAssetRecord[];
-  sectionId?: string | null;
-  entryId?: string | null;
+  sectionId: string;
+  asset: MediaAssetRecord | null;
   title: string;
 };
 
@@ -58,46 +55,33 @@ async function loadAudioDuration(file: File): Promise<number | null> {
   });
 }
 
-function getUploadRules(assetType: MediaAssetType) {
-  return {
-    allowedMimeTypes: getAllowedMimeTypes(assetType),
-    maxSizeBytes: getMediaSizeLimit(assetType),
-  };
-}
-
-function validateSelectedFile(file: File, assetType: MediaAssetType) {
-  const { allowedMimeTypes, maxSizeBytes } = getUploadRules(assetType);
-
-  if (!allowedMimeTypes.includes(file.type)) {
-    throw new Error(
-      `El archivo no tiene un formato permitido. Usa: ${allowedMimeTypes.join(", ")}.`,
-    );
-  }
-
-  if (file.size <= 0 || file.size > maxSizeBytes) {
-    throw new Error(
-      `El archivo supera el límite permitido de ${formatMediaSizeLimit(maxSizeBytes)}.`,
-    );
-  }
-}
-
 export function MediaAssetManager({
   bucketName,
   colloquiumId,
-  assetType,
-  assets,
   sectionId,
-  entryId,
+  asset,
   title,
 }: MediaAssetManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [assetTitle, setAssetTitle] = useState("");
-  const [assetCaption, setAssetCaption] = useState("");
-  const [assetAltText, setAssetAltText] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const { allowedMimeTypes, maxSizeBytes } = getUploadRules(assetType);
+  const allowedMimeTypes = getAllowedMimeTypes("audio");
+  const maxSizeBytes = getMediaSizeLimit("audio");
+
+  function validateSelectedFile(file: File) {
+    if (!allowedMimeTypes.includes(file.type)) {
+      throw new Error(
+        `El archivo no tiene un formato permitido. Usa: ${allowedMimeTypes.join(", ")}.`,
+      );
+    }
+
+    if (file.size <= 0 || file.size > maxSizeBytes) {
+      throw new Error(
+        `El archivo supera el límite permitido de ${formatMediaSizeLimit(maxSizeBytes)}.`,
+      );
+    }
+  }
 
   async function handleUpload() {
     if (!selectedFile) {
@@ -105,8 +89,15 @@ export function MediaAssetManager({
       return;
     }
 
+    if (asset) {
+      setFeedbackMessage(
+        "Este bloque ya tiene un audio. Elimínalo primero si deseas reemplazarlo.",
+      );
+      return;
+    }
+
     try {
-      validateSelectedFile(selectedFile, assetType);
+      validateSelectedFile(selectedFile);
     } catch (error) {
       setFeedbackMessage(
         error instanceof Error
@@ -130,8 +121,6 @@ export function MediaAssetManager({
           body: JSON.stringify({
             colloquiumId,
             sectionId,
-            entryId,
-            assetType,
             fileName: selectedFile.name,
             mimeType: selectedFile.type,
             sizeBytes: selectedFile.size,
@@ -190,9 +179,6 @@ export function MediaAssetManager({
             storageKey: presignResult.storageKey,
             mimeType: selectedFile.type,
             sizeBytes: selectedFile.size,
-            title: assetTitle || null,
-            caption: assetCaption || null,
-            altText: assetType === "image" ? assetAltText || null : null,
             durationSeconds,
           }),
         },
@@ -206,15 +192,12 @@ export function MediaAssetManager({
 
       if (!confirmResponse.ok) {
         throw new Error(
-          confirmResult?.error ?? "No pudimos confirmar la subida del archivo.",
+          confirmResult?.error ?? "No pudimos confirmar la subida del audio.",
         );
       }
 
       setSelectedFile(null);
-      setAssetTitle("");
-      setAssetCaption("");
-      setAssetAltText("");
-      setFeedbackMessage("Archivo subido correctamente.");
+      setFeedbackMessage("Audio subido correctamente.");
       startTransition(() => {
         router.refresh();
       });
@@ -228,7 +211,7 @@ export function MediaAssetManager({
   }
 
   async function handleDelete(assetId: string) {
-    setFeedbackMessage("Eliminando archivo...");
+    setFeedbackMessage("Eliminando audio...");
 
     try {
       const deleteResponse = await fetch(
@@ -241,11 +224,11 @@ export function MediaAssetManager({
 
       if (!deleteResponse.ok) {
         throw new Error(
-          deleteResult.error ?? "No pudimos eliminar el archivo seleccionado.",
+          deleteResult.error ?? "No pudimos eliminar el audio seleccionado.",
         );
       }
 
-      setFeedbackMessage("Archivo eliminado correctamente.");
+      setFeedbackMessage("Audio eliminado correctamente.");
       startTransition(() => {
         router.refresh();
       });
@@ -253,34 +236,31 @@ export function MediaAssetManager({
       setFeedbackMessage(
         error instanceof Error
           ? error.message
-          : "Ocurrió un error eliminando el archivo.",
+          : "Ocurrió un error eliminando el audio.",
       );
     }
   }
-
-  const canUpload = selectedFile !== null && !isPending;
 
   return (
     <Card className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-default)_92%,white)] shadow-[0_12px_28px_rgba(31,26,23,0.04)]">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>
-          {assetType === "image"
-            ? "Sube imágenes privadas asociadas a este bloque del coloquio."
-            : "Sube audios privados asociados a este bloque del coloquio."}{" "}
-          Formatos permitidos: {allowedMimeTypes.join(", ")}. Tamaño máximo:{" "}
+          Sube un audio privado para este bloque de presentación. Formatos
+          permitidos: {allowedMimeTypes.join(", ")}. Tamaño máximo:{" "}
           {formatMediaSizeLimit(maxSizeBytes)}.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor={`${title}-file`}>Archivo</Label>
+            <Label htmlFor={`${title}-file`}>Archivo de audio</Label>
             <Input
               id={`${title}-file`}
               type="file"
               accept={allowedMimeTypes.join(",")}
               className="h-12 cursor-pointer text-base"
+              disabled={Boolean(asset) || isPending}
               onChange={(event) => {
                 const file = event.target.files?.[0] ?? null;
                 setSelectedFile(file);
@@ -291,7 +271,7 @@ export function MediaAssetManager({
                 }
 
                 try {
-                  validateSelectedFile(file, assetType);
+                  validateSelectedFile(file);
                   setFeedbackMessage(null);
                 } catch (error) {
                   setFeedbackMessage(
@@ -304,42 +284,12 @@ export function MediaAssetManager({
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label>Título del archivo</Label>
-            <Input
-              value={assetTitle}
-              onChange={(event) => setAssetTitle(event.target.value)}
-              className="h-12 text-base"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Caption</Label>
-            <Textarea
-              value={assetCaption}
-              onChange={(event) => setAssetCaption(event.target.value)}
-              rows={3}
-              className="text-base"
-            />
-          </div>
-
-          {assetType === "image" ? (
-            <div className="grid gap-2">
-              <Label>Texto alternativo</Label>
-              <Input
-                value={assetAltText}
-                onChange={(event) => setAssetAltText(event.target.value)}
-                className="h-12 text-base"
-              />
-            </div>
-          ) : null}
-
           <Button
             type="button"
             onClick={() => void handleUpload()}
-            disabled={!canUpload}
+            disabled={!selectedFile || Boolean(asset) || isPending}
           >
-            {isPending ? "Procesando..." : "Subir archivo"}
+            {isPending ? "Procesando..." : "Subir audio"}
           </Button>
         </div>
 
@@ -349,65 +299,55 @@ export function MediaAssetManager({
           </p>
         ) : null}
 
-        <div className="space-y-4">
-          {assets.length === 0 ? (
-            <Card className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_76%,white)] shadow-none">
-              <CardContent className="px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">
-                Todavía no hay archivos asociados a este bloque.
-              </CardContent>
-            </Card>
-          ) : (
-            assets.map((asset) => (
-              <Card
-                key={asset.id}
-                className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_74%,white)] shadow-none"
-              >
-                <CardContent className="space-y-3 px-4 py-4">
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-[var(--text-primary)]">
-                      {asset.title ??
-                        asset.storageKey.split("/").at(-1) ??
-                        "Archivo"}
-                    </p>
-                    <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                      {asset.mimeType} ·{" "}
-                      {asset.sizeBytes
-                        ? `${Math.round(asset.sizeBytes / 1024)} KB`
-                        : "Tamaño no disponible"}
-                    </p>
-                    {asset.caption ? (
-                      <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                        {asset.caption}
-                      </p>
-                    ) : null}
-                  </div>
+        {asset ? (
+          <Card className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_74%,white)] shadow-none">
+            <CardContent className="space-y-3 px-4 py-4">
+              <div className="space-y-1">
+                <p className="text-base font-semibold text-[var(--text-primary)]">
+                  {asset.storageKey.split("/").at(-1) ?? "Audio"}
+                </p>
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                  {asset.mimeType} ·{" "}
+                  {asset.sizeBytes
+                    ? `${Math.round(asset.sizeBytes / 1024)} KB`
+                    : "Tamaño no disponible"}
+                </p>
+                {asset.durationSeconds ? (
+                  <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                    Duración aproximada: {asset.durationSeconds} s
+                  </p>
+                ) : null}
+              </div>
 
-                  <div className="flex flex-wrap gap-3">
-                    {asset.signedUrl ? (
-                      <Button asChild type="button" variant="outline">
-                        <a
-                          href={asset.signedUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Abrir archivo
-                        </a>
-                      </Button>
-                    ) : null}
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => void handleDelete(asset.id)}
-                      disabled={isPending}
-                    >
-                      Eliminar archivo
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+              {asset.signedUrl ? (
+                <audio controls preload="metadata" className="w-full">
+                  <source src={asset.signedUrl} type={asset.mimeType} />
+                  Tu navegador no soporta la reproducción de audio.
+                </audio>
+              ) : (
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                  El audio ya fue guardado, pero necesita la configuración de
+                  Supabase Storage para reproducirse.
+                </p>
+              )}
+
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void handleDelete(asset.id)}
+                disabled={isPending}
+              >
+                Eliminar audio
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_76%,white)] shadow-none">
+            <CardContent className="px-4 py-4 text-sm leading-6 text-[var(--text-secondary)]">
+              Todavía no hay un audio asociado a este bloque.
+            </CardContent>
+          </Card>
+        )}
       </CardContent>
     </Card>
   );

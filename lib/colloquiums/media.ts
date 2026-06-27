@@ -32,7 +32,6 @@ type MediaAssetRow = {
   id: string;
   colloquium_id: string;
   section_id: string | null;
-  entry_id: string | null;
   type: MediaAssetType;
   provider: "supabase-storage";
   bucket: string;
@@ -43,7 +42,6 @@ type MediaAssetRow = {
   duration_seconds: number | null;
   title: string | null;
   caption: string | null;
-  alt_text: string | null;
   display_order: number;
   created_at: string;
   updated_at: string;
@@ -68,8 +66,7 @@ function parseUploadTokenPayload(
 
   return {
     colloquiumId: parsedValue.colloquiumId,
-    sectionId: parsedValue.sectionId ?? null,
-    entryId: parsedValue.entryId ?? null,
+    sectionId: parsedValue.sectionId,
     assetType: normalizeMediaAssetType(parsedValue.assetType),
     storageKey: parsedValue.storageKey,
     mimeType: parsedValue.mimeType,
@@ -117,7 +114,6 @@ function mapMediaAssetRecord(row: MediaAssetRow): MediaAssetRecord {
     id: row.id,
     colloquiumId: row.colloquium_id,
     sectionId: row.section_id,
-    entryId: row.entry_id,
     type: row.type,
     provider: row.provider,
     bucket: row.bucket,
@@ -128,7 +124,6 @@ function mapMediaAssetRecord(row: MediaAssetRow): MediaAssetRecord {
     durationSeconds: row.duration_seconds,
     title: row.title,
     caption: row.caption,
-    altText: row.alt_text,
     displayOrder: row.display_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -150,8 +145,8 @@ export function validateMediaFile(input: MediaUploadIntent) {
 
   const extension = getFileExtensionForMimeType(input.mimeType);
 
-  if (assetType === "audio" && !input.sectionId && !input.entryId) {
-    throw new Error("Audio assets must belong to a section or entry");
+  if (!input.sectionId.trim()) {
+    throw new Error("Audio assets must belong to a presentation block");
   }
 
   return {
@@ -162,8 +157,7 @@ export function validateMediaFile(input: MediaUploadIntent) {
 
 async function assertMediaContextExists(input: {
   colloquiumId: string;
-  sectionId?: string | null;
-  entryId?: string | null;
+  sectionId: string;
 }) {
   const supabase = await createClient();
 
@@ -183,44 +177,22 @@ async function assertMediaContextExists(input: {
     throw new Error("Invalid colloquium context");
   }
 
-  if (input.sectionId) {
-    const { data: section, error: sectionError } = await supabase
-      .from("colloquium_sections")
-      .select("id, colloquium_id")
-      .eq("id", input.sectionId)
-      .maybeSingle<{ id: string; colloquium_id: string }>();
+  const { data: section, error: sectionError } = await supabase
+    .from("colloquium_sections")
+    .select("id, colloquium_id, type")
+    .eq("id", input.sectionId)
+    .maybeSingle<{ id: string; colloquium_id: string; type: string }>();
 
-    if (sectionError) {
-      throw new Error(
-        `Failed to load section context: ${sectionError.message}`,
-      );
-    }
-
-    if (!section || section.colloquium_id !== input.colloquiumId) {
-      throw new Error("Invalid section context");
-    }
+  if (sectionError) {
+    throw new Error(`Failed to load section context: ${sectionError.message}`);
   }
 
-  if (input.entryId) {
-    const { data: entry, error: entryError } = await supabase
-      .from("colloquium_entries")
-      .select("id, colloquium_id, section_id")
-      .eq("id", input.entryId)
-      .maybeSingle<{ id: string; colloquium_id: string; section_id: string }>();
-
-    if (entryError) {
-      throw new Error(`Failed to load entry context: ${entryError.message}`);
-    }
-
-    if (!entry || entry.colloquium_id !== input.colloquiumId) {
-      throw new Error("Invalid entry context");
-    }
-
-    if (input.sectionId && entry.section_id !== input.sectionId) {
-      throw new Error(
-        "The selected entry does not belong to the selected section",
-      );
-    }
+  if (
+    !section ||
+    section.colloquium_id !== input.colloquiumId ||
+    section.type !== "audio"
+  ) {
+    throw new Error("Invalid presentation block context");
   }
 
   return colloquium;
@@ -228,11 +200,9 @@ async function assertMediaContextExists(input: {
 
 function createStorageKey(input: {
   colloquiumSlug: string;
-  assetType: MediaAssetType;
   extension: string;
 }) {
-  const assetFolder = input.assetType === "image" ? "images" : "audio";
-  return `colloquiums/${input.colloquiumSlug}/${assetFolder}/${createRandomStorageSuffix()}.${input.extension}`;
+  return `colloquiums/${input.colloquiumSlug}/audio/${createRandomStorageSuffix()}.${input.extension}`;
 }
 
 export async function createColloquiumPresignedUpload(
@@ -241,10 +211,12 @@ export async function createColloquiumPresignedUpload(
   await requireAdmin();
 
   const { assetType, extension } = validateMediaFile(input);
-  const colloquium = await assertMediaContextExists(input);
+  const colloquium = await assertMediaContextExists({
+    colloquiumId: input.colloquiumId,
+    sectionId: input.sectionId,
+  });
   const storageKey = createStorageKey({
     colloquiumSlug: colloquium.slug,
-    assetType,
     extension,
   });
   const expiresAt = new Date(
@@ -252,8 +224,7 @@ export async function createColloquiumPresignedUpload(
   ).toISOString();
   const assetToken = createUploadToken({
     colloquiumId: input.colloquiumId,
-    sectionId: input.sectionId ?? null,
-    entryId: input.entryId ?? null,
+    sectionId: input.sectionId,
     assetType,
     storageKey,
     mimeType: input.mimeType,
@@ -277,9 +248,6 @@ export async function confirmMediaUpload(input: {
   storageKey: string;
   mimeType: string;
   sizeBytes: number;
-  title?: string | null;
-  caption?: string | null;
-  altText?: string | null;
   durationSeconds?: number | null;
 }) {
   await requireAdmin();
@@ -294,15 +262,42 @@ export async function confirmMediaUpload(input: {
     throw new Error("Upload confirmation does not match the original request");
   }
 
-  await assertMediaContextExists(payload);
+  await assertMediaContextExists({
+    colloquiumId: payload.colloquiumId,
+    sectionId: payload.sectionId,
+  });
 
   const supabase = await createClient();
+  const { data: currentAssets, error: currentAssetsError } = await supabase
+    .from("media_assets")
+    .select("id, storage_key")
+    .eq("section_id", payload.sectionId)
+    .eq("type", "audio");
+
+  if (currentAssetsError) {
+    throw new Error(
+      `Failed to inspect existing block media: ${currentAssetsError.message}`,
+    );
+  }
+
+  for (const asset of currentAssets ?? []) {
+    await deleteObjectFromStorage(asset.storage_key);
+
+    const { error: deleteError } = await supabase
+      .from("media_assets")
+      .delete()
+      .eq("id", asset.id);
+
+    if (deleteError) {
+      throw new Error(`Failed to replace block audio: ${deleteError.message}`);
+    }
+  }
+
   const { data, error } = await supabase
     .from("media_assets")
     .insert({
       colloquium_id: payload.colloquiumId,
       section_id: payload.sectionId,
-      entry_id: payload.entryId,
       type: payload.assetType,
       provider: "supabase-storage",
       bucket: getColloquiumMediaBucket(),
@@ -311,13 +306,13 @@ export async function confirmMediaUpload(input: {
       mime_type: payload.mimeType,
       size_bytes: payload.sizeBytes,
       duration_seconds: input.durationSeconds ?? null,
-      title: input.title?.trim() || null,
-      caption: input.caption?.trim() || null,
-      alt_text: input.altText?.trim() || null,
+      title: null,
+      caption: null,
+      alt_text: null,
       display_order: 0,
     })
     .select(
-      "id, colloquium_id, section_id, entry_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, alt_text, display_order, created_at, updated_at",
+      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, display_order, created_at, updated_at",
     )
     .maybeSingle<MediaAssetRow>();
 

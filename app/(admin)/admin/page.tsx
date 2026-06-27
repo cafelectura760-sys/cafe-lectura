@@ -583,11 +583,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               Gestión de coloquios
             </p>
             <h2 className="text-2xl font-semibold text-stone-900">
-              Módulo estructurado de coloquios
+              Módulo de presentación de coloquios
             </h2>
             <p className="text-base leading-7 text-stone-700">
-              La edición avanzada ahora vive en páginas dedicadas para metadata,
-              secciones, aportes, media privada y preview de borradores.
+              El flujo administrativo de coloquios está enfocado en una sola
+              experiencia para este MVP: una presentación compuesta por bloques
+              ordenados de texto y audio privado.
             </p>
           </div>
 
@@ -603,9 +604,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   Crear coloquio nuevo
                 </Link>
                 <p className="max-w-2xl text-base leading-7 text-stone-700">
-                  Usa el editor dedicado para construir coloquios con secciones
-                  ordenadas, intervenciones estructuradas, audios, imágenes y
-                  preview privado.
+                  Usa el editor dedicado para registrar datos básicos,
+                  participantes, bloques de presentación y publicación.
                 </p>
               </div>
 
@@ -626,8 +626,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                           : "Borrador"}
                       </p>
                       <p className="text-sm leading-6 text-stone-600">
-                        Slug: {colloquium.slug}. Secciones:{" "}
-                        {colloquium.sectionCount}. Última actualización:{" "}
+                        Slug: {colloquium.slug}. Participantes:{" "}
+                        {colloquium.participantCount}. Bloques visibles:{" "}
+                        {colloquium.blockCount}. Audios:{" "}
+                        {colloquium.audioBlockCount}. Última actualización:{" "}
                         {formatDateTimeLabel(colloquium.updatedAt)}.
                       </p>
                       {colloquium.excerpt ? (

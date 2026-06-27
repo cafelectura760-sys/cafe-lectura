@@ -1,43 +1,20 @@
 import type {
-  ColloquiumEntryRole,
-  ColloquiumEntryType,
-  ColloquiumSectionType,
+  ColloquiumParticipantRole,
   ColloquiumStatus,
   MediaAssetType,
+  PresentationBlockType,
 } from "@/lib/colloquiums/types";
 
 export const COLLOQUIUM_STATUS_VALUES = ["draft", "published"] as const;
-export const COLLOQUIUM_SECTION_TYPE_VALUES = [
-  "intro",
-  "content",
-  "audio",
-  "image",
-  "qa",
-  "closing",
-] as const;
-export const COLLOQUIUM_ENTRY_TYPE_VALUES = [
-  "question",
-  "answer",
-  "contribution",
-  "comment",
-  "central_idea",
-  "closing",
-  "other",
-] as const;
-export const COLLOQUIUM_ENTRY_ROLE_VALUES = [
-  "reader",
+export const COLLOQUIUM_PARTICIPANT_ROLE_VALUES = [
   "host",
   "presenter",
-  "anonymous",
+  "guest",
   "other",
 ] as const;
-export const MEDIA_ASSET_TYPE_VALUES = ["image", "audio"] as const;
+export const PRESENTATION_BLOCK_TYPE_VALUES = ["text", "audio"] as const;
+export const MEDIA_ASSET_TYPE_VALUES = ["audio"] as const;
 
-export const IMAGE_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-] as const;
 export const AUDIO_MIME_TYPES = [
   "audio/mpeg",
   "audio/mp4",
@@ -45,14 +22,6 @@ export const AUDIO_MIME_TYPES = [
   "audio/ogg",
 ] as const;
 
-export const IMAGE_EXTENSIONS_BY_MIME: Record<
-  (typeof IMAGE_MIME_TYPES)[number],
-  string
-> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
 export const AUDIO_EXTENSIONS_BY_MIME: Record<
   (typeof AUDIO_MIME_TYPES)[number],
   string
@@ -63,7 +32,6 @@ export const AUDIO_EXTENSIONS_BY_MIME: Record<
   "audio/ogg": "ogg",
 };
 
-export const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 export const MAX_AUDIO_SIZE_BYTES = 45 * 1024 * 1024;
 export const MEDIA_UPLOAD_URL_TTL_SECONDS = 5 * 60;
 export const MEDIA_READ_URL_TTL_SECONDS = 15 * 60;
@@ -122,34 +90,26 @@ export function normalizeColloquiumStatus(value: string): ColloquiumStatus {
   throw new Error("Invalid colloquium status");
 }
 
-export function normalizeColloquiumSectionType(
+export function normalizeParticipantRole(
   value: string,
-): ColloquiumSectionType {
-  if ((COLLOQUIUM_SECTION_TYPE_VALUES as readonly string[]).includes(value)) {
-    return value as ColloquiumSectionType;
+): ColloquiumParticipantRole {
+  if (
+    (COLLOQUIUM_PARTICIPANT_ROLE_VALUES as readonly string[]).includes(value)
+  ) {
+    return value as ColloquiumParticipantRole;
   }
 
-  throw new Error("Invalid colloquium section type");
+  throw new Error("Invalid colloquium participant role");
 }
 
-export function normalizeColloquiumEntryType(
+export function normalizePresentationBlockType(
   value: string,
-): ColloquiumEntryType {
-  if ((COLLOQUIUM_ENTRY_TYPE_VALUES as readonly string[]).includes(value)) {
-    return value as ColloquiumEntryType;
+): PresentationBlockType {
+  if ((PRESENTATION_BLOCK_TYPE_VALUES as readonly string[]).includes(value)) {
+    return value as PresentationBlockType;
   }
 
-  throw new Error("Invalid colloquium entry type");
-}
-
-export function normalizeColloquiumEntryRole(
-  value: string,
-): ColloquiumEntryRole {
-  if ((COLLOQUIUM_ENTRY_ROLE_VALUES as readonly string[]).includes(value)) {
-    return value as ColloquiumEntryRole;
-  }
-
-  throw new Error("Invalid colloquium entry role");
+  throw new Error("Invalid presentation block type");
 }
 
 export function normalizeMediaAssetType(value: string): MediaAssetType {
@@ -221,12 +181,6 @@ export function getPublishedDateInputValue(isoDate: string | null): string {
 }
 
 export function getFileExtensionForMimeType(mimeType: string): string {
-  if (mimeType in IMAGE_EXTENSIONS_BY_MIME) {
-    return IMAGE_EXTENSIONS_BY_MIME[
-      mimeType as keyof typeof IMAGE_EXTENSIONS_BY_MIME
-    ];
-  }
-
   if (mimeType in AUDIO_EXTENSIONS_BY_MIME) {
     return AUDIO_EXTENSIONS_BY_MIME[
       mimeType as keyof typeof AUDIO_EXTENSIONS_BY_MIME
@@ -236,23 +190,27 @@ export function getFileExtensionForMimeType(mimeType: string): string {
   throw new Error("Unsupported MIME type");
 }
 
-export function getMediaSizeLimit(assetType: MediaAssetType): number {
-  return assetType === "image" ? MAX_IMAGE_SIZE_BYTES : MAX_AUDIO_SIZE_BYTES;
+export function getMediaSizeLimit(_assetType: MediaAssetType): number {
+  return MAX_AUDIO_SIZE_BYTES;
 }
 
 export function getAllowedMimeTypes(
-  assetType: MediaAssetType,
+  _assetType: MediaAssetType,
 ): readonly string[] {
-  return assetType === "image" ? IMAGE_MIME_TYPES : AUDIO_MIME_TYPES;
+  return AUDIO_MIME_TYPES;
 }
 
-export function shouldCollapseIntervention(content: string): boolean {
-  const normalizedContent = content.trim();
-
-  if (!normalizedContent) {
-    return false;
+export function getParticipantRoleLabel(
+  role: ColloquiumParticipantRole,
+): string {
+  switch (role) {
+    case "host":
+      return "Anfitrión";
+    case "presenter":
+      return "Ponente";
+    case "guest":
+      return "Invitado";
+    case "other":
+      return "Otro";
   }
-
-  const wordCount = normalizedContent.split(/\s+/).length;
-  return normalizedContent.length > 500 || wordCount > 125;
 }

@@ -30,9 +30,9 @@ function getMembershipHref() {
   );
 }
 
-function buildBookRequestHref(title: string, author: string) {
+function buildBookInfoHref(title: string, author: string) {
   return createWhatsAppHref(
-    `Me interesa solicitar el libro "${title}" de ${author}.`,
+    `Quiero más información sobre "${title}" de ${author}.`,
   );
 }
 
@@ -42,12 +42,10 @@ export default async function Home() {
     getPublicBooks(),
   ]);
   const featuredBooks = books.slice(0, 3);
-  const leadBook = featuredBooks[0];
-  const remainingFeaturedBooks = featuredBooks.slice(1);
   const highlights = [
     {
       title: "Biblioteca visible",
-      text: "Consulta los libros disponibles y solicita información por WhatsApp sin descargar archivos.",
+      text: "Consulta los libros disponibles y descubre nuevas lecturas con una guía clara y directa.",
       icon: Library,
     },
     {
@@ -61,7 +59,6 @@ export default async function Home() {
       icon: ScrollText,
     },
   ];
-  const [leadHighlight, ...secondaryHighlights] = highlights;
   const membershipSteps = [
     {
       number: "01",
@@ -79,7 +76,6 @@ export default async function Home() {
       text: "Cuando hace falta renovar, el flujo vuelve a WhatsApp para mantener el trato cercano del club.",
     },
   ];
-  const LeadHighlightIcon = leadHighlight.icon;
 
   return (
     <PageShell>
@@ -94,47 +90,63 @@ export default async function Home() {
         ]}
         activeHref="/"
         description="Club privado de lectura, biblioteca visible y coloquios para miembros activos."
+        status={
+          session
+            ? {
+                title: "Acceso disponible",
+                content: (
+                  <>
+                    Estás conectado como{" "}
+                    <span className="font-semibold text-[var(--text-primary)]">
+                      {session.profile?.full_name ?? session.email}
+                    </span>
+                    .
+                  </>
+                ),
+              }
+            : undefined
+        }
         actions={
-          session ? (
-            <>
-              <StatusBanner title="Acceso disponible">
-                Estás conectado como{" "}
-                <span className="font-semibold text-[var(--text-primary)]">
-                  {session.profile?.full_name ?? session.email}
-                </span>
-                .
-              </StatusBanner>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Link href="/colloquiums" className="btn-primary">
-                  Ir a coloquios
-                </Link>
-                {session.profile?.role === "admin" ? (
-                  <Link href="/admin" className="btn-secondary">
-                    Panel de administración
-                  </Link>
-                ) : null}
-                <form action={logoutAction}>
-                  <button type="submit" className="btn-ghost">
-                    Cerrar sesión
-                  </button>
-                </form>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/login" className="btn-secondary">
-                Iniciar sesión
-              </Link>
-              <a
-                href={getMembershipHref()}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-warm"
-              >
-                Consultar membresía
-              </a>
-            </div>
-          )
+          session
+            ? [
+                {
+                  kind: "link",
+                  href: "/colloquiums",
+                  label: "Ir a coloquios",
+                  tone: "primary",
+                },
+                ...(session.profile?.role === "admin"
+                  ? [
+                      {
+                        kind: "link" as const,
+                        href: "/admin",
+                        label: "Panel de administración",
+                        tone: "secondary" as const,
+                      },
+                    ]
+                  : []),
+                {
+                  kind: "submit",
+                  action: logoutAction,
+                  label: "Cerrar sesión",
+                  tone: "ghost",
+                },
+              ]
+            : [
+                {
+                  kind: "link",
+                  href: "/login",
+                  label: "Iniciar sesión",
+                  tone: "secondary",
+                },
+                {
+                  kind: "link",
+                  href: getMembershipHref(),
+                  label: "Consultar membresía",
+                  tone: "warm",
+                  external: true,
+                },
+              ]
         }
       />
 
@@ -167,43 +179,29 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              <article className="editorial-note-strong lift-on-hover h-full">
-                <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.08)]">
-                  <LeadHighlightIcon className="h-5 w-5" />
-                </div>
-                <h2 className="mt-4 text-[24px] leading-[1.22] font-semibold text-[var(--text-primary)] md:text-[28px]">
-                  {leadHighlight.title}
-                </h2>
-                <p className="body-copy mt-3 max-w-[42ch]">
-                  {leadHighlight.text}
-                </p>
-              </article>
+            <div className="content-grid mt-10 md:grid-cols-2 2xl:grid-cols-3">
+              {highlights.map((item) => {
+                const Icon = item.icon;
 
-              <div className="grid gap-4">
-                {secondaryHighlights.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <article
-                      key={item.title}
-                      className="editorial-note lift-on-hover h-full"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.06)]">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h2 className="text-[22px] leading-[1.24] font-semibold text-[var(--text-primary)]">
-                            {item.title}
-                          </h2>
-                          <p className="body-copy mt-2">{item.text}</p>
-                        </div>
+                return (
+                  <article
+                    key={item.title}
+                    className="editorial-note lift-on-hover h-full"
+                  >
+                    <div className="flex h-full flex-col gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.06)]">
+                        <Icon className="h-5 w-5" />
                       </div>
-                    </article>
-                  );
-                })}
-              </div>
+                      <div className="min-w-0">
+                        <h2 className="text-[22px] leading-[1.24] font-semibold text-[var(--text-primary)]">
+                          {item.title}
+                        </h2>
+                        <p className="body-copy mt-2">{item.text}</p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
 
@@ -212,57 +210,38 @@ export default async function Home() {
       </section>
 
       <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
-          <div className="editorial-note-strong h-fit">
-            <SectionHeading
-              eyebrow="Biblioteca"
-              title="Una biblioteca visible para descubrir con calma"
-              description="Estos son algunos de los títulos disponibles en Cafe Lectura. La consulta y las solicitudes se realizan de manera directa por WhatsApp."
-              action={
-                <Link href="/library" className="editorial-link">
-                  Ver catálogo completo
-                </Link>
-              }
-            />
-          </div>
+        <SectionHeading
+          eyebrow="Biblioteca"
+          title="Una biblioteca visible para descubrir con calma"
+          description="Estos son algunos de los títulos disponibles en Cafe Lectura. Puedes recorrerlos con calma y escribirnos si quieres conocer más sobre alguno de ellos."
+          action={
+            <Link href="/library" className="editorial-link">
+              Ver catálogo completo
+            </Link>
+          }
+        />
 
-          {featuredBooks.length === 0 ? (
-            <div className="xl:pt-1">
-              <StatusBanner title="Biblioteca en preparación">
-                La biblioteca pública está en preparación. Pronto verás aquí los
-                primeros títulos disponibles.
-              </StatusBanner>
-            </div>
-          ) : (
-            <div className="content-grid md:grid-cols-2">
-              {leadBook ? (
-                <div className="md:col-span-2">
-                  <BookCard
-                    book={leadBook}
-                    eyebrow="Para empezar el recorrido"
-                    actionHref={buildBookRequestHref(
-                      leadBook.title,
-                      leadBook.author,
-                    )}
-                    actionLabel="Solicitar por WhatsApp"
-                    compact
-                    featured
-                  />
-                </div>
-              ) : null}
-              {remainingFeaturedBooks.map((book) => (
-                <BookCard
-                  key={book.id}
-                  book={book}
-                  eyebrow="Selecciones recientes"
-                  actionHref={buildBookRequestHref(book.title, book.author)}
-                  actionLabel="Solicitar por WhatsApp"
-                  compact
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {featuredBooks.length === 0 ? (
+          <div className="mt-8">
+            <StatusBanner title="Biblioteca en preparación">
+              La biblioteca pública está en preparación. Pronto verás aquí los
+              primeros títulos disponibles.
+            </StatusBanner>
+          </div>
+        ) : (
+          <div className="content-grid mt-8 md:grid-cols-2 xl:grid-cols-3">
+            {featuredBooks.map((book) => (
+              <BookCard
+                key={book.id}
+                book={book}
+                eyebrow="Selección del club"
+                actionHref={buildBookInfoHref(book.title, book.author)}
+                actionLabel="Más información"
+                compact
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">

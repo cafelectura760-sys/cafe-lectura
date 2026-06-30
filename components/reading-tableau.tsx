@@ -14,29 +14,29 @@ const bookSpines = [
 export function ReadingTableau() {
   return (
     <div className="reading-tableau reveal-soft reveal-soft-delay-1">
-      <div className="tableau-shelf top-[248px]" aria-hidden="true" />
-      <div className="tableau-shelf bottom-[94px]" aria-hidden="true" />
-
       <div className="relative z-10 flex h-full min-h-[480px] min-w-0 flex-col justify-between gap-8">
         <div className="flex items-center justify-between gap-3">
           <p className="eyebrow text-[var(--color-casa)]">Mesa de lectura</p>
           <span className="editorial-pill">Sin prisa</span>
         </div>
 
-        <div className="flex items-end gap-2 pt-2 pl-2" aria-hidden="true">
-          {bookSpines.map((book, index) => (
-            <span
-              key={`${book.color}-${index}`}
-              className="book-spine"
-              style={
-                {
-                  "--book-width": `${book.width}px`,
-                  "--book-height": `${book.height}px`,
-                  "--book-color": book.color,
-                } as CSSProperties
-              }
-            />
-          ))}
+        <div className="tableau-book-stage" aria-hidden="true">
+          <div className="tableau-book-row">
+            {bookSpines.map((book, index) => (
+              <span
+                key={`${book.color}-${index}`}
+                className="book-spine"
+                style={
+                  {
+                    "--book-width": `${book.width}px`,
+                    "--book-height": `${book.height}px`,
+                    "--book-color": book.color,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+          <div className="tableau-shelf tableau-shelf-primary" />
         </div>
 
         <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:items-end">
@@ -86,10 +86,10 @@ export function ReadingTableau() {
                   <MessageCircleMore className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
                   <div>
                     <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                      Contacto humano
+                      Conversación directa
                     </p>
                     <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                      Las solicitudes llegan a WhatsApp.
+                      La orientación continúa en un contacto cercano.
                     </p>
                   </div>
                 </div>

@@ -30,8 +30,9 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
         items={[
           { href: "/", label: "Inicio" },
           { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Acceso" },
+          { href: "/login", label: "Iniciar sesión" },
         ]}
+        activeHref="/login"
         description="Orientación para renovar la membresía y recuperar el acceso privado."
       />
 

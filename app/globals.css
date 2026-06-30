@@ -264,7 +264,7 @@ select {
   }
 
   .site-header {
-    @apply flex flex-col gap-5 rounded-[14px] border px-5 py-5 md:px-7 md:py-6 lg:flex-row lg:items-start lg:justify-between;
+    @apply grid gap-5 rounded-[14px] border px-5 py-5 md:px-7 md:py-6 lg:min-h-[169px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,420px)] lg:gap-x-8 lg:gap-y-4;
     border-color: var(--border-default);
     background: linear-gradient(
       180deg,
@@ -274,6 +274,79 @@ select {
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.74),
       0 16px 38px rgba(31, 26, 23, 0.045);
+  }
+
+  .site-header-main {
+    @apply flex min-w-0 flex-col gap-4 lg:justify-between;
+  }
+
+  .site-header-brand {
+    @apply flex min-w-0 items-start gap-4;
+  }
+
+  .site-header-nav {
+    @apply grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center;
+  }
+
+  .site-header-rail {
+    @apply flex min-w-0 flex-col gap-3 lg:items-stretch lg:justify-between;
+  }
+
+  .site-header-status {
+    @apply rounded-[10px] border px-4 py-3;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.54),
+      0 10px 24px rgba(31, 26, 23, 0.035);
+  }
+
+  .site-header-status[data-tone="default"] {
+    border-color: var(--border-default);
+    background: color-mix(in srgb, var(--surface-subtle) 86%, white);
+  }
+
+  .site-header-status[data-tone="success"] {
+    border-color: color-mix(in srgb, var(--color-success) 28%, white);
+    background: var(--color-success-bg);
+  }
+
+  .site-header-status[data-tone="warning"] {
+    border-color: color-mix(in srgb, var(--color-warning) 34%, white);
+    background: var(--color-warning-bg);
+  }
+
+  .site-header-status[data-tone="error"] {
+    border-color: color-mix(in srgb, var(--color-error) 28%, white);
+    background: var(--color-error-bg);
+  }
+
+  .site-header-status-title {
+    @apply text-[15px] leading-6 font-semibold;
+    color: var(--text-primary);
+  }
+
+  .site-header-status-copy {
+    @apply mt-1 text-[15px] leading-6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .site-header-actions {
+    @apply flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end;
+  }
+
+  .site-header-quiet-actions {
+    @apply flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end;
+  }
+
+  .site-header-quiet-action {
+    @apply inline-flex min-h-11 items-center justify-center rounded-[8px] px-2 text-[15px] font-semibold;
+    color: var(--text-secondary);
+    transition-property: background-color, color, box-shadow, opacity;
+  }
+
+  .site-header-quiet-action:hover {
+    background: color-mix(in srgb, var(--surface-subtle) 78%, white);
+    color: var(--text-primary);
   }
 
   .brand-logo {
@@ -431,7 +504,7 @@ select {
   }
 
   .section-header {
-    @apply flex flex-col gap-5 md:gap-6 lg:flex-row lg:items-end lg:justify-between;
+    @apply flex flex-col gap-5 md:gap-6 xl:flex-row xl:items-end xl:justify-between;
   }
 
   .content-grid {
@@ -439,7 +512,7 @@ select {
   }
 
   .section-heading-copy {
-    @apply max-w-3xl;
+    @apply max-w-3xl min-w-0;
   }
 
   .section-heading-description {
@@ -447,7 +520,24 @@ select {
   }
 
   .section-heading-action {
-    @apply w-full lg:w-auto lg:pb-1;
+    @apply w-full xl:w-auto xl:pb-1;
+  }
+
+  .site-footer {
+    @apply rounded-[14px] border px-5 py-6 md:px-7 md:py-7;
+    border-color: var(--border-default);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 95%, white),
+      color-mix(in srgb, var(--surface-default) 86%, var(--color-paper-soft))
+    );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.72),
+      0 18px 40px rgba(31, 26, 23, 0.045);
+  }
+
+  .site-footer-links {
+    @apply flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center;
   }
 
   .editorial-note {
@@ -484,12 +574,14 @@ select {
   }
 
   .editorial-pill {
-    @apply inline-flex min-h-11 items-center rounded-full border px-4 py-2 text-[15px] font-semibold;
+    @apply inline-flex min-h-11 max-w-full flex-wrap items-center gap-1.5 rounded-full border px-4 py-2 text-[15px] font-semibold;
     border-color: color-mix(in srgb, var(--color-casa) 18%, white);
     background: color-mix(in srgb, var(--surface-default) 80%, white);
     color: var(--text-secondary);
     box-shadow: 0 10px 22px rgba(31, 26, 23, 0.05);
     font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
   }
 
   .editorial-step {
@@ -575,23 +667,40 @@ select {
     );
   }
 
-  .book-card-featured {
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-default) 98%, white) 0%,
-        color-mix(in srgb, var(--surface-subtle) 56%, white) 100%
-      ),
-      color-mix(in srgb, var(--surface-default) 96%, white);
-  }
-
   .book-card-author {
-    @apply mt-2 text-[17px] font-semibold md:text-[18px];
+    @apply text-[17px] font-semibold md:text-[18px];
     color: var(--color-casa);
   }
 
+  .book-card-header {
+    @apply flex h-[156px] flex-col gap-2 md:h-[164px];
+  }
+
+  .book-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .book-card-author-clamp {
+    display: -webkit-box;
+    min-height: calc(1.5em * 2);
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
   .book-card-copy {
-    @apply flex flex-1 flex-col;
+    @apply flex flex-1 flex-col gap-5;
+  }
+
+  .book-card-synopsis {
+    display: -webkit-box;
+    min-height: calc(1.75em * 6);
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
   }
 
   .book-card-footer {
@@ -775,7 +884,7 @@ select {
   }
 
   .tableau-shelf {
-    @apply absolute right-5 left-5 rounded-[8px];
+    @apply absolute rounded-[8px];
     height: 16px;
     background: linear-gradient(
       90deg,
@@ -785,6 +894,18 @@ select {
     box-shadow:
       0 16px 30px rgba(31, 26, 23, 0.16),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .tableau-shelf-primary {
+    @apply inset-x-0 bottom-2;
+  }
+
+  .tableau-book-stage {
+    @apply relative min-h-[216px] pr-3 pb-6 pl-2;
+  }
+
+  .tableau-book-row {
+    @apply relative z-10 flex h-full items-end gap-2;
   }
 
   .book-spine {
@@ -837,7 +958,7 @@ select {
   }
 
   .colloquium-meta {
-    @apply flex flex-wrap gap-2;
+    @apply flex min-w-0 flex-wrap gap-2;
   }
 
   .colloquium-card-footer {
@@ -1012,7 +1133,8 @@ select {
   .site-header .btn-primary,
   .site-header .btn-secondary,
   .site-header .btn-warm,
-  .site-header .btn-ghost {
+  .site-header .btn-ghost,
+  .site-header .site-header-quiet-action {
     width: 100%;
   }
 }

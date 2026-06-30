@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { ColloquiumCard } from "@/components/colloquium-card";
 import { PageShell } from "@/components/page-shell";
@@ -37,32 +36,42 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
         ]}
         activeHref="/colloquiums"
         description="Espacio privado para miembros activos con lecturas y conversaciones del club."
-        actions={
-          <>
-            <StatusBanner title="Acceso activo">
+        status={{
+          title: "Acceso activo",
+          content: (
+            <>
               Bienvenido,{" "}
               <span className="font-semibold text-[var(--text-primary)]">
                 {session.profile.full_name}
               </span>
               .
-            </StatusBanner>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/library" className="btn-secondary">
-                Ver biblioteca
-              </Link>
-              {session.profile.role === "admin" ? (
-                <Link href="/admin" className="btn-ghost">
-                  Panel de administración
-                </Link>
-              ) : null}
-              <form action={logoutAction}>
-                <button type="submit" className="btn-ghost">
-                  Cerrar sesión
-                </button>
-              </form>
-            </div>
-          </>
-        }
+            </>
+          ),
+        }}
+        actions={[
+          {
+            kind: "link",
+            href: "/library",
+            label: "Ver biblioteca",
+            tone: "secondary",
+          },
+          ...(session.profile.role === "admin"
+            ? [
+                {
+                  kind: "link" as const,
+                  href: "/admin",
+                  label: "Panel de administración",
+                  tone: "secondary" as const,
+                },
+              ]
+            : []),
+          {
+            kind: "submit",
+            action: logoutAction,
+            label: "Cerrar sesión",
+            tone: "ghost",
+          },
+        ]}
       />
 
       <section className="hero-band">

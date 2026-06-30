@@ -2,7 +2,7 @@ import { PageShell } from "@/components/page-shell";
 
 export default function ColloquiumDetailLoading() {
   return (
-    <PageShell width="reading">
+    <PageShell width="reading" footer="none">
       <section className="surface-card-muted px-5 py-5 md:px-6 md:py-5">
         <div className="flex flex-wrap gap-3">
           <div className="skeleton-block h-11 w-40 rounded-full" />

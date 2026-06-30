@@ -36,7 +36,7 @@ export default async function ColloquiumDetailPage({
   }
 
   return (
-    <PageShell width="reading">
+    <PageShell width="reading" footer="none">
       <section className="surface-card-muted flex flex-col gap-4 px-5 py-4 md:px-6 md:py-5">
         <div className="flex flex-wrap gap-4">
           <Link href="/colloquiums" className="editorial-link">

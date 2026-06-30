@@ -1,7 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 
 import type { PublicBook } from "@/lib/books/data";
-import { cn } from "@/lib/utils";
 
 type BookCardProps = {
   book: PublicBook;
@@ -9,7 +8,6 @@ type BookCardProps = {
   actionHref: string;
   actionLabel: string;
   compact?: boolean;
-  featured?: boolean;
 };
 
 function truncateText(text: string, maxLength: number) {
@@ -26,30 +24,27 @@ export function BookCard({
   actionHref,
   actionLabel,
   compact = false,
-  featured = false,
 }: BookCardProps) {
   return (
-    <article
-      className={cn(
-        "book-card surface-card lift-on-hover flex h-full flex-col p-5 md:p-6",
-        featured && "book-card-featured",
-      )}
-    >
-      <div>
+    <article className="book-card surface-card lift-on-hover flex h-full flex-col p-5 md:p-6">
+      <div className="book-card-header min-w-0">
         <p className="eyebrow">{eyebrow}</p>
         <h3
-          className={cn(
-            "mt-3 text-[var(--text-primary)]",
-            featured ? "section-title" : "subsection-title",
-          )}
+          className="book-card-title subsection-title text-[var(--text-primary)]"
+          title={book.title}
         >
           {book.title}
         </h3>
-        <p className="book-card-author">{book.author}</p>
+        <p
+          className="book-card-author book-card-author-clamp"
+          title={book.author}
+        >
+          {book.author}
+        </p>
       </div>
 
       <div className="mt-5">
-        <div className={cn("book-cover-frame", featured && "md:aspect-[5/4]")}>
+        <div className="book-cover-frame">
           {book.coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -66,20 +61,19 @@ export function BookCard({
       </div>
 
       <div className="book-card-copy pt-5">
-        <p className="body-copy flex-1">
-          {compact ? truncateText(book.synopsis, 180) : book.synopsis}
+        <p
+          className={`body-copy flex-1 ${compact ? "book-card-synopsis" : ""}`}
+        >
+          {compact ? truncateText(book.synopsis, 220) : book.synopsis}
         </p>
 
         <div className="book-card-footer">
-          <p className="meta-copy">Solicitud directa por WhatsApp</p>
+          <p className="meta-copy">Contacto directo con el club</p>
           <a
             href={actionHref}
             target="_blank"
             rel="noreferrer"
-            className={cn(
-              "btn-primary w-full sm:w-auto",
-              featured && "sm:min-w-[220px]",
-            )}
+            className="btn-primary w-full sm:w-auto"
           >
             {actionLabel}
             <ArrowUpRight className="h-[18px] w-[18px]" />

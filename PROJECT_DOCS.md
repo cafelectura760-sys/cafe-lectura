@@ -14,7 +14,7 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 - Private colloquium presentation module with ordered text and audio blocks.
 - Admin dashboard for manual internal management, including the colloquium builder workflow.
 - Login-only authentication flow with no public signup.
-- WhatsApp-based membership and book requests.
+- WhatsApp-based membership and book inquiries.
 
 ### Product Goals
 
@@ -26,7 +26,7 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 
 ### Business Model
 
-Cafe Lectura uses a manual annual membership model. Users do not purchase subscriptions inside the app. Any membership request, renewal request, or book request must redirect to WhatsApp using configured environment values.
+Cafe Lectura uses a manual annual membership model. Users do not purchase subscriptions inside the app. Any membership request, renewal request, or book inquiry must redirect to WhatsApp using configured environment values.
 
 No payment gateway integration is allowed in the MVP.
 
@@ -101,7 +101,7 @@ Routes:
 - `(public)/library/page.tsx`
   - URL: `/library`
   - Public visual catalog of books.
-  - Allows visitors to request a book through WhatsApp.
+  - Allows visitors to ask about a book through WhatsApp.
   - Does not provide downloadable files.
 
 ### Private Area
@@ -167,7 +167,7 @@ Routes:
 - Membership purchase, renewal, and subscription intent must redirect to WhatsApp.
 - WhatsApp number and default message must come from environment variables.
 - Books are not downloadable.
-- The public library must provide a "Request Book" action that opens WhatsApp.
+- The public library must provide a "More Information" action that opens WhatsApp.
 - Colloquiums remain private. They must be accessible only to authenticated users with active memberships, while admins retain full access regardless of membership expiration.
 - The approved colloquium MVP only includes the `Presentation` portion of the colloquium experience.
 - The approved colloquium MVP includes structured support for text and audio blocks only.
@@ -230,7 +230,7 @@ Key fields:
 Purpose:
 
 - Power the public visual library.
-- Provide book details for WhatsApp-based request flows.
+- Provide book details for WhatsApp-based inquiry flows.
 - Link books to colloquiums when applicable.
 
 ### `colloquiums`
@@ -1174,7 +1174,7 @@ The visual redesign must preserve:
 - existing backend behavior
 - Supabase-based product logic
 - membership gating behavior
-- WhatsApp-based membership and book request flows
+- WhatsApp-based membership and book inquiry flows
 - simple navigation
 - accessibility for older adults
 - calm and trustworthy tone
@@ -1250,7 +1250,7 @@ Required public environment values:
 - `NEXT_PUBLIC_WHATSAPP_NUMBER`
 - `NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE`
 
-These values should be used to build WhatsApp URLs for membership inquiries, renewal requests, and book requests. Environment variable validation should be introduced when the project needs a shared configuration module.
+These values should be used to build WhatsApp URLs for membership inquiries, renewal requests, and book inquiries. Environment variable validation should be introduced when the project needs a shared configuration module.
 
 Required Supabase environment values:
 

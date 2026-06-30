@@ -31,7 +31,7 @@ export default async function AdminColloquiumPreviewPage({
   }
 
   return (
-    <PageShell width="reading">
+    <PageShell width="reading" footer="none">
       <div className="flex flex-wrap gap-3">
         <Link
           href={`/admin/colloquiums/${colloquium.id}`}

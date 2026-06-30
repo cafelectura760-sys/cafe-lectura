@@ -37,7 +37,7 @@ export default async function ColloquiumDetailPage({
 
   return (
     <PageShell width="reading">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <section className="surface-card-muted flex flex-col gap-4 px-5 py-4 md:px-6 md:py-5">
         <div className="flex flex-wrap gap-4">
           <Link href="/colloquiums" className="editorial-link">
             Volver a coloquios
@@ -50,7 +50,7 @@ export default async function ColloquiumDetailPage({
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="meta-copy">
             Leyendo como{" "}
             <span className="font-semibold text-[var(--text-primary)]">
@@ -63,7 +63,7 @@ export default async function ColloquiumDetailPage({
             </button>
           </form>
         </div>
-      </div>
+      </section>
 
       <ColloquiumReader colloquium={colloquium} />
     </PageShell>

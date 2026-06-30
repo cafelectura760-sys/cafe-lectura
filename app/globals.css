@@ -95,6 +95,9 @@ html {
   background: var(--background);
   color: var(--foreground);
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -128,6 +131,7 @@ body {
   font-size: 17px;
   line-height: 1.7;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (min-width: 768px) {
@@ -167,15 +171,21 @@ select {
     font-family: var(--font-literata), "Times New Roman", Times, serif;
     color: var(--color-ink);
     letter-spacing: 0;
+    text-wrap: balance;
   }
 
   p {
     color: var(--text-secondary);
+    text-wrap: pretty;
   }
 
   a {
     color: inherit;
     text-decoration: none;
+  }
+
+  img {
+    display: block;
   }
 
   button,
@@ -188,7 +198,7 @@ select {
 
 @layer components {
   .page-shell {
-    @apply flex flex-1 px-4 py-5 md:px-6 md:py-7 lg:px-8;
+    @apply flex flex-1 px-4 py-4 md:px-6 md:py-6 lg:px-8 lg:py-7;
     background:
       linear-gradient(
         90deg,
@@ -206,7 +216,7 @@ select {
   }
 
   .page-container {
-    @apply mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-7 md:gap-9 lg:gap-11;
+    @apply mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-7 md:gap-9 lg:gap-12;
   }
 
   .page-container-regular {
@@ -218,23 +228,29 @@ select {
   }
 
   .surface-card {
-    @apply rounded-[10px] border shadow-[0_18px_44px_rgba(31,26,23,0.06)];
+    @apply rounded-[14px] border;
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 96%, white);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.72),
+      0 20px 48px rgba(31, 26, 23, 0.065);
   }
 
   .surface-card-muted {
-    @apply rounded-[10px] border shadow-[0_14px_32px_rgba(31,26,23,0.04)];
+    @apply rounded-[14px] border;
     border-color: var(--border-default);
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--surface-subtle) 82%, white) 0%,
       color-mix(in srgb, var(--surface-default) 78%, white) 100%
     );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.72),
+      0 16px 34px rgba(31, 26, 23, 0.05);
   }
 
   .surface-card-strong {
-    @apply rounded-[10px] border shadow-[0_20px_50px_rgba(31,26,23,0.08)];
+    @apply rounded-[14px] border;
     border-color: color-mix(in srgb, var(--color-casa) 24%, white);
     background: linear-gradient(
       145deg,
@@ -242,21 +258,26 @@ select {
       color-mix(in srgb, var(--color-dune) 80%, var(--color-casa)) 100%
     );
     color: var(--text-on-dark);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.12),
+      0 22px 52px rgba(31, 26, 23, 0.085);
   }
 
   .site-header {
-    @apply flex flex-col gap-5 rounded-[10px] border px-5 py-5 md:px-7 md:py-6 lg:flex-row lg:items-start lg:justify-between;
+    @apply flex flex-col gap-5 rounded-[14px] border px-5 py-5 md:px-7 md:py-6 lg:flex-row lg:items-start lg:justify-between;
     border-color: var(--border-default);
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--surface-default) 94%, white),
+      color-mix(in srgb, var(--surface-default) 96%, white),
       color-mix(in srgb, var(--surface-default) 88%, var(--color-paper-soft))
     );
-    box-shadow: 0 14px 34px rgba(31, 26, 23, 0.04);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.74),
+      0 16px 38px rgba(31, 26, 23, 0.045);
   }
 
   .brand-logo {
-    @apply inline-flex shrink-0 items-center justify-center rounded-[8px] border p-1.5;
+    @apply inline-flex shrink-0 items-center justify-center rounded-[10px] border p-1.5;
     border-color: color-mix(in srgb, var(--color-clay) 60%, white);
     background: color-mix(in srgb, var(--surface-subtle) 84%, white);
     box-shadow: 0 10px 24px rgba(31, 26, 23, 0.06);
@@ -269,93 +290,135 @@ select {
 
   .display-title {
     @apply text-[38px] leading-[1.14] font-semibold md:text-[52px] lg:text-[60px];
+    text-wrap: balance;
   }
 
   .section-title {
     @apply text-[32px] leading-[1.18] font-semibold md:text-[40px];
+    text-wrap: balance;
   }
 
   .subsection-title {
     @apply text-[26px] leading-[1.24] font-semibold md:text-[30px];
+    text-wrap: balance;
   }
 
   .body-large {
     @apply text-[18px] leading-[1.75] md:text-[19px];
     color: var(--text-secondary);
+    text-wrap: pretty;
   }
 
   .body-copy {
     @apply text-[17px] leading-[1.75] md:text-[18px];
     color: var(--text-secondary);
+    text-wrap: pretty;
   }
 
   .meta-copy {
     @apply text-[15px] leading-[1.6] font-medium;
     color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    text-wrap: pretty;
   }
 
   .editorial-link {
-    @apply inline-flex items-center gap-2 font-semibold underline underline-offset-4;
+    @apply inline-flex min-h-11 items-center gap-2 rounded-[8px] px-1.5 font-semibold underline decoration-[1.5px] underline-offset-4;
     color: var(--text-link);
+    transition-property:
+      color, background-color, text-decoration-color, box-shadow;
   }
 
   .editorial-link:hover {
     color: var(--text-link-hover);
+    background: color-mix(in srgb, var(--surface-subtle) 66%, white);
   }
 
   .nav-link {
-    @apply inline-flex min-h-12 items-center rounded-[8px] px-4 text-[16px] font-semibold md:text-[17px];
+    @apply inline-flex min-h-12 items-center rounded-[10px] px-4 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
+    transition-property: color, background-color, box-shadow, border-color;
   }
 
   .nav-link:hover,
   .nav-link[data-active="true"] {
     background: color-mix(in srgb, var(--surface-subtle) 88%, white);
     color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-clay) 20%, white);
   }
 
   .btn-primary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     background: var(--color-verde);
     color: var(--color-surface);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 10px 24px rgba(84, 91, 54, 0.18);
+    transition-property:
+      transform, background-color, box-shadow, border-color, color, opacity;
   }
 
   .btn-primary:hover {
     background: var(--color-verde-hover);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 14px 28px rgba(84, 91, 54, 0.22);
   }
 
   .btn-primary:active {
     background: var(--color-verde-active);
+    transform: scale(0.96);
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] border px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] border px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     border-color: var(--border-strong);
     color: var(--text-primary);
     background: color-mix(in srgb, var(--surface-default) 72%, white);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 8px 20px rgba(31, 26, 23, 0.05);
+    transition-property:
+      transform, background-color, border-color, box-shadow, color, opacity;
   }
 
   .btn-secondary:hover {
     background: color-mix(in srgb, var(--color-paper-soft) 75%, white);
+    border-color: color-mix(in srgb, var(--color-casa) 22%, white);
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.96);
   }
 
   .btn-warm {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] px-5 py-3 text-center text-[17px] font-semibold md:min-h-13 md:px-6 md:text-[18px];
     background: var(--color-dune);
     color: var(--color-surface);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 10px 24px rgba(124, 86, 61, 0.18);
+    transition-property:
+      transform, background-color, box-shadow, border-color, color, opacity;
   }
 
   .btn-warm:hover {
     background: var(--color-dune-hover);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 14px 28px rgba(124, 86, 61, 0.22);
   }
 
   .btn-warm:active {
     background: var(--color-dune-active);
+    transform: scale(0.96);
   }
 
   .btn-ghost {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-4 py-3 text-[16px] font-semibold md:text-[17px];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] px-4 py-3 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
+    transition-property:
+      transform, background-color, color, box-shadow, opacity;
   }
 
   .btn-ghost:hover {
@@ -363,26 +426,117 @@ select {
     color: var(--text-primary);
   }
 
+  .btn-ghost:active {
+    transform: scale(0.96);
+  }
+
   .section-header {
-    @apply flex flex-col gap-4 md:gap-5 lg:flex-row lg:items-end lg:justify-between;
+    @apply flex flex-col gap-5 md:gap-6 lg:flex-row lg:items-end lg:justify-between;
   }
 
   .content-grid {
-    @apply grid gap-5 md:gap-6;
+    @apply grid gap-5 md:gap-6 lg:gap-7;
+  }
+
+  .section-heading-copy {
+    @apply max-w-3xl;
+  }
+
+  .section-heading-description {
+    max-width: 62ch;
+  }
+
+  .section-heading-action {
+    @apply w-full lg:w-auto lg:pb-1;
+  }
+
+  .editorial-note {
+    @apply rounded-[14px] border px-5 py-5 md:px-6 md:py-6;
+    border-color: color-mix(in srgb, var(--color-clay) 24%, white);
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--surface-default) 94%, white) 0%,
+      color-mix(in srgb, var(--surface-subtle) 80%, white) 100%
+    );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.72),
+      0 18px 34px rgba(31, 26, 23, 0.06);
+  }
+
+  .editorial-note-strong {
+    @apply rounded-[16px] border px-5 py-5 md:px-6 md:py-6;
+    border-color: color-mix(in srgb, var(--color-casa) 22%, white);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 96%, white) 0%,
+        color-mix(in srgb, var(--color-paper-soft) 82%, white) 100%
+      ),
+      linear-gradient(
+        130deg,
+        color-mix(in srgb, var(--color-gold) 10%, transparent) 0%,
+        transparent 44%,
+        color-mix(in srgb, var(--color-dune) 10%, transparent) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.74),
+      0 22px 42px rgba(31, 26, 23, 0.08);
+  }
+
+  .editorial-pill {
+    @apply inline-flex min-h-11 items-center rounded-full border px-4 py-2 text-[15px] font-semibold;
+    border-color: color-mix(in srgb, var(--color-casa) 18%, white);
+    background: color-mix(in srgb, var(--surface-default) 80%, white);
+    color: var(--text-secondary);
+    box-shadow: 0 10px 22px rgba(31, 26, 23, 0.05);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .editorial-step {
+    @apply rounded-[14px] border px-5 py-5 md:px-6 md:py-6;
+    border-color: color-mix(in srgb, var(--color-clay) 26%, white);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 94%, white),
+      color-mix(in srgb, var(--surface-subtle) 82%, white)
+    );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.68),
+      0 16px 30px rgba(31, 26, 23, 0.05);
+  }
+
+  .editorial-step-number {
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[15px] font-semibold;
+    background: color-mix(in srgb, var(--color-paper-soft) 82%, white);
+    color: var(--color-casa);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-clay) 24%, white);
+    font-variant-numeric: tabular-nums;
   }
 
   .book-cover-frame {
-    @apply aspect-[4/5] overflow-hidden rounded-[8px] border;
+    @apply aspect-[4/5] overflow-hidden rounded-[10px] border;
     border-color: color-mix(in srgb, var(--color-clay) 28%, white);
     background: linear-gradient(
       180deg,
       color-mix(in srgb, var(--surface-book) 88%, white),
       color-mix(in srgb, var(--surface-subtle) 92%, white)
     );
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.04),
+      0 8px 18px rgba(31, 26, 23, 0.05);
+  }
+
+  .book-cover-image {
+    @apply h-full w-full object-cover;
+    outline: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -1px;
   }
 
   .status-panel {
-    @apply rounded-[8px] border px-5 py-4;
+    @apply rounded-[10px] border px-5 py-4;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.52),
+      0 10px 24px rgba(31, 26, 23, 0.035);
   }
 
   .status-panel-default {
@@ -405,16 +559,57 @@ select {
     background: var(--color-error-bg);
   }
 
+  .book-card {
+    @apply relative overflow-hidden;
+  }
+
+  .book-card::before,
+  .colloquium-card::before {
+    @apply absolute inset-x-0 top-0 h-px;
+    content: "";
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-gold) 44%, white),
+      transparent
+    );
+  }
+
+  .book-card-featured {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 98%, white) 0%,
+        color-mix(in srgb, var(--surface-subtle) 56%, white) 100%
+      ),
+      color-mix(in srgb, var(--surface-default) 96%, white);
+  }
+
+  .book-card-author {
+    @apply mt-2 text-[17px] font-semibold md:text-[18px];
+    color: var(--color-casa);
+  }
+
+  .book-card-copy {
+    @apply flex flex-1 flex-col;
+  }
+
+  .book-card-footer {
+    @apply mt-6 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between;
+    border-color: color-mix(in srgb, var(--color-clay) 18%, white);
+  }
+
   .field-label {
     @apply block text-[16px] leading-[1.35] font-semibold md:text-[17px];
     color: var(--text-primary);
   }
 
   .field-input {
-    @apply min-h-13 w-full rounded-[8px] border px-4 py-3 text-[17px] leading-[1.5] outline-none md:text-[18px];
+    @apply min-h-13 w-full rounded-[10px] border px-4 py-3 text-[17px] leading-[1.5] outline-none md:text-[18px];
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 94%, white);
     color: var(--text-primary);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
   }
 
   .field-input::placeholder {
@@ -436,8 +631,9 @@ select {
   }
 
   .password-toggle {
-    @apply absolute top-1/2 right-2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[8px];
+    @apply absolute top-1/2 right-2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[8px];
     color: var(--text-secondary);
+    transition-property: background-color, color, box-shadow, opacity;
   }
 
   .password-toggle:hover {
@@ -446,10 +642,12 @@ select {
   }
 
   .reader-panel {
-    @apply rounded-[10px] border px-6 py-7 md:px-8 md:py-9;
+    @apply rounded-[12px] border px-6 py-7 md:px-8 md:py-9;
     border-color: var(--border-default);
     background: color-mix(in srgb, var(--surface-default) 97%, white);
-    box-shadow: 0 20px 50px rgba(31, 26, 23, 0.05);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.74),
+      0 20px 50px rgba(31, 26, 23, 0.05);
   }
 
   .reader-prose {
@@ -473,13 +671,23 @@ select {
   }
 
   .hero-band {
-    @apply relative min-w-0 overflow-hidden rounded-[10px] border px-6 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12;
+    @apply relative min-w-0 overflow-hidden rounded-[16px] border px-6 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12;
     border-color: color-mix(
       in srgb,
       var(--color-casa) 20%,
       var(--border-default)
     );
     background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-gold) 16%, white) 0%,
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at right 18% bottom 10%,
+        color-mix(in srgb, var(--color-teal) 12%, white) 0%,
+        transparent 28%
+      ),
       linear-gradient(
           0deg,
           color-mix(in srgb, var(--color-line) 14%, transparent) 1px,
@@ -496,9 +704,11 @@ select {
         145deg,
         color-mix(in srgb, var(--surface-default) 98%, white) 0%,
         color-mix(in srgb, var(--color-paper-soft) 82%, white) 56%,
-        color-mix(in srgb, var(--color-clay) 26%, var(--surface-default)) 100%
+        color-mix(in srgb, var(--color-clay) 28%, var(--surface-default)) 100%
       );
-    box-shadow: 0 24px 64px rgba(31, 26, 23, 0.08);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.76),
+      0 28px 72px rgba(31, 26, 23, 0.1);
   }
 
   .hero-band::before {
@@ -526,27 +736,55 @@ select {
   }
 
   .reading-tableau {
-    @apply relative min-w-0 overflow-hidden rounded-[10px] border p-5 md:p-6;
-    min-height: 520px;
+    @apply relative min-w-0 overflow-hidden rounded-[16px] border p-5 md:p-6;
+    min-height: 560px;
     border-color: color-mix(in srgb, var(--color-casa) 26%, white);
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-paper) 70%, white) 0%,
-      color-mix(in srgb, var(--color-clay) 18%, var(--surface-default)) 52%,
-      color-mix(in srgb, var(--color-casa) 18%, var(--color-paper-soft)) 100%
-    );
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-gold) 18%, white) 0%,
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-paper) 76%, white) 0%,
+        color-mix(in srgb, var(--color-clay) 18%, var(--surface-default)) 54%,
+        color-mix(in srgb, var(--color-casa) 18%, var(--color-paper-soft)) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.78),
+      0 26px 60px rgba(31, 26, 23, 0.1);
+  }
+
+  .reading-tableau::before {
+    @apply pointer-events-none absolute inset-0;
+    content: "";
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.2),
+        transparent 24%,
+        rgba(31, 26, 23, 0.06) 100%
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(31, 26, 23, 0.03) 0 1px,
+        transparent 1px 7px
+      );
+    opacity: 0.64;
   }
 
   .tableau-shelf {
     @apply absolute right-5 left-5 rounded-[8px];
-    height: 14px;
+    height: 16px;
     background: linear-gradient(
       90deg,
       color-mix(in srgb, var(--color-casa) 88%, black),
       color-mix(in srgb, var(--color-clay) 86%, var(--color-casa))
     );
-    box-shadow: 0 14px 28px rgba(31, 26, 23, 0.12);
+    box-shadow:
+      0 16px 30px rgba(31, 26, 23, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .book-spine {
@@ -559,19 +797,52 @@ select {
   }
 
   .tableau-note {
-    @apply rounded-[8px] border px-4 py-4 shadow-[0_16px_30px_rgba(31,26,23,0.08)];
+    @apply rounded-[10px] border px-4 py-4;
     border-color: color-mix(in srgb, var(--color-clay) 34%, white);
     background: color-mix(in srgb, var(--surface-default) 94%, white);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.68),
+      0 18px 34px rgba(31, 26, 23, 0.09);
   }
 
   .tableau-quote {
-    @apply rounded-[8px] border px-5 py-5 shadow-[0_18px_36px_rgba(31,26,23,0.1)];
+    @apply rounded-[10px] border px-5 py-5;
     border-color: color-mix(in srgb, var(--color-gold) 42%, white);
     background: linear-gradient(
       180deg,
       color-mix(in srgb, var(--surface-default) 96%, white),
       color-mix(in srgb, var(--color-paper-soft) 74%, white)
     );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.7),
+      0 22px 42px rgba(31, 26, 23, 0.12);
+  }
+
+  .colloquium-card {
+    @apply relative;
+  }
+
+  .colloquium-card-featured {
+    background:
+      radial-gradient(
+        circle at top right,
+        color-mix(in srgb, var(--color-gold) 12%, white) 0%,
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 96%, white),
+        color-mix(in srgb, var(--surface-subtle) 68%, white)
+      );
+  }
+
+  .colloquium-meta {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .colloquium-card-footer {
+    @apply mt-6 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between;
+    border-color: color-mix(in srgb, var(--color-clay) 18%, white);
   }
 
   .accent-rule {
@@ -616,6 +887,25 @@ select {
   .scroll-reveal {
     --scroll-reveal-y: 18px;
   }
+
+  .skeleton-block {
+    @apply relative overflow-hidden rounded-[18px];
+    background: color-mix(in srgb, var(--surface-subtle) 82%, white);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  }
+
+  .skeleton-block::after {
+    @apply absolute inset-0;
+    content: "";
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 48%,
+      transparent 100%
+    );
+    animation: cafe-skeleton 1.4s ease-in-out infinite;
+  }
 }
 
 @keyframes cafe-reveal {
@@ -639,6 +929,12 @@ select {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes cafe-skeleton {
+  100% {
+    transform: translateX(100%);
   }
 }
 
@@ -687,6 +983,10 @@ select {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .skeleton-block::after {
+    animation: none !important;
   }
 }
 

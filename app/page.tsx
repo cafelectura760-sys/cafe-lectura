@@ -42,6 +42,8 @@ export default async function Home() {
     getPublicBooks(),
   ]);
   const featuredBooks = books.slice(0, 3);
+  const leadBook = featuredBooks[0];
+  const remainingFeaturedBooks = featuredBooks.slice(1);
   const highlights = [
     {
       title: "Biblioteca visible",
@@ -59,6 +61,25 @@ export default async function Home() {
       icon: ScrollText,
     },
   ];
+  const [leadHighlight, ...secondaryHighlights] = highlights;
+  const membershipSteps = [
+    {
+      number: "01",
+      title: "Consulta inicial",
+      text: "El primer contacto se hace por WhatsApp para resolver dudas y explicar cómo funciona el club.",
+    },
+    {
+      number: "02",
+      title: "Acceso privado",
+      text: "Los miembros activos encuentran sus coloquios en un espacio discreto, legible y fácil de recorrer.",
+    },
+    {
+      number: "03",
+      title: "Renovación manual",
+      text: "Cuando hace falta renovar, el flujo vuelve a WhatsApp para mantener el trato cercano del club.",
+    },
+  ];
+  const LeadHighlightIcon = leadHighlight.icon;
 
   return (
     <PageShell>
@@ -146,25 +167,43 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {highlights.map((item) => {
-                const Icon = item.icon;
+            <div className="mt-10 grid gap-4 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+              <article className="editorial-note-strong lift-on-hover h-full">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.08)]">
+                  <LeadHighlightIcon className="h-5 w-5" />
+                </div>
+                <h2 className="mt-4 text-[24px] leading-[1.22] font-semibold text-[var(--text-primary)] md:text-[28px]">
+                  {leadHighlight.title}
+                </h2>
+                <p className="body-copy mt-3 max-w-[42ch]">
+                  {leadHighlight.text}
+                </p>
+              </article>
 
-                return (
-                  <article
-                    key={item.title}
-                    className="surface-card-muted lift-on-hover h-full px-5 py-5"
-                  >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-[8px] bg-[var(--surface-default)] text-[var(--color-casa)]">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h2 className="mt-4 text-[22px] leading-[1.28] font-semibold text-[var(--text-primary)]">
-                      {item.title}
-                    </h2>
-                    <p className="body-copy mt-3">{item.text}</p>
-                  </article>
-                );
-              })}
+              <div className="grid gap-4">
+                {secondaryHighlights.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <article
+                      key={item.title}
+                      className="editorial-note lift-on-hover h-full"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.06)]">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h2 className="text-[22px] leading-[1.24] font-semibold text-[var(--text-primary)]">
+                            {item.title}
+                          </h2>
+                          <p className="body-copy mt-2">{item.text}</p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -173,41 +212,60 @@ export default async function Home() {
       </section>
 
       <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <SectionHeading
-          eyebrow="Biblioteca"
-          title="Una biblioteca visible para descubrir con calma"
-          description="Estos son algunos de los títulos disponibles en Cafe Lectura. La consulta y las solicitudes se realizan de manera directa por WhatsApp."
-          action={
-            <Link href="/library" className="editorial-link">
-              Ver catálogo completo
-            </Link>
-          }
-        />
+        <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <div className="editorial-note-strong h-fit">
+            <SectionHeading
+              eyebrow="Biblioteca"
+              title="Una biblioteca visible para descubrir con calma"
+              description="Estos son algunos de los títulos disponibles en Cafe Lectura. La consulta y las solicitudes se realizan de manera directa por WhatsApp."
+              action={
+                <Link href="/library" className="editorial-link">
+                  Ver catálogo completo
+                </Link>
+              }
+            />
+          </div>
 
-        {featuredBooks.length === 0 ? (
-          <div className="mt-8">
-            <StatusBanner title="Biblioteca en preparación">
-              La biblioteca pública está en preparación. Pronto verás aquí los
-              primeros títulos disponibles.
-            </StatusBanner>
-          </div>
-        ) : (
-          <div className="content-grid mt-8 md:grid-cols-2 xl:grid-cols-3">
-            {featuredBooks.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                eyebrow="Selecciones recientes"
-                actionHref={buildBookRequestHref(book.title, book.author)}
-                actionLabel="Solicitar por WhatsApp"
-                compact
-              />
-            ))}
-          </div>
-        )}
+          {featuredBooks.length === 0 ? (
+            <div className="xl:pt-1">
+              <StatusBanner title="Biblioteca en preparación">
+                La biblioteca pública está en preparación. Pronto verás aquí los
+                primeros títulos disponibles.
+              </StatusBanner>
+            </div>
+          ) : (
+            <div className="content-grid md:grid-cols-2">
+              {leadBook ? (
+                <div className="md:col-span-2">
+                  <BookCard
+                    book={leadBook}
+                    eyebrow="Para empezar el recorrido"
+                    actionHref={buildBookRequestHref(
+                      leadBook.title,
+                      leadBook.author,
+                    )}
+                    actionLabel="Solicitar por WhatsApp"
+                    compact
+                    featured
+                  />
+                </div>
+              ) : null}
+              {remainingFeaturedBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  eyebrow="Selecciones recientes"
+                  actionHref={buildBookRequestHref(book.title, book.author)}
+                  actionLabel="Solicitar por WhatsApp"
+                  compact
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <SectionHeading
             eyebrow="Membresía"
@@ -216,33 +274,17 @@ export default async function Home() {
           />
 
           <div className="content-grid mt-8 md:grid-cols-3">
-            <article className="surface-card-muted px-5 py-5">
-              <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
-                Consulta inicial
-              </h3>
-              <p className="body-copy mt-3">
-                El primer contacto se hace por WhatsApp para resolver dudas y
-                explicar cómo funciona el club.
-              </p>
-            </article>
-            <article className="surface-card-muted px-5 py-5">
-              <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
-                Acceso privado
-              </h3>
-              <p className="body-copy mt-3">
-                Los miembros activos encuentran sus coloquios en un espacio
-                discreto, legible y fácil de recorrer.
-              </p>
-            </article>
-            <article className="surface-card-muted px-5 py-5">
-              <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
-                Renovacion manual
-              </h3>
-              <p className="body-copy mt-3">
-                Cuando hace falta renovar, el flujo vuelve a WhatsApp para
-                mantener el trato cercano del club.
-              </p>
-            </article>
+            {membershipSteps.map((step) => (
+              <article key={step.number} className="editorial-step h-full">
+                <div className="flex items-center gap-3">
+                  <span className="editorial-step-number">{step.number}</span>
+                  <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
+                    {step.title}
+                  </h3>
+                </div>
+                <p className="body-copy mt-4">{step.text}</p>
+              </article>
+            ))}
           </div>
         </article>
 
@@ -250,6 +292,7 @@ export default async function Home() {
           <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
             Conversación cercana
           </p>
+          <div className="accent-rule mt-4" />
           <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
             ¿Quieres saber si Cafe Lectura puede ser para ti?
           </h2>

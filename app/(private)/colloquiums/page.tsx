@@ -24,6 +24,8 @@ export const metadata: Metadata = {
 export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
   const session = await requireActiveMembership();
   const colloquiums = await getAvailableColloquiums();
+  const leadColloquium = colloquiums[0];
+  const remainingColloquiums = colloquiums.slice(1);
 
   return (
     <PageShell width="regular">
@@ -104,15 +106,30 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
         </section>
       ) : (
         <section className="content-grid" aria-label="Coloquios publicados">
-          <p className="meta-copy">
-            {colloquiums.length}{" "}
-            {colloquiums.length === 1
-              ? "coloquio publicado"
-              : "coloquios publicados"}
-          </p>
-          {colloquiums.map((colloquium) => (
-            <ColloquiumCard key={colloquium.id} colloquium={colloquium} />
-          ))}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div className="editorial-note">
+              <p className="eyebrow">Sala privada</p>
+              <p className="body-copy mt-2">
+                Abre cada coloquio con calma. El libro, la fecha y el extracto
+                inicial están pensados para orientarte antes de entrar a leer.
+              </p>
+            </div>
+            <p className="editorial-pill lg:justify-self-end">
+              {colloquiums.length}{" "}
+              {colloquiums.length === 1
+                ? "coloquio publicado"
+                : "coloquios publicados"}
+            </p>
+          </div>
+
+          <div className="grid gap-5">
+            {leadColloquium ? (
+              <ColloquiumCard colloquium={leadColloquium} featured />
+            ) : null}
+            {remainingColloquiums.map((colloquium) => (
+              <ColloquiumCard key={colloquium.id} colloquium={colloquium} />
+            ))}
+          </div>
         </section>
       )}
     </PageShell>

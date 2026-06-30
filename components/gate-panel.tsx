@@ -16,7 +16,7 @@ export function GatePanel({
   footer,
 }: GatePanelProps) {
   return (
-    <section className="surface-card mx-auto w-full max-w-[680px] px-6 py-7 md:px-8 md:py-9">
+    <section className="surface-card mx-auto w-full max-w-[560px] px-6 py-7 md:px-8 md:py-9">
       <div className="space-y-3">
         <div className="accent-rule mb-5" />
         <p className="eyebrow">{eyebrow}</p>
@@ -26,7 +26,11 @@ export function GatePanel({
 
       <div className="mt-8 space-y-5">{children}</div>
 
-      {footer ? <div className="mt-8">{footer}</div> : null}
+      {footer ? (
+        <div className="mt-7 border-t border-[var(--border-default)] pt-6">
+          {footer}
+        </div>
+      ) : null}
     </section>
   );
 }

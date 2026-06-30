@@ -37,7 +37,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const error = normalizeErrorCode(resolvedSearchParams?.error);
 
   return (
-    <PageShell>
+    <PageShell width="regular">
       <SiteHeader
         items={[
           { href: "/", label: "Inicio" },

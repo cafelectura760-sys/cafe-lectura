@@ -50,7 +50,7 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
           directa y cercana.
         </StatusBanner>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
             href={whatsappHref}
             target="_blank"

@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 import type { PublicBook } from "@/lib/books/data";
+import { cn } from "@/lib/utils";
 
 type BookCardProps = {
   book: PublicBook;
@@ -8,6 +9,7 @@ type BookCardProps = {
   actionHref: string;
   actionLabel: string;
   compact?: boolean;
+  featured?: boolean;
 };
 
 function truncateText(text: string, maxLength: number) {
@@ -24,41 +26,60 @@ export function BookCard({
   actionHref,
   actionLabel,
   compact = false,
+  featured = false,
 }: BookCardProps) {
   return (
-    <article className="surface-card lift-on-hover flex h-full flex-col p-4 md:p-5">
-      <div className="book-cover-frame">
-        {book.coverImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={book.coverImageUrl}
-            alt={`Portada de ${book.title}`}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center px-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
-            Portada no disponible
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-col px-2 pt-5 pb-2">
+    <article
+      className={cn(
+        "book-card surface-card lift-on-hover flex h-full flex-col p-5 md:p-6",
+        featured && "book-card-featured",
+      )}
+    >
+      <div>
         <p className="eyebrow">{eyebrow}</p>
-        <h3 className="subsection-title mt-3 text-[var(--text-primary)]">
+        <h3
+          className={cn(
+            "mt-3 text-[var(--text-primary)]",
+            featured ? "section-title" : "subsection-title",
+          )}
+        >
           {book.title}
         </h3>
-        <p className="mt-2 text-[17px] font-semibold text-[var(--color-casa)]">
-          {book.author}
-        </p>
-        <p className="body-copy mt-4 flex-1">
+        <p className="book-card-author">{book.author}</p>
+      </div>
+
+      <div className="mt-5">
+        <div className={cn("book-cover-frame", featured && "md:aspect-[5/4]")}>
+          {book.coverImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={book.coverImageUrl}
+              alt={`Portada de ${book.title}`}
+              className="book-cover-image"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center px-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
+              Portada no disponible
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="book-card-copy pt-5">
+        <p className="body-copy flex-1">
           {compact ? truncateText(book.synopsis, 180) : book.synopsis}
         </p>
-        <div className="mt-6">
+
+        <div className="book-card-footer">
+          <p className="meta-copy">Solicitud directa por WhatsApp</p>
           <a
             href={actionHref}
             target="_blank"
             rel="noreferrer"
-            className="btn-primary w-full"
+            className={cn(
+              "btn-primary w-full sm:w-auto",
+              featured && "sm:min-w-[220px]",
+            )}
           >
             {actionLabel}
             <ArrowUpRight className="h-[18px] w-[18px]" />

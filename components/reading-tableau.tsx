@@ -18,7 +18,12 @@ export function ReadingTableau() {
       <div className="tableau-shelf bottom-[94px]" aria-hidden="true" />
 
       <div className="relative z-10 flex h-full min-h-[480px] min-w-0 flex-col justify-between gap-8">
-        <div className="flex items-end gap-2 pt-8 pl-2" aria-hidden="true">
+        <div className="flex items-center justify-between gap-3">
+          <p className="eyebrow text-[var(--color-casa)]">Mesa de lectura</p>
+          <span className="editorial-pill">Sin prisa</span>
+        </div>
+
+        <div className="flex items-end gap-2 pt-2 pl-2" aria-hidden="true">
           {bookSpines.map((book, index) => (
             <span
               key={`${book.color}-${index}`}
@@ -61,30 +66,32 @@ export function ReadingTableau() {
               </div>
             </div>
 
-            <div className="tableau-note">
-              <div className="flex items-start gap-3">
-                <CalendarDays className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
-                <div>
-                  <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                    Membresía anual
-                  </p>
-                  <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                    Gestión directa y cercana.
-                  </p>
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+              <div className="tableau-note">
+                <div className="flex items-start gap-3">
+                  <CalendarDays className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
+                  <div>
+                    <p className="text-[16px] font-semibold text-[var(--text-primary)]">
+                      Membresía anual
+                    </p>
+                    <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
+                      Gestión directa y cercana.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="tableau-note">
-              <div className="flex items-start gap-3">
-                <MessageCircleMore className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
-                <div>
-                  <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                    Contacto humano
-                  </p>
-                  <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                    Las solicitudes llegan a WhatsApp.
-                  </p>
+              <div className="tableau-note">
+                <div className="flex items-start gap-3">
+                  <MessageCircleMore className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
+                  <div>
+                    <p className="text-[16px] font-semibold text-[var(--text-primary)]">
+                      Contacto humano
+                    </p>
+                    <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
+                      Las solicitudes llegan a WhatsApp.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

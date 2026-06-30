@@ -186,7 +186,7 @@ export function ColloquiumReader({
               <img
                 src={colloquium.bookCoverImageUrl}
                 alt={`Portada de ${colloquium.bookTitle}`}
-                className="h-full w-full object-cover"
+                className="book-cover-image"
               />
             ) : (
               <div className="flex h-full min-h-[280px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">

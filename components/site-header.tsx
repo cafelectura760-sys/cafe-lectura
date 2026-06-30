@@ -23,12 +23,12 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   return (
     <header className="site-header">
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-5">
+        <div className="flex items-start gap-4">
           <BrandLogo size="sm" />
-          <div className="space-y-1">
+          <div className="min-w-0 space-y-1.5">
             <Link href="/" className="inline-flex">
-              <span className="text-[22px] leading-[1.2] font-semibold text-[var(--text-primary)]">
+              <span className="text-[22px] leading-[1.2] font-semibold [text-wrap:balance] text-[var(--text-primary)]">
                 Cafe Lectura
               </span>
             </Link>
@@ -38,7 +38,10 @@ export function SiteHeader({
           </div>
         </div>
 
-        <nav className="flex flex-wrap gap-2" aria-label="Navegación principal">
+        <nav
+          className="flex flex-wrap items-start gap-2"
+          aria-label="Navegación principal"
+        >
           {items.map((item) => (
             <Link
               key={item.href}
@@ -53,7 +56,7 @@ export function SiteHeader({
       </div>
 
       {actions ? (
-        <div className="flex w-full min-w-0 flex-col gap-3 lg:w-auto lg:items-end">
+        <div className="flex w-full min-w-0 flex-col gap-3 lg:w-auto lg:max-w-[360px] lg:items-end">
           {actions}
         </div>
       ) : null}

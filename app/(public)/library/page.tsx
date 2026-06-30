@@ -23,6 +23,11 @@ function buildBookRequestHref(title: string, author: string) {
 
 export default async function LibraryPage() {
   const books = await getPublicBooks();
+  const leadBook = books[0];
+  const remainingBooks = books.slice(1);
+  const guidanceHref = createWhatsAppHref(
+    "Quiero recibir orientación sobre un libro disponible en la biblioteca de Cafe Lectura.",
+  );
 
   return (
     <PageShell>
@@ -36,9 +41,7 @@ export default async function LibraryPage() {
         description="Catálogo público de libros disponibles para consultar y solicitar por WhatsApp."
         actions={
           <a
-            href={createWhatsAppHref(
-              "Quiero recibir orientación sobre un libro disponible en la biblioteca de Cafe Lectura.",
-            )}
+            href={guidanceHref}
             target="_blank"
             rel="noreferrer"
             className="btn-warm"
@@ -100,17 +103,58 @@ export default async function LibraryPage() {
           </div>
         </section>
       ) : (
-        <section className="content-grid md:grid-cols-2 xl:grid-cols-3">
-          {books.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              eyebrow="Catálogo disponible"
-              actionHref={buildBookRequestHref(book.title, book.author)}
-              actionLabel="Solicitar por WhatsApp"
-            />
-          ))}
-        </section>
+        <div className="grid gap-6">
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_320px]">
+            {leadBook ? (
+              <BookCard
+                book={leadBook}
+                eyebrow="Para comenzar el recorrido"
+                actionHref={buildBookRequestHref(
+                  leadBook.title,
+                  leadBook.author,
+                )}
+                actionLabel="Solicitar por WhatsApp"
+                featured
+              />
+            ) : null}
+
+            <aside className="editorial-note-strong h-fit">
+              <p className="eyebrow">Consulta humana</p>
+              <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
+                Cada solicitud termina en una conversación clara
+              </h2>
+              <p className="body-copy mt-4">
+                El catálogo no intenta parecer una tienda. La portada, el autor
+                y la sinopsis te ayudan a elegir; después, el contacto sigue de
+                manera directa por WhatsApp.
+              </p>
+              <div className="mt-6">
+                <a
+                  href={guidanceHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary w-full"
+                >
+                  Pedir orientación
+                </a>
+              </div>
+            </aside>
+          </section>
+
+          {remainingBooks.length > 0 ? (
+            <section className="content-grid md:grid-cols-2 xl:grid-cols-3">
+              {remainingBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  eyebrow="Catálogo disponible"
+                  actionHref={buildBookRequestHref(book.title, book.author)}
+                  actionLabel="Solicitar por WhatsApp"
+                />
+              ))}
+            </section>
+          ) : null}
+        </div>
       )}
     </PageShell>
   );

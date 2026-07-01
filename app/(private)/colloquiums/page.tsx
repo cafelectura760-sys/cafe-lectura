@@ -3,9 +3,8 @@ import type { Metadata } from "next";
 import { ColloquiumCard } from "@/components/colloquium-card";
 import { PageShell } from "@/components/page-shell";
 import { SectionHeading } from "@/components/section-heading";
-import { SiteHeader } from "@/components/site-header";
+import { AppHeader } from "@/components/app-header";
 import { StatusBanner } from "@/components/status-banner";
-import { logoutAction } from "@/lib/auth/actions";
 import { requireActiveMembership } from "@/lib/auth/session";
 import { getAvailableColloquiums } from "@/lib/colloquiums/data";
 
@@ -28,50 +27,10 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
 
   return (
     <PageShell width="regular">
-      <SiteHeader
-        items={[
-          { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
-          { href: "/colloquiums", label: "Coloquios" },
-        ]}
+      <AppHeader
         activeHref="/colloquiums"
+        session={session}
         description="Espacio privado para miembros activos con lecturas y conversaciones del club."
-        status={{
-          title: "Acceso activo",
-          content: (
-            <>
-              Bienvenido,{" "}
-              <span className="font-semibold text-[var(--text-primary)]">
-                {session.profile.full_name}
-              </span>
-              .
-            </>
-          ),
-        }}
-        actions={[
-          {
-            kind: "link",
-            href: "/library",
-            label: "Ver biblioteca",
-            tone: "secondary",
-          },
-          ...(session.profile.role === "admin"
-            ? [
-                {
-                  kind: "link" as const,
-                  href: "/admin",
-                  label: "Panel de administración",
-                  tone: "secondary" as const,
-                },
-              ]
-            : []),
-          {
-            kind: "submit",
-            action: logoutAction,
-            label: "Cerrar sesión",
-            tone: "ghost",
-          },
-        ]}
       />
 
       <section className="hero-band">

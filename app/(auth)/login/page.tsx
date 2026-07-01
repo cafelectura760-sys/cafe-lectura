@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { GatePanel } from "@/components/gate-panel";
 import { PageShell } from "@/components/page-shell";
 import { PasswordField } from "@/components/password-field";
-import { SiteHeader } from "@/components/site-header";
+import { AppHeader } from "@/components/app-header";
 import { StatusBanner } from "@/components/status-banner";
 import { loginAction } from "@/lib/auth/actions";
 import { getAuthSession } from "@/lib/auth/session";
@@ -33,18 +34,19 @@ function normalizeErrorCode(error: string | string[] | undefined) {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await getAuthSession();
+
+  if (session) {
+    redirect("/");
+  }
+
   const resolvedSearchParams = await searchParams;
   const error = normalizeErrorCode(resolvedSearchParams?.error);
 
   return (
-    <PageShell width="regular">
-      <SiteHeader
-        items={[
-          { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Iniciar sesión" },
-        ]}
+    <PageShell>
+      <AppHeader
         activeHref="/login"
+        session={null}
         description="Acceso para miembros existentes y administración del club."
       />
 
@@ -58,24 +60,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </Link>
         }
       >
-        {session ? (
-          <StatusBanner tone="success" title="Sesión ya iniciada">
-            Ya hay una sesión activa para{" "}
-            <span className="font-semibold text-[var(--text-primary)]">
-              {session.email ?? "este usuario"}
-            </span>
-            .{" "}
-            <Link
-              href={
-                session.profile?.role === "admin" ? "/admin" : "/colloquiums"
-              }
-              className="editorial-link"
-            >
-              Continuar
-            </Link>
-          </StatusBanner>
-        ) : null}
-
         {error && errorMessages[error] ? (
           <StatusBanner tone="error">{errorMessages[error]}</StatusBanner>
         ) : null}

@@ -4,9 +4,10 @@ import { BookOpenText } from "lucide-react";
 
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
+import { AppHeader } from "@/components/app-header";
 import { SectionHeading } from "@/components/section-heading";
-import { SiteHeader } from "@/components/site-header";
 import { StatusBanner } from "@/components/status-banner";
+import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
@@ -22,30 +23,17 @@ function buildBookInfoHref(title: string, author: string) {
 }
 
 export default async function LibraryPage() {
-  const books = await getPublicBooks();
-  const guidanceHref = createWhatsAppHref(
-    "Quiero conversar sobre un libro disponible en la biblioteca de Cafe Lectura.",
-  );
+  const [session, books] = await Promise.all([
+    getAuthSession(),
+    getPublicBooks(),
+  ]);
 
   return (
     <PageShell>
-      <SiteHeader
-        items={[
-          { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Iniciar sesión" },
-        ]}
+      <AppHeader
         activeHref="/library"
+        session={session}
         description="Catálogo público de libros disponibles para explorar con calma."
-        actions={[
-          {
-            kind: "link",
-            href: guidanceHref,
-            label: "Hablar con el club",
-            tone: "warm",
-            external: true,
-          },
-        ]}
       />
 
       <section className="hero-band">

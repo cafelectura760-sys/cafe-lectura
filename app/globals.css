@@ -264,44 +264,56 @@ select {
   }
 
   .site-header {
-    @apply grid gap-5 rounded-[14px] border px-5 py-5 md:px-7 md:py-6 lg:min-h-[169px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,420px)] lg:gap-x-8 lg:gap-y-4;
-    border-color: var(--border-default);
+    @apply relative grid gap-4 overflow-hidden rounded-[18px] border px-5 py-5 md:px-7 md:py-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-x-8;
+    border-color: color-mix(in srgb, var(--color-clay) 16%, white);
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--surface-default) 96%, white),
-      color-mix(in srgb, var(--surface-default) 88%, var(--color-paper-soft))
+      color-mix(in srgb, var(--surface-default) 98%, white) 0%,
+      color-mix(in srgb, var(--surface-default) 94%, var(--color-paper-soft))
+        56%,
+      color-mix(in srgb, var(--surface-subtle) 82%, white) 100%
     );
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.74),
-      0 16px 38px rgba(31, 26, 23, 0.045);
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 18px 42px rgba(31, 26, 23, 0.055);
+  }
+
+  .site-header::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-oliva) 68%, white) 0%,
+      color-mix(in srgb, var(--color-terracotta) 70%, white) 52%,
+      color-mix(in srgb, var(--color-teal) 58%, white) 100%
+    );
+    opacity: 0.9;
   }
 
   .site-header-main {
-    @apply flex min-w-0 flex-col gap-4 lg:justify-between;
+    @apply flex min-w-0 flex-col gap-4;
   }
 
   .site-header-brand {
-    @apply flex min-w-0 items-start gap-4;
+    @apply flex min-w-0 items-start gap-3 md:gap-4;
   }
 
   .site-header-nav {
-    @apply grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center;
+    @apply flex flex-wrap items-center gap-2;
   }
 
   .site-header-rail {
-    @apply flex min-w-0 flex-col gap-3 lg:items-stretch lg:justify-between;
+    @apply flex min-w-0 flex-col gap-3 lg:items-end;
   }
 
   .site-header-status {
-    @apply rounded-[10px] border px-4 py-3;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.54),
-      0 10px 24px rgba(31, 26, 23, 0.035);
+    @apply flex w-full items-center gap-2 rounded-full border px-5 py-2 whitespace-nowrap lg:w-auto;
+    box-shadow: 0 2px 12px rgba(31, 26, 23, 0.04);
   }
 
   .site-header-status[data-tone="default"] {
-    border-color: var(--border-default);
-    background: color-mix(in srgb, var(--surface-subtle) 86%, white);
+    border-color: color-mix(in srgb, var(--border-default) 80%, transparent);
+    background: var(--surface-default);
   }
 
   .site-header-status[data-tone="success"] {
@@ -320,33 +332,39 @@ select {
   }
 
   .site-header-status-title {
-    @apply text-[15px] leading-6 font-semibold;
-    color: var(--text-primary);
+    @apply text-[14px] leading-6 font-medium whitespace-nowrap;
+    color: var(--text-secondary);
   }
 
   .site-header-status-copy {
-    @apply mt-1 text-[15px] leading-6;
-    color: var(--text-secondary);
-    text-wrap: pretty;
+    @apply text-[14px] leading-6 font-semibold whitespace-nowrap;
+    color: var(--text-primary);
+  }
+
+  .site-header-action-row {
+    @apply flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:justify-end;
   }
 
   .site-header-actions {
-    @apply flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end;
+    @apply flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:flex-nowrap lg:justify-end;
   }
 
   .site-header-quiet-actions {
-    @apply flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end;
+    @apply flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:flex-nowrap lg:justify-end;
   }
 
   .site-header-quiet-action {
-    @apply inline-flex min-h-11 items-center justify-center rounded-[8px] px-2 text-[15px] font-semibold;
+    @apply inline-flex min-h-11 items-center justify-center rounded-full px-4 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
-    transition-property: background-color, color, box-shadow, opacity;
+    transition-property: color, background-color, box-shadow, border-color;
   }
 
   .site-header-quiet-action:hover {
-    background: color-mix(in srgb, var(--surface-subtle) 78%, white);
-    color: var(--text-primary);
+    background: color-mix(in srgb, var(--color-error) 10%, white);
+    color: var(--color-error);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-error) 18%, white),
+      0 10px 18px rgba(31, 26, 23, 0.035);
   }
 
   .brand-logo {
@@ -408,16 +426,18 @@ select {
   }
 
   .nav-link {
-    @apply inline-flex min-h-12 items-center rounded-[10px] px-4 text-[16px] font-semibold md:text-[17px];
+    @apply inline-flex min-h-11 items-center rounded-full px-4 text-[16px] font-semibold md:text-[17px];
     color: var(--text-secondary);
     transition-property: color, background-color, box-shadow, border-color;
   }
 
   .nav-link:hover,
   .nav-link[data-active="true"] {
-    background: color-mix(in srgb, var(--surface-subtle) 88%, white);
+    background: color-mix(in srgb, var(--surface-subtle) 84%, white);
     color: var(--text-primary);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-clay) 20%, white);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-clay) 18%, white),
+      0 10px 18px rgba(31, 26, 23, 0.035);
   }
 
   .btn-primary {

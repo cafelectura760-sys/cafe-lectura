@@ -158,29 +158,33 @@ export function SiteHeader({
           </div>
         ) : null}
 
-        {buttonActions.length > 0 ? (
-          <div className="site-header-actions">
-            {buttonActions.map((action) =>
-              renderAction(
-                action,
-                cn(
-                  actionClassNames[action.tone],
-                  "w-full sm:w-auto lg:min-w-[172px]",
-                ),
-              ),
-            )}
-          </div>
-        ) : null}
+        {buttonActions.length > 0 || quietActions.length > 0 ? (
+          <div className="site-header-action-row">
+            {buttonActions.length > 0 ? (
+              <div className="site-header-actions">
+                {buttonActions.map((action) =>
+                  renderAction(
+                    action,
+                    cn(
+                      actionClassNames[action.tone],
+                      "w-full sm:w-auto lg:min-w-0",
+                    ),
+                  ),
+                )}
+              </div>
+            ) : null}
 
-        {quietActions.length > 0 ? (
-          <div className="site-header-quiet-actions">
-            {quietActions.map((action) =>
-              renderAction(
-                action,
-                "site-header-quiet-action w-full sm:w-auto",
-                "quiet",
-              ),
-            )}
+            {quietActions.length > 0 ? (
+              <div className="site-header-quiet-actions">
+                {quietActions.map((action) =>
+                  renderAction(
+                    action,
+                    "site-header-quiet-action w-full sm:w-auto",
+                    "quiet",
+                  ),
+                )}
+              </div>
+            ) : null}
           </div>
         ) : null}
 

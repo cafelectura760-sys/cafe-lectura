@@ -9,11 +9,10 @@ import {
 
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
+import { AppHeader } from "@/components/app-header";
 import { ReadingTableau } from "@/components/reading-tableau";
 import { SectionHeading } from "@/components/section-heading";
-import { SiteHeader } from "@/components/site-header";
 import { StatusBanner } from "@/components/status-banner";
-import { logoutAction } from "@/lib/auth/actions";
 import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
@@ -79,75 +78,10 @@ export default async function Home() {
 
   return (
     <PageShell>
-      <SiteHeader
-        items={[
-          { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
-          {
-            href: session ? "/colloquiums" : "/login",
-            label: session ? "Coloquios" : "Iniciar sesión",
-          },
-        ]}
+      <AppHeader
         activeHref="/"
+        session={session}
         description="Club privado de lectura, biblioteca visible y coloquios para miembros activos."
-        status={
-          session
-            ? {
-                title: "Acceso disponible",
-                content: (
-                  <>
-                    Estás conectado como{" "}
-                    <span className="font-semibold text-[var(--text-primary)]">
-                      {session.profile?.full_name ?? session.email}
-                    </span>
-                    .
-                  </>
-                ),
-              }
-            : undefined
-        }
-        actions={
-          session
-            ? [
-                {
-                  kind: "link",
-                  href: "/colloquiums",
-                  label: "Ir a coloquios",
-                  tone: "primary",
-                },
-                ...(session.profile?.role === "admin"
-                  ? [
-                      {
-                        kind: "link" as const,
-                        href: "/admin",
-                        label: "Panel de administración",
-                        tone: "secondary" as const,
-                      },
-                    ]
-                  : []),
-                {
-                  kind: "submit",
-                  action: logoutAction,
-                  label: "Cerrar sesión",
-                  tone: "ghost",
-                },
-              ]
-            : [
-                {
-                  kind: "link",
-                  href: "/login",
-                  label: "Iniciar sesión",
-                  tone: "secondary",
-                },
-                {
-                  kind: "link",
-                  href: getMembershipHref(),
-                  label: "Consultar membresía",
-                  tone: "warm",
-                  external: true,
-                },
-              ]
-        }
       />
 
       <section className="hero-band">

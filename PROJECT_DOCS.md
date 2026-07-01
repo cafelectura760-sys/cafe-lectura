@@ -152,6 +152,7 @@ Routes:
 - `(auth)/login/page.tsx`
   - URL: `/login`
   - Login page for existing users.
+  - Authenticated sessions are redirected to `/` instead of remaining on the login form.
   - There is no public signup route.
 
 ## 4. Business Rules

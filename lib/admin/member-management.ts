@@ -1,5 +1,9 @@
 import "server-only";
 
+import type {
+  AdminPaginatedResult,
+  AdminPaginationParams,
+} from "@/lib/admin/ui";
 import { requireAdmin } from "@/lib/auth/session";
 import type { AppRole } from "@/lib/auth/types";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -136,6 +140,93 @@ export function getDefaultMembershipDateInput(): string {
 
 export function getMembershipDateInputValue(isoDate: string): string {
   return isoDate.slice(0, 10);
+}
+
+export async function listAdminMembersPage({
+  page,
+  size,
+}: AdminPaginationParams): Promise<AdminPaginatedResult<AdminMemberRecord>> {
+  await requireAdmin();
+
+  const adminClient = createAdminClient();
+
+  const fetchProfilesPage = async (targetPage: number) => {
+    const from = (targetPage - 1) * size;
+    const to = from + size - 1;
+
+    return adminClient
+      .from("profiles")
+      .select("id, full_name, role, membership_expires_at, created_at", {
+        count: "exact",
+      })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+  };
+
+  const firstPageResult = await fetchProfilesPage(page);
+  let { data: profileRows, error: profilesError } = firstPageResult;
+  const { count } = firstPageResult;
+
+  if (profilesError) {
+    throw new Error(`Failed to load profiles: ${profilesError.message}`);
+  }
+
+  const totalItems = count ?? 0;
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / size) : 1;
+  const currentPage = totalItems > 0 ? Math.min(page, totalPages) : 1;
+
+  if (currentPage !== page) {
+    const correctedResult = await fetchProfilesPage(currentPage);
+    profileRows = correctedResult.data;
+    profilesError = correctedResult.error;
+
+    if (profilesError) {
+      throw new Error(`Failed to load profiles: ${profilesError.message}`);
+    }
+  }
+
+  const profiles = (profileRows ?? []) satisfies ProfileRow[];
+  const authUsers = await Promise.all(
+    profiles.map(async (profile) => {
+      const { data, error } = await adminClient.auth.admin.getUserById(
+        profile.id,
+      );
+
+      if (error) {
+        throw new Error(`Failed to load auth user: ${error.message}`);
+      }
+
+      return [
+        profile.id,
+        {
+          email: data.user?.email ?? null,
+          lastSignInAt: data.user?.last_sign_in_at ?? null,
+        },
+      ] as const;
+    }),
+  );
+
+  const usersById = new Map(authUsers);
+
+  return {
+    items: profiles.map((profile) => {
+      const authUser = usersById.get(profile.id);
+
+      return {
+        id: profile.id,
+        email: authUser?.email ?? null,
+        fullName: profile.full_name,
+        role: profile.role,
+        membershipExpiresAt: profile.membership_expires_at,
+        createdAt: profile.created_at,
+        lastSignInAt: authUser?.lastSignInAt ?? null,
+      };
+    }),
+    page: currentPage,
+    size,
+    totalItems,
+    totalPages,
+  };
 }
 
 export async function listAdminMembers(): Promise<AdminMemberRecord[]> {

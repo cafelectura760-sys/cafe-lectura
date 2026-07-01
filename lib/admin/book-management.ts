@@ -1,5 +1,9 @@
 import "server-only";
 
+import type {
+  AdminPaginatedResult,
+  AdminPaginationParams,
+} from "@/lib/admin/ui";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -80,6 +84,65 @@ function normalizeCoverImageUrl(value: string): string {
   }
 
   return normalizedValue;
+}
+
+export async function listAdminBooksPage({
+  page,
+  size,
+}: AdminPaginationParams): Promise<AdminPaginatedResult<AdminBookRecord>> {
+  await requireAdmin();
+
+  const supabase = await createClient();
+
+  const fetchBooksPage = async (targetPage: number) => {
+    const from = (targetPage - 1) * size;
+    const to = from + size - 1;
+
+    return supabase
+      .from("books")
+      .select("id, title, author, synopsis, cover_image_url, created_at", {
+        count: "exact",
+      })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+  };
+
+  const firstPageResult = await fetchBooksPage(page);
+  let { data, error } = firstPageResult;
+  const { count } = firstPageResult;
+
+  if (error) {
+    throw new Error(`Failed to load books: ${error.message}`);
+  }
+
+  const totalItems = count ?? 0;
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / size) : 1;
+  const currentPage = totalItems > 0 ? Math.min(page, totalPages) : 1;
+
+  if (currentPage !== page) {
+    const correctedResult = await fetchBooksPage(currentPage);
+    data = correctedResult.data;
+    error = correctedResult.error;
+
+    if (error) {
+      throw new Error(`Failed to load books: ${error.message}`);
+    }
+  }
+
+  return {
+    items: ((data ?? []) satisfies BookRow[]).map((book) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      synopsis: book.synopsis,
+      coverImageUrl: book.cover_image_url,
+      createdAt: book.created_at,
+    })),
+    page: currentPage,
+    size,
+    totalItems,
+    totalPages,
+  };
 }
 
 export async function listAdminBooks(): Promise<AdminBookRecord[]> {

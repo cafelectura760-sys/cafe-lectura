@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback";
 import { BooksManagement } from "@/components/admin/books-management";
-import { listAdminBooks } from "@/lib/admin/book-management";
-import { getAdminFeedbackMessage } from "@/lib/admin/ui";
+import { listAdminBooksPage } from "@/lib/admin/book-management";
+import {
+  createAdminPath,
+  getAdminFeedbackMessage,
+  getAdminPaginationParams,
+} from "@/lib/admin/ui";
 
 type BooksPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -15,16 +19,19 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminBooksPage({ searchParams }: BooksPageProps) {
-  const [books, resolvedSearchParams] = await Promise.all([
-    listAdminBooks(),
-    searchParams,
-  ]);
+  const resolvedSearchParams = await searchParams;
   const feedback = getAdminFeedbackMessage(resolvedSearchParams);
+  const paginationParams = getAdminPaginationParams(resolvedSearchParams);
+  const books = await listAdminBooksPage(paginationParams);
+  const currentPath = createAdminPath("/admin/books", {
+    page: books.page,
+    size: books.size,
+  });
 
   return (
     <>
       {feedback ? <AdminFeedbackBanner feedback={feedback} /> : null}
-      <BooksManagement books={books} />
+      <BooksManagement booksPage={books} currentPath={currentPath} />
     </>
   );
 }

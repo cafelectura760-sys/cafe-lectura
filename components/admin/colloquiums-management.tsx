@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { AdminPagination } from "@/components/admin/admin-pagination";
 import type { AdminColloquiumListItem } from "@/lib/colloquiums/types";
-import { formatDateTimeLabel } from "@/lib/admin/ui";
+import type { AdminPaginatedResult } from "@/lib/admin/ui";
+import { createAdminPath, formatDateTimeLabel } from "@/lib/admin/ui";
 import { DeleteColloquiumDialog } from "@/components/colloquiums/delete-colloquium-dialog";
 import { PrivateRouteAction } from "@/components/colloquiums/private-route-action";
 import { Badge } from "@/components/ui/badge";
@@ -29,18 +31,26 @@ function getStatusBadge(status: AdminColloquiumListItem["status"]) {
 }
 
 export function ColloquiumsManagement({
-  colloquiums,
+  colloquiumsPage,
+  currentPath,
   selectedStatus,
 }: {
-  colloquiums: AdminColloquiumListItem[];
+  colloquiumsPage: AdminPaginatedResult<AdminColloquiumListItem>;
+  currentPath: string;
   selectedStatus: "all" | "draft" | "published";
 }) {
-  const filteredColloquiums =
-    selectedStatus === "all"
-      ? colloquiums
-      : colloquiums.filter(
-          (colloquium) => colloquium.status === selectedStatus,
-        );
+  const colloquiums = colloquiumsPage.items;
+  const allPath = createAdminPath("/admin/colloquiums", {
+    size: colloquiumsPage.size,
+  });
+  const draftPath = createAdminPath("/admin/colloquiums", {
+    status: "draft",
+    size: colloquiumsPage.size,
+  });
+  const publishedPath = createAdminPath("/admin/colloquiums", {
+    status: "published",
+    size: colloquiumsPage.size,
+  });
 
   return (
     <>
@@ -77,28 +87,26 @@ export function ColloquiumsManagement({
                 variant={selectedStatus === "all" ? "default" : "outline"}
                 size="sm"
               >
-                <Link href="/admin/colloquiums">Todos</Link>
+                <Link href={allPath}>Todos</Link>
               </Button>
               <Button
                 asChild
                 variant={selectedStatus === "draft" ? "default" : "outline"}
                 size="sm"
               >
-                <Link href="/admin/colloquiums?status=draft">Borradores</Link>
+                <Link href={draftPath}>Borradores</Link>
               </Button>
               <Button
                 asChild
                 variant={selectedStatus === "published" ? "default" : "outline"}
                 size="sm"
               >
-                <Link href="/admin/colloquiums?status=published">
-                  Publicados
-                </Link>
+                <Link href={publishedPath}>Publicados</Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {filteredColloquiums.length === 0 ? (
+            {colloquiums.length === 0 ? (
               <p className="text-sm leading-7 text-[var(--text-secondary)]">
                 No hay coloquios que coincidan con el estado seleccionado.
               </p>
@@ -119,7 +127,7 @@ export function ColloquiumsManagement({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredColloquiums.map((colloquium) => {
+                      {colloquiums.map((colloquium) => {
                         const badge = getStatusBadge(colloquium.status);
 
                         return (
@@ -182,7 +190,7 @@ export function ColloquiumsManagement({
                                 <DeleteColloquiumDialog
                                   colloquiumId={colloquium.id}
                                   currentSlug={colloquium.slug}
-                                  redirectTo="/admin/colloquiums"
+                                  redirectTo={currentPath}
                                   title={colloquium.title}
                                   triggerLabel="Eliminar"
                                   triggerClassName="h-7 px-3 text-[0.8rem]"
@@ -197,7 +205,7 @@ export function ColloquiumsManagement({
                 </div>
 
                 <div className="grid gap-4 xl:hidden">
-                  {filteredColloquiums.map((colloquium) => {
+                  {colloquiums.map((colloquium) => {
                     const badge = getStatusBadge(colloquium.status);
 
                     return (
@@ -258,7 +266,7 @@ export function ColloquiumsManagement({
                             <DeleteColloquiumDialog
                               colloquiumId={colloquium.id}
                               currentSlug={colloquium.slug}
-                              redirectTo="/admin/colloquiums"
+                              redirectTo={currentPath}
                               title={colloquium.title}
                               triggerLabel="Eliminar"
                               triggerClassName="h-7 px-3 text-[0.8rem]"
@@ -269,6 +277,14 @@ export function ColloquiumsManagement({
                     );
                   })}
                 </div>
+
+                <AdminPagination
+                  basePath="/admin/colloquiums"
+                  pagination={colloquiumsPage}
+                  extraParams={{
+                    status: selectedStatus === "all" ? null : selectedStatus,
+                  }}
+                />
               </>
             )}
           </CardContent>

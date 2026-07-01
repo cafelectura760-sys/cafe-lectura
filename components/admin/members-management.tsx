@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { AdminMemberRecord } from "@/lib/admin/member-management";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,7 +22,9 @@ import {
   extendMembershipAction,
   updateMemberAction,
 } from "@/lib/admin/actions";
+import type { AdminPaginatedResult } from "@/lib/admin/ui";
 import { formatDateLabel, formatDateTimeLabel } from "@/lib/admin/ui";
+import type { AdminMemberRecord } from "@/lib/admin/member-management";
 
 const inputClassName =
   "h-11 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color,box-shadow] focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25";
@@ -40,10 +42,14 @@ function RoleBadge({ role }: { role: AdminMemberRecord["role"] }) {
 }
 
 export function MembersManagement({
-  members,
+  membersPage,
+  currentPath,
 }: {
-  members: AdminMemberRecord[];
+  membersPage: AdminPaginatedResult<AdminMemberRecord>;
+  currentPath: string;
 }) {
+  const members = membersPage.items;
+
   return (
     <>
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -124,7 +130,7 @@ export function MembersManagement({
                                 <input
                                   type="hidden"
                                   name="redirect_to"
-                                  value="/admin/members"
+                                  value={currentPath}
                                 />
                                 <input
                                   type="hidden"
@@ -158,7 +164,7 @@ export function MembersManagement({
                                 <input
                                   type="hidden"
                                   name="redirect_to"
-                                  value="/admin/members"
+                                  value={currentPath}
                                 />
                                 <input
                                   type="hidden"
@@ -214,7 +220,7 @@ export function MembersManagement({
                           <input
                             type="hidden"
                             name="redirect_to"
-                            value="/admin/members"
+                            value={currentPath}
                           />
                           <input
                             type="hidden"
@@ -248,7 +254,7 @@ export function MembersManagement({
                           <input
                             type="hidden"
                             name="redirect_to"
-                            value="/admin/members"
+                            value={currentPath}
                           />
                           <input
                             type="hidden"
@@ -263,6 +269,11 @@ export function MembersManagement({
                     </Card>
                   ))}
                 </div>
+
+                <AdminPagination
+                  basePath="/admin/members"
+                  pagination={membersPage}
+                />
               </>
             )}
           </CardContent>

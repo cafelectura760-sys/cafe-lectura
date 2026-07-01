@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { AdminBookRecord } from "@/lib/admin/book-management";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,12 +18,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { updateBookAction } from "@/lib/admin/book-actions";
+import type { AdminPaginatedResult } from "@/lib/admin/ui";
 import { formatDateLabel } from "@/lib/admin/ui";
+import type { AdminBookRecord } from "@/lib/admin/book-management";
 
 const inputClassName =
   "h-11 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color,box-shadow] focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25";
 
-export function BooksManagement({ books }: { books: AdminBookRecord[] }) {
+export function BooksManagement({
+  booksPage,
+  currentPath,
+}: {
+  booksPage: AdminPaginatedResult<AdminBookRecord>;
+  currentPath: string;
+}) {
+  const books = booksPage.items;
+
   return (
     <>
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -92,7 +102,7 @@ export function BooksManagement({ books }: { books: AdminBookRecord[] }) {
                               <input
                                 type="hidden"
                                 name="redirect_to"
-                                value="/admin/books"
+                                value={currentPath}
                               />
                               <input
                                 type="hidden"
@@ -166,7 +176,7 @@ export function BooksManagement({ books }: { books: AdminBookRecord[] }) {
                           <input
                             type="hidden"
                             name="redirect_to"
-                            value="/admin/books"
+                            value={currentPath}
                           />
                           <input type="hidden" name="book_id" value={book.id} />
                           <input
@@ -205,6 +215,11 @@ export function BooksManagement({ books }: { books: AdminBookRecord[] }) {
                     </Card>
                   ))}
                 </div>
+
+                <AdminPagination
+                  basePath="/admin/books"
+                  pagination={booksPage}
+                />
               </>
             )}
           </CardContent>

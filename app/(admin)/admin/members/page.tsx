@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback";
 import { MembersManagement } from "@/components/admin/members-management";
-import { listAdminMembers } from "@/lib/admin/member-management";
-import { getAdminFeedbackMessage } from "@/lib/admin/ui";
+import { listAdminMembersPage } from "@/lib/admin/member-management";
+import {
+  createAdminPath,
+  getAdminFeedbackMessage,
+  getAdminPaginationParams,
+} from "@/lib/admin/ui";
 
 type MembersPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -17,16 +21,19 @@ export const metadata: Metadata = {
 export default async function AdminMembersPage({
   searchParams,
 }: MembersPageProps) {
-  const [members, resolvedSearchParams] = await Promise.all([
-    listAdminMembers(),
-    searchParams,
-  ]);
+  const resolvedSearchParams = await searchParams;
   const feedback = getAdminFeedbackMessage(resolvedSearchParams);
+  const paginationParams = getAdminPaginationParams(resolvedSearchParams);
+  const members = await listAdminMembersPage(paginationParams);
+  const currentPath = createAdminPath("/admin/members", {
+    page: members.page,
+    size: members.size,
+  });
 
   return (
     <>
       {feedback ? <AdminFeedbackBanner feedback={feedback} /> : null}
-      <MembersManagement members={members} />
+      <MembersManagement membersPage={members} currentPath={currentPath} />
     </>
   );
 }

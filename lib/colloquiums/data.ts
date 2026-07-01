@@ -1,5 +1,9 @@
 import "server-only";
 
+import type {
+  AdminPaginatedResult,
+  AdminPaginationParams,
+} from "@/lib/admin/ui";
 import { isSupabaseColloquiumStorageConfigured } from "@/lib/env/server";
 import { mapMediaAssetRows, signMediaAssets } from "@/lib/colloquiums/media";
 import type {
@@ -417,6 +421,145 @@ export async function listAdminColloquiums(): Promise<
     audioBlockCount: audioBlockCounts.get(colloquium.id) ?? 0,
     participantCount: participantCounts.get(colloquium.id) ?? 0,
   }));
+}
+
+export async function listAdminColloquiumsPage(
+  { page, size }: AdminPaginationParams,
+  status: "all" | "draft" | "published",
+): Promise<AdminPaginatedResult<AdminColloquiumListItem>> {
+  const supabase = await createClient();
+  const booksByIdPromise = getBooksLookup();
+
+  const fetchColloquiumsPage = async (targetPage: number) => {
+    const from = (targetPage - 1) * size;
+    const to = from + size - 1;
+
+    let query = supabase
+      .from("colloquiums")
+      .select(
+        "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+        {
+          count: "exact",
+        },
+      )
+      .order("updated_at", { ascending: false })
+      .range(from, to);
+
+    if (status !== "all") {
+      query = query.eq("status", status);
+    }
+
+    return query;
+  };
+
+  const firstPageResult = await fetchColloquiumsPage(page);
+  let { data, error } = firstPageResult;
+  const { count } = firstPageResult;
+
+  if (error) {
+    throw new Error(`Failed to load admin colloquiums: ${error.message}`);
+  }
+
+  const totalItems = count ?? 0;
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / size) : 1;
+  const currentPage = totalItems > 0 ? Math.min(page, totalPages) : 1;
+
+  if (currentPage !== page) {
+    const correctedResult = await fetchColloquiumsPage(currentPage);
+    data = correctedResult.data;
+    error = correctedResult.error;
+
+    if (error) {
+      throw new Error(`Failed to load admin colloquiums: ${error.message}`);
+    }
+  }
+
+  const colloquiums = (data ?? []) satisfies ColloquiumRow[];
+
+  if (colloquiums.length === 0) {
+    return {
+      items: [],
+      page: currentPage,
+      size,
+      totalItems,
+      totalPages,
+    };
+  }
+
+  const colloquiumIds = colloquiums.map((colloquium) => colloquium.id);
+
+  const [booksById, sectionsResult, participantsResult] = await Promise.all([
+    booksByIdPromise,
+    supabase
+      .from("colloquium_sections")
+      .select("colloquium_id, type")
+      .in("colloquium_id", colloquiumIds)
+      .in("type", ["text", "audio"]),
+    supabase
+      .from("colloquium_participants")
+      .select("colloquium_id")
+      .in("colloquium_id", colloquiumIds),
+  ]);
+
+  if (sectionsResult.error) {
+    throw new Error(
+      `Failed to count presentation blocks: ${sectionsResult.error.message}`,
+    );
+  }
+
+  if (participantsResult.error) {
+    throw new Error(
+      `Failed to count colloquium participants: ${participantsResult.error.message}`,
+    );
+  }
+
+  const blockCounts = new Map<string, number>();
+  const audioBlockCounts = new Map<string, number>();
+  const participantCounts = new Map<string, number>();
+
+  (sectionsResult.data ?? []).forEach((section) => {
+    blockCounts.set(
+      section.colloquium_id,
+      (blockCounts.get(section.colloquium_id) ?? 0) + 1,
+    );
+
+    if (section.type === "audio") {
+      audioBlockCounts.set(
+        section.colloquium_id,
+        (audioBlockCounts.get(section.colloquium_id) ?? 0) + 1,
+      );
+    }
+  });
+
+  (participantsResult.data ?? []).forEach((participant) => {
+    participantCounts.set(
+      participant.colloquium_id,
+      (participantCounts.get(participant.colloquium_id) ?? 0) + 1,
+    );
+  });
+
+  return {
+    items: colloquiums.map((colloquium) => ({
+      id: colloquium.id,
+      slug: colloquium.slug,
+      title: colloquium.title,
+      excerpt: colloquium.excerpt?.trim() || null,
+      status: colloquium.status,
+      bookId: colloquium.book_id,
+      bookTitle:
+        booksById.get(colloquium.book_id)?.title ?? "Libro no disponible",
+      publishedAt: colloquium.published_at,
+      createdAt: colloquium.created_at,
+      updatedAt: colloquium.updated_at,
+      blockCount: blockCounts.get(colloquium.id) ?? 0,
+      audioBlockCount: audioBlockCounts.get(colloquium.id) ?? 0,
+      participantCount: participantCounts.get(colloquium.id) ?? 0,
+    })),
+    page: currentPage,
+    size,
+    totalItems,
+    totalPages,
+  };
 }
 
 export async function getAdminColloquiumEditorRecord(

@@ -5,6 +5,22 @@ export type AdminFeedback = {
   message: string;
 };
 
+export const DEFAULT_ADMIN_PAGE_SIZE = 10;
+export const MAX_ADMIN_PAGE_SIZE = 50;
+
+export type AdminPaginationParams = {
+  page: number;
+  size: number;
+};
+
+export type AdminPaginatedResult<T> = {
+  items: T[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export function getSearchParamValue(
   value: string | string[] | undefined,
 ): string | null {
@@ -17,6 +33,64 @@ export function getSearchParamValue(
   }
 
   return null;
+}
+
+function parsePositiveInteger(
+  value: string | null,
+  fallback: number,
+  maximum?: number,
+): number {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsedValue = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
+    return fallback;
+  }
+
+  if (maximum && parsedValue > maximum) {
+    return maximum;
+  }
+
+  return parsedValue;
+}
+
+export function getAdminPaginationParams(
+  searchParams: Record<string, string | string[] | undefined>,
+): AdminPaginationParams {
+  return {
+    page: parsePositiveInteger(getSearchParamValue(searchParams.page), 1),
+    size: parsePositiveInteger(
+      getSearchParamValue(searchParams.size),
+      DEFAULT_ADMIN_PAGE_SIZE,
+      MAX_ADMIN_PAGE_SIZE,
+    ),
+  };
+}
+
+export function createAdminPath(
+  pathname: string,
+  params: Record<string, string | number | null | undefined>,
+): string {
+  const url = new URL(pathname, "http://localhost");
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (
+      value === null ||
+      value === undefined ||
+      value === "" ||
+      Number.isNaN(value)
+    ) {
+      url.searchParams.delete(key);
+      return;
+    }
+
+    url.searchParams.set(key, String(value));
+  });
+
+  return `${url.pathname}${url.search}`;
 }
 
 export function getAdminFeedbackMessage(

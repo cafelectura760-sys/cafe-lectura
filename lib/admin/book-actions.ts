@@ -14,7 +14,9 @@ function redirectWithFeedback(
   key: "status" | "error",
   value: string,
 ): never {
-  redirect(`${path}?${key}=${encodeURIComponent(value)}`);
+  const url = new URL(path, "http://localhost");
+  url.searchParams.set(key, value);
+  redirect(`${url.pathname}${url.search}`);
 }
 
 function getStringEntry(

@@ -69,6 +69,7 @@ Implemented:
 - Admin-created user flow using the service-role Supabase client only on the server.
 - Shared admin workspace layout with persistent sidebar navigation, mobile sheet navigation, breadcrumb/header context, unified feedback handling, and a sticky admin shell.
 - Dedicated admin overview, members, books, and colloquiums routes using existing Server Actions and Supabase flows.
+- Server-side paginated admin listings for members, books, and colloquiums using `page` and `size` search parameters.
 - Dedicated admin create routes for members and books so creation is separated from management lists.
 - Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow.
 - Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
@@ -141,6 +142,7 @@ Routes:
   - URL: `/admin/members`
   - Dedicated member administration route.
   - Focuses on member listing, role/date updates, and membership extension using the existing Server Actions.
+  - Supports server-side pagination through `page` and `size` search parameters.
 
 - `(admin)/admin/members/new/page.tsx`
   - URL: `/admin/members/new`
@@ -151,6 +153,7 @@ Routes:
   - URL: `/admin/books`
   - Dedicated book administration route.
   - Focuses on catalog listing and updates using the existing Server Actions.
+  - Supports server-side pagination through `page` and `size` search parameters.
 
 - `(admin)/admin/books/new/page.tsx`
   - URL: `/admin/books/new`
@@ -161,6 +164,7 @@ Routes:
   - URL: `/admin/colloquiums`
   - Dedicated colloquium operations route.
   - Lists colloquiums with operational metadata and links into edit, preview, guarded private-view, and delete actions.
+  - Supports server-side pagination through `page` and `size` search parameters, while preserving the optional status filter.
 
 - `(admin)/admin/colloquiums/new/page.tsx`
   - URL: `/admin/colloquiums/new`

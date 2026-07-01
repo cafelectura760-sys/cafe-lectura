@@ -72,6 +72,27 @@ export type PresentationBlockRecord =
   | PresentationTextBlockRecord
   | PresentationAudioBlockRecord;
 
+export type PresentationTextBlockDraft = {
+  clientId: string;
+  id: string | null;
+  type: "text";
+  content: string;
+};
+
+export type PresentationAudioBlockDraft = {
+  clientId: string;
+  id: string | null;
+  type: "audio";
+  label: string | null;
+  participantId: string | null;
+  speakerRole: ColloquiumParticipantRole;
+  speakerName: string;
+};
+
+export type PresentationBlockDraft =
+  | PresentationTextBlockDraft
+  | PresentationAudioBlockDraft;
+
 export type ColloquiumSummary = {
   id: string;
   slug: string;

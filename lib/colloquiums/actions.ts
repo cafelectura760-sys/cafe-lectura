@@ -14,12 +14,14 @@ import {
   deletePresentationBlock,
   moveColloquiumParticipant,
   movePresentationBlock,
+  savePresentationBlocks,
   updateAdminColloquium,
   updateColloquiumParticipant,
   updateColloquiumSlug,
   updatePresentationAudioBlock,
   updatePresentationTextBlock,
 } from "@/lib/colloquiums/editor";
+import type { PresentationBlockDraft } from "@/lib/colloquiums/types";
 
 function getStringEntry(
   value: FormDataEntryValue | null,
@@ -461,6 +463,40 @@ export async function movePresentationBlockAction(formData: FormData) {
     nextSlug: currentSlug,
   });
   redirectWithFeedback(redirectPath, "status", "block-moved");
+}
+
+export async function savePresentationBlocksAction(input: {
+  colloquiumId: string;
+  currentSlug: string;
+  blocks: PresentationBlockDraft[];
+}): Promise<
+  { ok: true; blocks: PresentationBlockDraft[] } | { ok: false; error: string }
+> {
+  try {
+    const savedBlocks = await savePresentationBlocks(input);
+    revalidateColloquiumSurface({
+      colloquiumId: input.colloquiumId,
+      currentSlug: input.currentSlug,
+      nextSlug: input.currentSlug,
+    });
+
+    return {
+      ok: true,
+      blocks: savedBlocks,
+    };
+  } catch (error) {
+    if (error instanceof ColloquiumEditorError) {
+      return {
+        ok: false,
+        error: error.code,
+      };
+    }
+
+    return {
+      ok: false,
+      error: "unexpected-error",
+    };
+  }
 }
 
 export async function deleteColloquiumAction(formData: FormData) {

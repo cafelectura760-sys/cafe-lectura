@@ -73,7 +73,7 @@ Implemented:
 - Dedicated admin create routes for members and books so creation is separated from management lists.
 - Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow.
 - Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
-- Simplified admin colloquium editor flow with shadcn/ui controls, participant management, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, and a tabbed edit experience.
+- Simplified admin colloquium editor flow with shadcn/ui controls, participant management grouped by role, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, URL-persisted editor tabs, and a presentation tab with explicit batch save behavior.
 - Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
 - Supabase migrations for `profiles`, `books`, `colloquiums`, `colloquium_sections`, `colloquium_entries`, `colloquium_participants`, `media_assets`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
 - GitHub Actions CI for formatting, linting, typechecking, and production build.
@@ -173,6 +173,7 @@ Routes:
   - URL: `/admin/colloquiums/[id]`
   - Dedicated editor for metadata, participants, presentation blocks, and media.
   - The current repository version organizes editing into `Datos básicos`, `Participantes`, `Presentación`, and `Publicación` tabs while preserving existing business rules and mutations.
+  - The active tab is preserved through the URL, participant management is grouped by role, and the presentation tab uses local draft editing with an explicit save action instead of reloading on each reorder.
 - `(admin)/admin/colloquiums/[id]/preview/page.tsx`
   - URL: `/admin/colloquiums/[id]/preview`
   - Admin-only preview route for draft and published colloquiums.

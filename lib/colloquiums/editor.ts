@@ -14,6 +14,7 @@ import { deleteObjectFromStorage } from "@/lib/colloquiums/storage";
 import type {
   ColloquiumParticipantRole,
   ColloquiumStatus,
+  PresentationBlockDraft,
   PresentationBlockType,
 } from "@/lib/colloquiums/types";
 import { createClient } from "@/lib/supabase/server";
@@ -47,6 +48,11 @@ type ColloquiumIdentityRow = {
 type OrderedRow = {
   id: string;
   display_order: number;
+};
+
+type EditablePresentationBlockRow = {
+  id: string;
+  type: PresentationBlockType | "qa" | "image";
 };
 
 type ColloquiumEditorInput = {
@@ -896,6 +902,218 @@ export async function movePresentationBlock(input: {
     colloquiumId: input.colloquiumId.trim(),
     direction: input.direction,
   });
+}
+
+export async function savePresentationBlocks(input: {
+  colloquiumId: string;
+  blocks: PresentationBlockDraft[];
+}) {
+  await requireAdmin();
+
+  const colloquiumId = input.colloquiumId.trim();
+
+  if (!colloquiumId) {
+    throw new ColloquiumEditorError("colloquium-not-found");
+  }
+
+  await assertColloquiumExists(colloquiumId);
+
+  const supabase = await createClient();
+  const { data: existingRows, error: existingRowsError } = await supabase
+    .from("colloquium_sections")
+    .select("id, type")
+    .eq("colloquium_id", colloquiumId)
+    .in("type", ["text", "audio"]);
+
+  if (existingRowsError) {
+    throw new Error(
+      `Failed to load presentation blocks: ${existingRowsError.message}`,
+    );
+  }
+
+  const existingBlocksById = new Map(
+    (existingRows satisfies EditablePresentationBlockRow[]).map((block) => [
+      block.id,
+      block,
+    ]),
+  );
+  const retainedIds = new Set<string>();
+  const savedBlocks: PresentationBlockDraft[] = [];
+
+  for (const [index, block] of input.blocks.entries()) {
+    const blockId = block.id?.trim() || null;
+
+    if (blockId) {
+      const existingBlock = existingBlocksById.get(blockId);
+
+      if (
+        !existingBlock ||
+        (existingBlock.type !== "text" && existingBlock.type !== "audio") ||
+        existingBlock.type !== block.type ||
+        retainedIds.has(blockId)
+      ) {
+        throw new ColloquiumEditorError("block-not-found");
+      }
+
+      retainedIds.add(blockId);
+    }
+
+    if (block.type === "text") {
+      const content = normalizeOptionalText(block.content);
+
+      if (!content) {
+        throw new ColloquiumEditorError("invalid-text-block-content");
+      }
+
+      if (blockId) {
+        const { error } = await supabase
+          .from("colloquium_sections")
+          .update({
+            title: null,
+            content,
+            participant_id: null,
+            speaker_role: null,
+            speaker_name: null,
+            display_order: index,
+          })
+          .eq("id", blockId)
+          .eq("type", "text");
+
+        if (error) {
+          throw new Error(
+            `Failed to update presentation text block: ${error.message}`,
+          );
+        }
+
+        savedBlocks.push({
+          clientId: block.clientId,
+          id: blockId,
+          type: "text",
+          content,
+        });
+        continue;
+      }
+
+      const { data, error } = await supabase
+        .from("colloquium_sections")
+        .insert({
+          colloquium_id: colloquiumId,
+          type: "text",
+          title: null,
+          content,
+          participant_id: null,
+          speaker_role: null,
+          speaker_name: null,
+          display_order: index,
+        })
+        .select("id")
+        .maybeSingle<{ id: string }>();
+
+      if (error || !data) {
+        throw new Error(
+          `Failed to add presentation text block: ${error?.message ?? "Missing block identifier."}`,
+        );
+      }
+
+      savedBlocks.push({
+        clientId: block.clientId,
+        id: data.id,
+        type: "text",
+        content,
+      });
+      continue;
+    }
+
+    const speaker = await resolveAudioSpeaker({
+      colloquiumId,
+      participantId: block.participantId,
+      speakerName: block.speakerName,
+      speakerRole: block.speakerRole,
+    });
+    const label = normalizeOptionalText(block.label);
+
+    if (blockId) {
+      const { error } = await supabase
+        .from("colloquium_sections")
+        .update({
+          title: label,
+          content: null,
+          participant_id: speaker.participantId,
+          speaker_role: speaker.speakerRole,
+          speaker_name: speaker.speakerName,
+          display_order: index,
+        })
+        .eq("id", blockId)
+        .eq("type", "audio");
+
+      if (error) {
+        throw new Error(
+          `Failed to update presentation audio block: ${error.message}`,
+        );
+      }
+
+      savedBlocks.push({
+        clientId: block.clientId,
+        id: blockId,
+        type: "audio",
+        label,
+        participantId: speaker.participantId,
+        speakerRole: speaker.speakerRole,
+        speakerName: speaker.speakerName,
+      });
+      continue;
+    }
+
+    const { data, error } = await supabase
+      .from("colloquium_sections")
+      .insert({
+        colloquium_id: colloquiumId,
+        type: "audio",
+        title: label,
+        content: null,
+        participant_id: speaker.participantId,
+        speaker_role: speaker.speakerRole,
+        speaker_name: speaker.speakerName,
+        display_order: index,
+      })
+      .select("id")
+      .maybeSingle<{ id: string }>();
+
+    if (error || !data) {
+      throw new Error(
+        `Failed to add presentation audio block: ${error?.message ?? "Missing block identifier."}`,
+      );
+    }
+
+    savedBlocks.push({
+      clientId: block.clientId,
+      id: data.id,
+      type: "audio",
+      label,
+      participantId: speaker.participantId,
+      speakerRole: speaker.speakerRole,
+      speakerName: speaker.speakerName,
+    });
+  }
+
+  for (const existingBlock of existingBlocksById.values()) {
+    if (retainedIds.has(existingBlock.id)) {
+      continue;
+    }
+
+    await deleteMediaAssetsForSection(existingBlock.id);
+
+    const { error } = await supabase
+      .from("colloquium_sections")
+      .delete()
+      .eq("id", existingBlock.id);
+
+    if (error) {
+      throw new Error(`Failed to delete presentation block: ${error.message}`);
+    }
+  }
+
+  return savedBlocks;
 }
 
 export async function deleteColloquium(input: { colloquiumId: string }) {

@@ -27,6 +27,8 @@ type MediaAssetManagerProps = {
   sectionId: string;
   asset: MediaAssetRecord | null;
   title: string;
+  disabled?: boolean;
+  disabledReason?: string | null;
 };
 
 async function loadAudioDuration(file: File): Promise<number | null> {
@@ -61,6 +63,8 @@ export function MediaAssetManager({
   sectionId,
   asset,
   title,
+  disabled = false,
+  disabledReason = null,
 }: MediaAssetManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -260,7 +264,7 @@ export function MediaAssetManager({
               type="file"
               accept={allowedMimeTypes.join(",")}
               className="h-12 cursor-pointer text-base"
-              disabled={Boolean(asset) || isPending}
+              disabled={Boolean(asset) || isPending || disabled}
               onChange={(event) => {
                 const file = event.target.files?.[0] ?? null;
                 setSelectedFile(file);
@@ -287,11 +291,17 @@ export function MediaAssetManager({
           <Button
             type="button"
             onClick={() => void handleUpload()}
-            disabled={!selectedFile || Boolean(asset) || isPending}
+            disabled={!selectedFile || Boolean(asset) || isPending || disabled}
           >
             {isPending ? "Procesando..." : "Subir audio"}
           </Button>
         </div>
+
+        {disabledReason ? (
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">
+            {disabledReason}
+          </p>
+        ) : null}
 
         {feedbackMessage ? (
           <p className="text-sm leading-6 text-[var(--text-secondary)]">
@@ -335,7 +345,7 @@ export function MediaAssetManager({
                 type="button"
                 variant="destructive"
                 onClick={() => void handleDelete(asset.id)}
-                disabled={isPending}
+                disabled={isPending || disabled}
               >
                 Eliminar audio
               </Button>

@@ -68,6 +68,7 @@ function revalidateColloquiumSurface(input: {
   nextSlug?: string | null;
 }) {
   revalidatePath("/admin");
+  revalidatePath("/admin/colloquiums");
   revalidatePath("/colloquiums");
 
   if (input.colloquiumId) {

@@ -10,8 +10,12 @@ import {
   updateAdminMember,
 } from "@/lib/admin/member-management";
 
-function redirectToAdmin(key: "status" | "error", value: string): never {
-  redirect(`/admin?${key}=${encodeURIComponent(value)}`);
+function redirectWithFeedback(
+  path: string,
+  key: "status" | "error",
+  value: string,
+): never {
+  redirect(`${path}?${key}=${encodeURIComponent(value)}`);
 }
 
 function getStringEntry(
@@ -19,21 +23,46 @@ function getStringEntry(
   fallbackErrorCode: string,
 ): string {
   if (typeof value !== "string") {
-    redirectToAdmin("error", fallbackErrorCode);
+    redirectWithFeedback("/admin/members", "error", fallbackErrorCode);
   }
 
   return value;
 }
 
-function handleAdminActionError(error: unknown): never {
+function normalizeRedirectPath(value: FormDataEntryValue | null): string {
+  if (typeof value !== "string" || !value.startsWith("/")) {
+    return "/admin/members";
+  }
+
+  return value;
+}
+
+function normalizeOptionalRedirectPath(
+  value: FormDataEntryValue | null,
+  fallbackPath: string,
+): string {
+  if (typeof value !== "string" || !value.startsWith("/")) {
+    return fallbackPath;
+  }
+
+  return value;
+}
+
+function handleAdminActionError(error: unknown, path: string): never {
   if (error instanceof AdminMemberActionError) {
-    redirectToAdmin("error", error.code);
+    redirectWithFeedback(path, "error", error.code);
   }
 
   throw error;
 }
 
 export async function createMemberAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+  const successRedirectPath = normalizeOptionalRedirectPath(
+    formData.get("success_redirect_to"),
+    redirectPath,
+  );
+
   try {
     await createAdminMember({
       fullName: getStringEntry(formData.get("full_name"), "invalid-full-name"),
@@ -46,14 +75,17 @@ export async function createMemberAction(formData: FormData) {
       ),
     });
   } catch (error) {
-    handleAdminActionError(error);
+    handleAdminActionError(error, redirectPath);
   }
 
   revalidatePath("/admin");
-  redirectToAdmin("status", "member-created");
+  revalidatePath("/admin/members");
+  redirectWithFeedback(successRedirectPath, "status", "member-created");
 }
 
 export async function updateMemberAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
   try {
     await updateAdminMember({
       memberId: getStringEntry(formData.get("member_id"), "member-not-found"),
@@ -64,22 +96,26 @@ export async function updateMemberAction(formData: FormData) {
       ),
     });
   } catch (error) {
-    handleAdminActionError(error);
+    handleAdminActionError(error, redirectPath);
   }
 
   revalidatePath("/admin");
-  redirectToAdmin("status", "member-updated");
+  revalidatePath("/admin/members");
+  redirectWithFeedback(redirectPath, "status", "member-updated");
 }
 
 export async function extendMembershipAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
   try {
     await extendAdminMemberMembership(
       getStringEntry(formData.get("member_id"), "member-not-found"),
     );
   } catch (error) {
-    handleAdminActionError(error);
+    handleAdminActionError(error, redirectPath);
   }
 
   revalidatePath("/admin");
-  redirectToAdmin("status", "membership-extended");
+  revalidatePath("/admin/members");
+  redirectWithFeedback(redirectPath, "status", "membership-extended");
 }

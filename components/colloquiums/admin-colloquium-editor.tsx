@@ -1,10 +1,21 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import {
+  AudioLinesIcon,
+  BookOpenTextIcon,
+  CalendarDaysIcon,
+  EyeIcon,
+  FileTextIcon,
+  LinkIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { DeleteColloquiumDialog } from "@/components/colloquiums/delete-colloquium-dialog";
 import { MediaAssetManager } from "@/components/colloquiums/media-asset-manager";
+import { PrivateRouteAction } from "@/components/colloquiums/private-route-action";
 import {
   addColloquiumParticipantAction,
   addPresentationAudioBlockAction,
@@ -33,6 +44,7 @@ import type {
   PresentationTextBlockRecord,
 } from "@/lib/colloquiums/types";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -42,6 +54,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 type FeedbackMessage = {
@@ -104,6 +117,44 @@ function EditorFeedback({ feedback }: { feedback: FeedbackMessage }) {
         {feedback.message}
       </CardContent>
     </Card>
+  );
+}
+
+function EditorStatusBadge({
+  status,
+}: {
+  status: AdminColloquiumEditorRecord["status"];
+}) {
+  return status === "published" ? (
+    <Badge className="bg-emerald-100 text-emerald-900">Publicado</Badge>
+  ) : (
+    <Badge className="bg-amber-100 text-amber-900">Borrador</Badge>
+  );
+}
+
+function EditorSummaryPill({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex min-h-12 items-center gap-3 rounded-[14px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_74%,white)] px-4 py-3">
+      <div className="rounded-[10px] border border-[var(--border-default)] bg-white p-2">
+        <Icon className="size-4 text-[var(--text-secondary)]" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold tracking-[0.16em] text-[var(--text-muted)] uppercase">
+          {label}
+        </p>
+        <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+          {value}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -229,6 +280,7 @@ function ParticipantCard({
   currentSlug,
   redirectTo,
   participant,
+  order,
   isFirst,
   isLast,
 }: {
@@ -236,6 +288,7 @@ function ParticipantCard({
   currentSlug: string;
   redirectTo: string;
   participant: ColloquiumParticipantRecord;
+  order: number;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -245,11 +298,16 @@ function ParticipantCard({
   return (
     <Card className={subtleCardClassName()}>
       <CardContent className="space-y-5 px-5 py-5">
-        <div className="space-y-2">
-          <p className="eyebrow">{getParticipantRoleLabel(participant.role)}</p>
-          <p className="text-lg font-semibold text-[var(--text-primary)]">
-            {participant.name}
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <p className="eyebrow">Participante {order}</p>
+            <p className="text-lg font-semibold text-[var(--text-primary)]">
+              {participant.name}
+            </p>
+          </div>
+          <Badge className="bg-[color:color-mix(in_srgb,var(--surface-default)_82%,white)] text-[var(--text-primary)]">
+            {getParticipantRoleLabel(participant.role)}
+          </Badge>
         </div>
 
         <form action={updateColloquiumParticipantAction} className="grid gap-4">
@@ -394,6 +452,7 @@ function TextBlockCard({
   currentSlug,
   redirectTo,
   block,
+  order,
   isFirst,
   isLast,
 }: {
@@ -401,6 +460,7 @@ function TextBlockCard({
   currentSlug: string;
   redirectTo: string;
   block: PresentationTextBlockRecord;
+  order: number;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -411,8 +471,8 @@ function TextBlockCard({
       <CardHeader>
         <CardTitle>Bloque de texto</CardTitle>
         <CardDescription>
-          Úsalo para abrir la presentación o para insertar puentes breves entre
-          audios.
+          Bloque {order}. Úsalo para abrir la presentación o para insertar
+          puentes breves entre audios.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -476,6 +536,7 @@ function AudioBlockCard({
   currentSlug,
   redirectTo,
   block,
+  order,
   isFirst,
   isLast,
   participants,
@@ -485,6 +546,7 @@ function AudioBlockCard({
   currentSlug: string;
   redirectTo: string;
   block: PresentationAudioBlockRecord;
+  order: number;
   isFirst: boolean;
   isLast: boolean;
   participants: ColloquiumParticipantRecord[];
@@ -508,8 +570,8 @@ function AudioBlockCard({
       <CardHeader>
         <CardTitle>Bloque de audio</CardTitle>
         <CardDescription>
-          Cada bloque de audio representa una intervención concreta dentro de la
-          presentación.
+          Bloque {order}. Cada audio representa una intervención concreta dentro
+          de la presentación.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -904,23 +966,108 @@ export function AdminColloquiumEditor({
   const publicationDate = getPublishedDateInputValue(
     colloquium?.publishedAt ?? null,
   );
+  const audioCount =
+    colloquium?.presentationBlocks.filter((block) => block.type === "audio")
+      .length ?? 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 md:px-8">
-      <header className="space-y-4">
-        <Link href="/admin" className="editorial-link">
-          Volver al panel
-        </Link>
-        <div className="space-y-3">
-          <p className="eyebrow">Administración de coloquios</p>
-          <h1 className="text-4xl font-semibold text-[var(--text-primary)]">
-            {mode === "create" ? "Crear coloquio" : "Editar coloquio"}
-          </h1>
-          <p className="body-copy max-w-3xl">
-            Este flujo se concentra en una sola experiencia visible para el MVP:
-            la <strong>Presentación</strong>, compuesta por bloques de texto y
-            audio ordenados.
-          </p>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <header className="rounded-[18px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-default)_96%,white)] p-5 shadow-[0_18px_40px_rgba(31,26,23,0.05)] md:p-6">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/colloquiums">Volver a coloquios</Link>
+            </Button>
+            {mode === "edit" && colloquium ? (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/colloquiums/${colloquium.id}/preview`}>
+                    <EyeIcon data-icon="inline-start" />
+                    Preview
+                  </Link>
+                </Button>
+                <PrivateRouteAction
+                  slug={colloquium.slug}
+                  status={colloquium.status}
+                />
+                <DeleteColloquiumDialog
+                  colloquiumId={colloquium.id}
+                  currentSlug={colloquium.slug}
+                  redirectTo="/admin/colloquiums"
+                  title={colloquium.title}
+                  triggerLabel="Eliminar coloquio"
+                  triggerClassName="h-7 px-3 text-[0.8rem]"
+                />
+              </>
+            ) : null}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="eyebrow">Administración de coloquios</p>
+              {mode === "edit" && colloquium ? (
+                <EditorStatusBadge status={colloquium.status} />
+              ) : null}
+            </div>
+            <h1 className="text-3xl font-semibold text-[var(--text-primary)] md:text-4xl">
+              {mode === "create"
+                ? "Crear coloquio"
+                : (colloquium?.title ?? "Editar coloquio")}
+            </h1>
+            <p className="max-w-3xl text-[15px] leading-7 text-[var(--text-secondary)]">
+              Este flujo se concentra en una sola experiencia visible para el
+              MVP: la <strong>Presentación</strong>, compuesta por bloques de
+              texto y audio ordenados.
+            </p>
+          </div>
+
+          {mode === "edit" && colloquium ? (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <EditorSummaryPill
+                icon={BookOpenTextIcon}
+                label="Libro"
+                value={colloquium.bookTitle}
+              />
+              <EditorSummaryPill
+                icon={LinkIcon}
+                label="Slug"
+                value={colloquium.slug}
+              />
+              <EditorSummaryPill
+                icon={UsersIcon}
+                label="Participantes"
+                value={String(participants.length)}
+              />
+              <EditorSummaryPill
+                icon={FileTextIcon}
+                label="Bloques"
+                value={String(colloquium.presentationBlocks.length)}
+              />
+              <EditorSummaryPill
+                icon={AudioLinesIcon}
+                label="Audios"
+                value={String(audioCount)}
+              />
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <EditorSummaryPill
+                icon={CalendarDaysIcon}
+                label="Estado inicial"
+                value="Borrador o publicado"
+              />
+              <EditorSummaryPill
+                icon={UsersIcon}
+                label="Participantes"
+                value="Se habilitan al crear"
+              />
+              <EditorSummaryPill
+                icon={AudioLinesIcon}
+                label="Presentación"
+                value="Se habilita al crear"
+              />
+            </div>
+          )}
         </div>
       </header>
 
@@ -933,7 +1080,8 @@ export function AdminColloquiumEditor({
               <CardTitle>1. Datos básicos y publicación</CardTitle>
               <CardDescription>
                 Define el título, el libro, un resumen breve y el estado
-                inicial.
+                inicial. El resto del flujo se habilita automáticamente al crear
+                el coloquio.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -993,295 +1141,325 @@ export function AdminColloquiumEditor({
               </form>
             </CardContent>
           </Card>
-
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>2. Participantes</CardTitle>
-              <CardDescription>
-                Después de crear el coloquio podrás registrar anfitriones,
-                ponentes e invitados.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>3. Presentación</CardTitle>
-              <CardDescription>
-                Después de crear el coloquio podrás construir la secuencia de
-                bloques de texto y audio.
-              </CardDescription>
-            </CardHeader>
-          </Card>
         </>
       ) : colloquium ? (
-        <>
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>1. Datos básicos</CardTitle>
-              <CardDescription>
-                Ajusta el título editorial, el libro relacionado y un resumen
-                breve.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                action={updateColloquiumMetadataAction}
-                className="grid gap-5"
-              >
-                <input
-                  type="hidden"
-                  name="colloquium_id"
-                  value={colloquium.id}
-                />
-                <input
-                  type="hidden"
-                  name="current_slug"
-                  value={colloquium.slug}
-                />
-                <input type="hidden" name="redirect_to" value={redirectTo} />
-                <input type="hidden" name="status" value={colloquium.status} />
-                <input
-                  type="hidden"
-                  name="published_at"
-                  value={publicationDate}
-                />
+        <Tabs defaultValue="basics" className="gap-4">
+          <TabsList variant="line" className="w-full md:w-fit">
+            <TabsTrigger value="basics" className="flex-none">
+              Datos básicos
+            </TabsTrigger>
+            <TabsTrigger value="participants" className="flex-none">
+              Participantes
+            </TabsTrigger>
+            <TabsTrigger value="presentation" className="flex-none">
+              Presentación
+            </TabsTrigger>
+            <TabsTrigger value="publication" className="flex-none">
+              Publicación
+            </TabsTrigger>
+          </TabsList>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-title">Título del coloquio</Label>
-                  <Input
-                    id="edit-title"
-                    name="title"
-                    defaultValue={colloquium.title}
-                    className="h-12 text-base"
+          <TabsContent value="basics" className="mt-0">
+            <Card className={surfaceCardClassName()}>
+              <CardHeader>
+                <CardTitle>Datos básicos</CardTitle>
+                <CardDescription>
+                  Ajusta el título editorial, el libro relacionado y un resumen
+                  breve.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form
+                  action={updateColloquiumMetadataAction}
+                  className="grid max-w-3xl gap-5"
+                >
+                  <input
+                    type="hidden"
+                    name="colloquium_id"
+                    value={colloquium.id}
                   />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-book">Libro relacionado</Label>
-                  <select
-                    id="edit-book"
-                    name="book_id"
-                    defaultValue={colloquium.bookId}
-                    className="h-12 rounded-md border border-[var(--border-default)] bg-white px-3 text-base text-[var(--text-primary)]"
-                  >
-                    {books.map((book) => (
-                      <option key={book.id} value={book.id}>
-                        {book.title} · {book.author}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-excerpt">Resumen breve</Label>
-                  <Textarea
-                    id="edit-excerpt"
-                    name="excerpt"
-                    defaultValue={colloquium.excerpt ?? ""}
-                    rows={4}
-                    className="text-base"
+                  <input
+                    type="hidden"
+                    name="current_slug"
+                    value={colloquium.slug}
                   />
-                </div>
+                  <input type="hidden" name="redirect_to" value={redirectTo} />
+                  <input
+                    type="hidden"
+                    name="status"
+                    value={colloquium.status}
+                  />
+                  <input
+                    type="hidden"
+                    name="published_at"
+                    value={publicationDate}
+                  />
 
-                <Button type="submit" className="justify-self-start">
-                  Guardar datos básicos
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>2. Participantes</CardTitle>
-              <CardDescription>
-                Registra las personas que aparecerán asociadas a la
-                presentación.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <AddParticipantForm
-                colloquiumId={colloquium.id}
-                currentSlug={colloquium.slug}
-                redirectTo={redirectTo}
-              />
-
-              {participants.length > 0 ? (
-                <div className="grid gap-5">
-                  {participants.map((participant, index) => (
-                    <ParticipantCard
-                      key={participant.id}
-                      colloquiumId={colloquium.id}
-                      currentSlug={colloquium.slug}
-                      redirectTo={redirectTo}
-                      participant={participant}
-                      isFirst={index === 0}
-                      isLast={index === participants.length - 1}
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-title">Título del coloquio</Label>
+                    <Input
+                      id="edit-title"
+                      name="title"
+                      defaultValue={colloquium.title}
+                      className="h-12 text-base"
                     />
-                  ))}
-                </div>
-              ) : (
-                <Card className={subtleCardClassName()}>
-                  <CardContent className="px-5 py-5 text-base leading-7 text-[var(--text-secondary)]">
-                    Todavía no hay participantes registrados para este coloquio.
-                  </CardContent>
-                </Card>
-              )}
-            </CardContent>
-          </Card>
+                  </div>
 
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>3. Presentación</CardTitle>
-              <CardDescription>
-                Construye la secuencia visible del MVP con bloques de texto y
-                audio.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-5 lg:grid-cols-2">
-                <AddTextBlockForm
-                  colloquiumId={colloquium.id}
-                  currentSlug={colloquium.slug}
-                  redirectTo={redirectTo}
-                />
-                <AddAudioBlockForm
-                  colloquiumId={colloquium.id}
-                  currentSlug={colloquium.slug}
-                  redirectTo={redirectTo}
-                  participants={participants}
-                />
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-book">Libro relacionado</Label>
+                    <select
+                      id="edit-book"
+                      name="book_id"
+                      defaultValue={colloquium.bookId}
+                      className="h-12 rounded-md border border-[var(--border-default)] bg-white px-3 text-base text-[var(--text-primary)]"
+                    >
+                      {books.map((book) => (
+                        <option key={book.id} value={book.id}>
+                          {book.title} · {book.author}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              {colloquium.presentationBlocks.length > 0 ? (
-                <div className="grid gap-5">
-                  {colloquium.presentationBlocks.map((block, index) =>
-                    block.type === "text" ? (
-                      <TextBlockCard
-                        key={block.id}
-                        colloquiumId={colloquium.id}
-                        currentSlug={colloquium.slug}
-                        redirectTo={redirectTo}
-                        block={block}
-                        isFirst={index === 0}
-                        isLast={
-                          index === colloquium.presentationBlocks.length - 1
-                        }
-                      />
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-excerpt">Resumen breve</Label>
+                    <Textarea
+                      id="edit-excerpt"
+                      name="excerpt"
+                      defaultValue={colloquium.excerpt ?? ""}
+                      rows={4}
+                      className="text-base"
+                    />
+                  </div>
+
+                  <Button type="submit" className="justify-self-start">
+                    Guardar datos básicos
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="participants" className="mt-0">
+            <Card className={surfaceCardClassName()}>
+              <CardHeader>
+                <CardTitle>Participantes</CardTitle>
+                <CardDescription>
+                  Registra las personas que aparecerán asociadas a la
+                  presentación.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,340px)_minmax(0,1fr)] xl:items-start">
+                  <AddParticipantForm
+                    colloquiumId={colloquium.id}
+                    currentSlug={colloquium.slug}
+                    redirectTo={redirectTo}
+                  />
+
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h3 className="text-base font-semibold text-[var(--text-primary)]">
+                          Participantes registrados
+                        </h3>
+                        <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                          {participants.length > 0
+                            ? "Edita roles, nombres y orden de aparición."
+                            : "Todavía no hay participantes cargados."}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-[var(--text-muted)]">
+                        {participants.length} en total
+                      </p>
+                    </div>
+
+                    {participants.length > 0 ? (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {participants.map((participant, index) => (
+                          <ParticipantCard
+                            key={participant.id}
+                            colloquiumId={colloquium.id}
+                            currentSlug={colloquium.slug}
+                            redirectTo={redirectTo}
+                            participant={participant}
+                            order={index + 1}
+                            isFirst={index === 0}
+                            isLast={index === participants.length - 1}
+                          />
+                        ))}
+                      </div>
                     ) : (
-                      <AudioBlockCard
-                        key={block.id}
-                        colloquiumId={colloquium.id}
-                        currentSlug={colloquium.slug}
-                        redirectTo={redirectTo}
-                        block={block}
-                        isFirst={index === 0}
-                        isLast={
-                          index === colloquium.presentationBlocks.length - 1
-                        }
-                        participants={participants}
-                        mediaBucketName={mediaBucketName}
-                      />
-                    ),
+                      <Card className={subtleCardClassName()}>
+                        <CardContent className="px-5 py-5 text-base leading-7 text-[var(--text-secondary)]">
+                          Todavía no hay participantes registrados para este
+                          coloquio.
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="presentation" className="mt-0">
+            <Card className={surfaceCardClassName()}>
+              <CardHeader>
+                <CardTitle>Presentación</CardTitle>
+                <CardDescription>
+                  Construye la secuencia visible del MVP con bloques de texto y
+                  audio.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-5 xl:grid-cols-2 xl:items-start">
+                  <AddTextBlockForm
+                    colloquiumId={colloquium.id}
+                    currentSlug={colloquium.slug}
+                    redirectTo={redirectTo}
+                  />
+                  <AddAudioBlockForm
+                    colloquiumId={colloquium.id}
+                    currentSlug={colloquium.slug}
+                    redirectTo={redirectTo}
+                    participants={participants}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h3 className="text-base font-semibold text-[var(--text-primary)]">
+                        Secuencia actual
+                      </h3>
+                      <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                        Reordena el flujo con los controles de mover arriba y
+                        mover abajo.
+                      </p>
+                    </div>
+                    <p className="text-sm font-medium text-[var(--text-muted)]">
+                      {colloquium.presentationBlocks.length} bloques ·{" "}
+                      {audioCount} audios
+                    </p>
+                  </div>
+
+                  {colloquium.presentationBlocks.length > 0 ? (
+                    <div className="grid gap-4">
+                      {colloquium.presentationBlocks.map((block, index) =>
+                        block.type === "text" ? (
+                          <TextBlockCard
+                            key={block.id}
+                            colloquiumId={colloquium.id}
+                            currentSlug={colloquium.slug}
+                            redirectTo={redirectTo}
+                            block={block}
+                            order={index + 1}
+                            isFirst={index === 0}
+                            isLast={
+                              index === colloquium.presentationBlocks.length - 1
+                            }
+                          />
+                        ) : (
+                          <AudioBlockCard
+                            key={block.id}
+                            colloquiumId={colloquium.id}
+                            currentSlug={colloquium.slug}
+                            redirectTo={redirectTo}
+                            block={block}
+                            order={index + 1}
+                            isFirst={index === 0}
+                            isLast={
+                              index === colloquium.presentationBlocks.length - 1
+                            }
+                            participants={participants}
+                            mediaBucketName={mediaBucketName}
+                          />
+                        ),
+                      )}
+                    </div>
+                  ) : (
+                    <Card className={subtleCardClassName()}>
+                      <CardContent className="px-5 py-5 text-base leading-7 text-[var(--text-secondary)]">
+                        Todavía no hay bloques visibles en la presentación.
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
-              ) : (
-                <Card className={subtleCardClassName()}>
-                  <CardContent className="px-5 py-5 text-base leading-7 text-[var(--text-secondary)]">
-                    Todavía no hay bloques visibles en la presentación.
-                  </CardContent>
-                </Card>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          <Card className={surfaceCardClassName()}>
-            <CardHeader>
-              <CardTitle>4. Publicación</CardTitle>
-              <CardDescription>
-                Guarda el coloquio en borrador o publícalo cuando la
-                presentación esté lista.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <form
-                action={updateColloquiumMetadataAction}
-                className="grid gap-5"
-              >
-                <input
-                  type="hidden"
-                  name="colloquium_id"
-                  value={colloquium.id}
-                />
-                <input
-                  type="hidden"
-                  name="current_slug"
-                  value={colloquium.slug}
-                />
-                <input type="hidden" name="redirect_to" value={redirectTo} />
-                <input type="hidden" name="title" value={colloquium.title} />
-                <input type="hidden" name="book_id" value={colloquium.bookId} />
-                <input
-                  type="hidden"
-                  name="excerpt"
-                  value={colloquium.excerpt ?? ""}
-                />
-
-                <div className="grid gap-2">
-                  <Label htmlFor="publication-status">Estado</Label>
-                  <select
-                    id="publication-status"
-                    name="status"
-                    defaultValue={colloquium.status}
-                    className="h-12 rounded-md border border-[var(--border-default)] bg-white px-3 text-base text-[var(--text-primary)]"
-                  >
-                    <option value="draft">Borrador</option>
-                    <option value="published">Publicado</option>
-                  </select>
-                </div>
-
-                <PublishedDateField
-                  value={publicationDate}
-                  inputName="published_at"
-                />
-
-                <Button type="submit" className="justify-self-start">
-                  Guardar publicación
-                </Button>
-              </form>
-
-              <SlugSettings
-                colloquiumId={colloquium.id}
-                currentSlug={colloquium.slug}
-                redirectTo={redirectTo}
-              />
-
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href={`/admin/colloquiums/${colloquium.id}/preview`}
-                  className="btn-secondary"
+          <TabsContent value="publication" className="mt-0">
+            <Card className={surfaceCardClassName()}>
+              <CardHeader>
+                <CardTitle>Publicación</CardTitle>
+                <CardDescription>
+                  Guarda el coloquio en borrador o publícalo cuando la
+                  presentación esté lista.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] xl:items-start">
+                <form
+                  action={updateColloquiumMetadataAction}
+                  className="grid gap-5"
                 >
-                  Previsualizar
-                </Link>
-                <Link
-                  href={`/colloquiums/${colloquium.slug}`}
-                  className="btn-secondary"
-                >
-                  Abrir ruta privada
-                </Link>
-                <DeleteColloquiumDialog
+                  <input
+                    type="hidden"
+                    name="colloquium_id"
+                    value={colloquium.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="current_slug"
+                    value={colloquium.slug}
+                  />
+                  <input type="hidden" name="redirect_to" value={redirectTo} />
+                  <input type="hidden" name="title" value={colloquium.title} />
+                  <input
+                    type="hidden"
+                    name="book_id"
+                    value={colloquium.bookId}
+                  />
+                  <input
+                    type="hidden"
+                    name="excerpt"
+                    value={colloquium.excerpt ?? ""}
+                  />
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="publication-status">Estado</Label>
+                    <select
+                      id="publication-status"
+                      name="status"
+                      defaultValue={colloquium.status}
+                      className="h-12 rounded-md border border-[var(--border-default)] bg-white px-3 text-base text-[var(--text-primary)]"
+                    >
+                      <option value="draft">Borrador</option>
+                      <option value="published">Publicado</option>
+                    </select>
+                  </div>
+
+                  <PublishedDateField
+                    value={publicationDate}
+                    inputName="published_at"
+                  />
+
+                  <Button type="submit" className="justify-self-start">
+                    Guardar publicación
+                  </Button>
+                </form>
+
+                <SlugSettings
                   colloquiumId={colloquium.id}
                   currentSlug={colloquium.slug}
-                  redirectTo="/admin"
-                  title={colloquium.title}
-                  triggerLabel="Eliminar coloquio"
-                  triggerClassName="h-12 px-5 text-base"
+                  redirectTo={redirectTo}
                 />
-              </div>
-            </CardContent>
-          </Card>
-        </>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       ) : null}
-    </main>
+    </div>
   );
 }

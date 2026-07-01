@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ColloquiumReader } from "@/components/colloquiums/colloquium-reader";
-import { PageShell } from "@/components/page-shell";
+import { Button } from "@/components/ui/button";
 import { getAdminColloquiumEditorRecord } from "@/lib/colloquiums/data";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -31,23 +31,22 @@ export default async function AdminColloquiumPreviewPage({
   }
 
   return (
-    <PageShell width="reading" footer="none">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <div className="flex flex-wrap gap-3">
-        <Link
-          href={`/admin/colloquiums/${colloquium.id}`}
-          className="btn-secondary"
-        >
-          Volver al editor
-        </Link>
-        <Link href="/admin" className="btn-secondary">
-          Volver al panel
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={`/admin/colloquiums/${colloquium.id}`}>
+            Volver al editor
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/admin/colloquiums">Volver a coloquios</Link>
+        </Button>
       </div>
 
       <ColloquiumReader
         colloquium={colloquium}
         previewLabel="Previsualización administrativa. Este contenido puede incluir bloques de presentación en borrador y no está expuesto a miembros ordinarios."
       />
-    </PageShell>
+    </div>
   );
 }

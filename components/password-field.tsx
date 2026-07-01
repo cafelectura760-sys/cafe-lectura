@@ -9,6 +9,10 @@ type PasswordFieldProps = {
   label: string;
   autoComplete?: string;
   required?: boolean;
+  minLength?: number;
+  inputClassName?: string;
+  wrapperClassName?: string;
+  labelClassName?: string;
 };
 
 export function PasswordField({
@@ -17,23 +21,28 @@ export function PasswordField({
   label,
   autoComplete,
   required = false,
+  minLength,
+  inputClassName,
+  wrapperClassName,
+  labelClassName,
 }: PasswordFieldProps) {
   const [isVisible, setIsVisible] = useState(false);
   const Icon = isVisible ? EyeOff : Eye;
 
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="field-label">
+      <label htmlFor={id} className={labelClassName ?? "field-label"}>
         {label}
       </label>
-      <div className="password-field-wrap">
+      <div className={wrapperClassName ?? "password-field-wrap"}>
         <input
           id={id}
           name={name}
           type={isVisible ? "text" : "password"}
           autoComplete={autoComplete}
           required={required}
-          className="field-input pr-14"
+          minLength={minLength}
+          className={inputClassName ?? "field-input pr-14"}
         />
         <button
           type="button"

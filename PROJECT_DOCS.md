@@ -52,7 +52,7 @@ The technical stack is fixed and must not be changed without explicit approval.
 
 ## 2.1 Current Implementation Status
 
-This section reflects the repository state directly observed in version-controlled files on June 23, 2026 after the colloquium presentation MVP alignment pass.
+This section reflects the repository state directly observed in version-controlled files on July 1, 2026 after the admin workspace migration pass.
 
 Implemented:
 
@@ -65,12 +65,14 @@ Implemented:
 - Private colloquium list and detail pages protected by server-side membership checks.
 - Private colloquium detail rendering based on colloquium metadata, participants, and ordered presentation blocks.
 - Expired-membership page with environment-driven WhatsApp renewal link.
-- Admin dashboard protected by server-side `role = admin` validation.
+- Admin admin-only route group protected by server-side `role = admin` validation.
 - Admin-created user flow using the service-role Supabase client only on the server.
-- Manual admin management for members and books using Server Actions.
+- Shared admin workspace layout with persistent sidebar navigation, mobile sheet navigation, breadcrumb/header context, unified feedback handling, and a sticky admin shell.
+- Dedicated admin overview, members, books, and colloquiums routes using existing Server Actions and Supabase flows.
+- Dedicated admin create routes for members and books so creation is separated from management lists.
 - Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow.
 - Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
-- Simplified admin colloquium editor flow with shadcn/ui controls, participant management, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, and a Spanish calendar-based publication date picker.
+- Simplified admin colloquium editor flow with shadcn/ui controls, participant management, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, and a tabbed edit experience.
 - Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
 - Supabase migrations for `profiles`, `books`, `colloquiums`, `colloquium_sections`, `colloquium_entries`, `colloquium_participants`, `media_assets`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
 - GitHub Actions CI for formatting, linting, typechecking, and production build.
@@ -126,12 +128,39 @@ Access to the private colloquium area requires both authentication and an active
 
 Routes:
 
+- `(admin)/layout.tsx`
+  - Shared admin workspace shell for all admin routes.
+  - Provides persistent desktop navigation, mobile sheet navigation, breadcrumb context, and top-level admin actions.
 - `(admin)/admin/page.tsx`
   - URL: `/admin`
-  - Internal administration dashboard.
+  - Internal administration overview.
   - Accessible only to authenticated users with `role = admin`.
-  - Used for manual management of members and books, and as the launch point for the dedicated colloquium editor flow.
-  - Shows the latest recorded Supabase keep-alive status for operational verification.
+  - Shows operational summary cards, quick actions, recent colloquium activity, and the latest recorded Supabase keep-alive status.
+
+- `(admin)/admin/members/page.tsx`
+  - URL: `/admin/members`
+  - Dedicated member administration route.
+  - Focuses on member listing, role/date updates, and membership extension using the existing Server Actions.
+
+- `(admin)/admin/members/new/page.tsx`
+  - URL: `/admin/members/new`
+  - Dedicated member creation route.
+  - Uses the existing admin-created user flow and redirects back to the member list after a successful creation.
+
+- `(admin)/admin/books/page.tsx`
+  - URL: `/admin/books`
+  - Dedicated book administration route.
+  - Focuses on catalog listing and updates using the existing Server Actions.
+
+- `(admin)/admin/books/new/page.tsx`
+  - URL: `/admin/books/new`
+  - Dedicated book creation route.
+  - Uses the existing book creation Server Action and redirects back to the catalog list after a successful creation.
+
+- `(admin)/admin/colloquiums/page.tsx`
+  - URL: `/admin/colloquiums`
+  - Dedicated colloquium operations route.
+  - Lists colloquiums with operational metadata and links into edit, preview, guarded private-view, and delete actions.
 
 - `(admin)/admin/colloquiums/new/page.tsx`
   - URL: `/admin/colloquiums/new`
@@ -139,6 +168,7 @@ Routes:
 - `(admin)/admin/colloquiums/[id]/page.tsx`
   - URL: `/admin/colloquiums/[id]`
   - Dedicated editor for metadata, participants, presentation blocks, and media.
+  - The current repository version organizes editing into `Datos básicos`, `Participantes`, `Presentación`, and `Publicación` tabs while preserving existing business rules and mutations.
 - `(admin)/admin/colloquiums/[id]/preview/page.tsx`
   - URL: `/admin/colloquiums/[id]/preview`
   - Admin-only preview route for draft and published colloquiums.

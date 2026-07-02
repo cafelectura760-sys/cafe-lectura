@@ -73,7 +73,7 @@ Implemented:
 - Dedicated admin create routes for members and books so creation is separated from management lists.
 - Admin member hard-delete flow for regular members only, with server-side protection against deleting administrator accounts.
 - Admin book visibility management with `published` and `hidden` states, plus hard delete only when no colloquiums are linked to the book.
-- Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow.
+- Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow, including a fullscreen preview variant without the admin sidebar.
 - Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
 - Simplified admin colloquium editor flow with shadcn/ui controls, participant management grouped by role, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, URL-persisted editor tabs, and a presentation tab with explicit batch save behavior.
 - Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
@@ -179,6 +179,10 @@ Routes:
 - `(admin)/admin/colloquiums/[id]/preview/page.tsx`
   - URL: `/admin/colloquiums/[id]/preview`
   - Admin-only preview route for draft and published colloquiums.
+- `(admin-preview)/admin/colloquiums/[id]/preview/fullscreen/page.tsx`
+  - URL: `/admin/colloquiums/[id]/preview/fullscreen`
+  - Admin-only fullscreen preview route for draft and published colloquiums.
+  - Reuses the same member-facing colloquium page shell without the persistent admin sidebar.
 
 Administrators must also have a clear navigation action that takes them to the admin dashboard after login and from appropriate authenticated views.
 

@@ -33,6 +33,11 @@ export default async function AdminColloquiumPreviewPage({
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <div className="flex flex-wrap gap-3">
+        <Button asChild>
+          <Link href={`/admin/colloquiums/${colloquium.id}/preview/fullscreen`}>
+            Ver vista completa
+          </Link>
+        </Button>
         <Button asChild variant="outline">
           <Link href={`/admin/colloquiums/${colloquium.id}`}>
             Volver al editor

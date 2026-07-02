@@ -7,9 +7,9 @@ import {
   ScrollText,
 } from "lucide-react";
 
+import { AppHeader } from "@/components/app-header";
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
-import { AppHeader } from "@/components/app-header";
 import { ReadingTableau } from "@/components/reading-tableau";
 import { SectionHeading } from "@/components/section-heading";
 import { StatusBanner } from "@/components/status-banner";
@@ -33,6 +33,10 @@ function buildBookInfoHref(title: string, author: string) {
   return createWhatsAppHref(
     `Quiero más información sobre "${title}" de ${author}.`,
   );
+}
+
+function buildBookDetailHref(bookId: string) {
+  return `/library/${bookId}`;
 }
 
 export default async function Home() {
@@ -99,15 +103,22 @@ export default async function Home() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a
-                href={getMembershipHref()}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-primary"
-              >
-                Consultar membresía
-                <ArrowRight className="h-[18px] w-[18px]" />
-              </a>
+              {session ? (
+                <Link href="/colloquiums" className="btn-primary">
+                  Ver coloquios privados
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </Link>
+              ) : (
+                <a
+                  href={getMembershipHref()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-primary"
+                >
+                  Consultar membresía
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </a>
+              )}
               <Link href="/library" className="btn-secondary">
                 Ver biblioteca
               </Link>
@@ -147,7 +158,7 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Biblioteca"
           title="Una biblioteca visible para descubrir con calma"
-          description="Estos son algunos de los títulos disponibles en Cafe Lectura. Puedes recorrerlos con calma y escribirnos si quieres conocer más sobre alguno de ellos."
+          description="Estos son algunos de los títulos disponibles en Cafe Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
           action={
             <Link href="/library" className="editorial-link">
               Ver catálogo completo
@@ -169,8 +180,9 @@ export default async function Home() {
                 key={book.id}
                 book={book}
                 eyebrow="Selección del club"
-                actionHref={buildBookInfoHref(book.title, book.author)}
-                actionLabel="Más información"
+                detailHref={buildBookDetailHref(book.id)}
+                inquiryHref={buildBookInfoHref(book.title, book.author)}
+                inquiryLabel="Más información"
                 compact
               />
             ))}
@@ -201,30 +213,54 @@ export default async function Home() {
           </div>
         </article>
 
-        <aside className="surface-card-strong px-6 py-7 md:px-7 md:py-8">
-          <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
-            Conversación cercana
-          </p>
-          <div className="accent-rule mt-4" />
-          <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-            ¿Quieres saber si Cafe Lectura puede ser para ti?
-          </h2>
-          <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
-            Escríbenos por WhatsApp y te contamos cómo funciona la membresía,
-            qué libros están disponibles y de qué forma se organizan los
-            coloquios del club.
-          </p>
-          <div className="mt-8">
-            <a
-              href={getMembershipHref()}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-warm"
-            >
-              Escribir por WhatsApp
-            </a>
-          </div>
-        </aside>
+        {session ? (
+          <aside className="surface-card-strong px-6 py-7 md:px-7 md:py-8">
+            <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
+              Tu espacio privado
+            </p>
+            <div className="accent-rule mt-4" />
+            <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
+              Tu membresía está activa en Cafe Lectura
+            </h2>
+            <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
+              Accede a la sala privada para explorar los coloquios publicados y
+              disfrutar de lecturas preparadas con foco y tranquilidad para
+              nuestros miembros.
+            </p>
+            <div className="mt-8">
+              <Link href="/colloquiums" className="btn-warm">
+                Ir a los coloquios
+                <ArrowRight className="h-[18px] w-[18px]" />
+              </Link>
+            </div>
+          </aside>
+        ) : (
+          <aside className="surface-card-strong px-6 py-7 md:px-7 md:py-8">
+            <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
+              Conversación cercana
+            </p>
+            <div className="accent-rule mt-4" />
+            <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
+              ¿Quieres saber si Cafe Lectura puede ser para ti?
+            </h2>
+            <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
+              Escríbenos por WhatsApp y te contamos cómo funciona la membresía,
+              qué libros están disponibles y de qué forma se organizan los
+              coloquios del club.
+            </p>
+            <div className="mt-8">
+              <a
+                href={getMembershipHref()}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-warm"
+              >
+                Consultar membresía
+                <ArrowRight className="h-[18px] w-[18px]" />
+              </a>
+            </div>
+          </aside>
+        )}
       </section>
     </PageShell>
   );

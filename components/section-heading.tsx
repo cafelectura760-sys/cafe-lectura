@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 type SectionHeadingProps = {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
   titleClassName?: string;
 };

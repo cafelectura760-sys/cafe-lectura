@@ -97,7 +97,7 @@ export function ColloquiumCard({
                 Abrir coloquio
                 <ArrowRight className="h-[18px] w-[18px]" />
               </Link>
-              <Link href="/library" className="btn-ghost">
+              <Link href="/library" className="btn-secondary">
                 Ver biblioteca
               </Link>
             </div>

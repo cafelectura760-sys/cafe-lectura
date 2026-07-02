@@ -728,6 +728,10 @@ select {
     border-color: color-mix(in srgb, var(--color-clay) 18%, white);
   }
 
+  .book-card-actions {
+    @apply flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end;
+  }
+
   .field-label {
     @apply block text-[16px] leading-[1.35] font-semibold md:text-[17px];
     color: var(--text-primary);
@@ -779,6 +783,10 @@ select {
       0 20px 50px rgba(31, 26, 23, 0.05);
   }
 
+  .colloquium-context-grid {
+    @apply grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start;
+  }
+
   .reader-prose {
     @apply mx-auto flex max-w-[760px] flex-col gap-6 md:gap-7;
   }
@@ -797,6 +805,96 @@ select {
   .reader-section[data-tone="participant"] {
     border-color: color-mix(in srgb, var(--color-verde) 30%, white);
     background: color-mix(in srgb, var(--color-success-bg) 75%, white);
+  }
+
+  .reader-text-block {
+    border-left: 4px solid color-mix(in srgb, var(--color-gold) 70%, white);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-default) 98%, white) 0%,
+      color-mix(in srgb, var(--color-paper-soft) 74%, white) 100%
+    );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.74),
+      0 18px 36px rgba(31, 26, 23, 0.05);
+  }
+
+  .reader-audio-block {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 18px 36px rgba(31, 26, 23, 0.06);
+  }
+
+  .reader-pull-quote {
+    @apply rounded-[14px] border px-5 py-5 md:px-6 md:py-6;
+    border-color: color-mix(in srgb, var(--color-gold) 34%, white);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 96%, white) 0%,
+        color-mix(in srgb, var(--color-paper-soft) 74%, white) 100%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-gold) 10%, transparent) 0%,
+        transparent 48%,
+        color-mix(in srgb, var(--color-dune) 10%, transparent) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.76),
+      0 22px 44px rgba(31, 26, 23, 0.08);
+  }
+
+  .colloquium-aside-card {
+    @apply rounded-[16px] border px-5 py-5 md:px-6 md:py-6;
+    border-color: color-mix(in srgb, var(--color-casa) 20%, white);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 96%, white) 0%,
+        color-mix(in srgb, var(--surface-subtle) 82%, white) 100%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--color-teal) 7%, transparent) 0%,
+        transparent 54%,
+        color-mix(in srgb, var(--color-gold) 10%, transparent) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.78),
+      0 24px 50px rgba(31, 26, 23, 0.08);
+  }
+
+  .participant-group-card {
+    @apply rounded-[12px] border px-4 py-4;
+    border-color: color-mix(in srgb, var(--color-clay) 22%, white);
+    background: color-mix(in srgb, var(--surface-default) 88%, white);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 14px 28px rgba(31, 26, 23, 0.05);
+  }
+
+  .colloquium-block-badge {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full px-4 py-2 text-[15px] font-semibold;
+    background: color-mix(in srgb, var(--color-fig) 8%, white);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-casa) 16%, white);
+  }
+
+  .detail-rich-list {
+    @apply space-y-3;
+    color: var(--text-secondary);
+  }
+
+  .detail-rich-list li {
+    @apply relative pl-6 text-[16px] leading-7 md:text-[17px];
+  }
+
+  .detail-rich-list li::before {
+    content: "";
+    @apply absolute top-[0.72em] left-0 h-2 w-2 rounded-full;
+    background: linear-gradient(180deg, var(--color-dune), var(--color-gold));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold) 16%, white);
   }
 
   .hero-band {

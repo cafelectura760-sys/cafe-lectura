@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 import type { PublicBook } from "@/lib/books/data";
@@ -5,24 +6,18 @@ import type { PublicBook } from "@/lib/books/data";
 type BookCardProps = {
   book: PublicBook;
   eyebrow: string;
-  actionHref: string;
-  actionLabel: string;
+  detailHref: string;
+  inquiryHref: string;
+  inquiryLabel: string;
   compact?: boolean;
 };
-
-function truncateText(text: string, maxLength: number) {
-  if (text.length <= maxLength) {
-    return text;
-  }
-
-  return `${text.slice(0, maxLength - 3).trimEnd()}...`;
-}
 
 export function BookCard({
   book,
   eyebrow,
-  actionHref,
-  actionLabel,
+  detailHref,
+  inquiryHref,
+  inquiryLabel,
   compact = false,
 }: BookCardProps) {
   return (
@@ -61,23 +56,35 @@ export function BookCard({
       </div>
 
       <div className="book-card-copy pt-5">
-        <p
-          className={`body-copy flex-1 ${compact ? "book-card-synopsis" : ""}`}
-        >
-          {compact ? truncateText(book.synopsis, 220) : book.synopsis}
-        </p>
+        {!compact ? <p className="body-copy flex-1">{book.synopsis}</p> : null}
 
-        <div className="book-card-footer">
-          <p className="meta-copy">Contacto directo con el club</p>
-          <a
-            href={actionHref}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-primary w-full sm:w-auto"
+        <div
+          className={`book-card-footer ${compact ? "mt-auto border-t-0 pt-0" : ""}`}
+        >
+          {!compact ? (
+            <div className="space-y-2">
+              <p className="meta-copy">
+                Lectura con contexto y conversación directa
+              </p>
+            </div>
+          ) : null}
+
+          <div
+            className={`book-card-actions ${compact ? "w-full sm:w-full sm:justify-between" : ""}`}
           >
-            {actionLabel}
-            <ArrowUpRight className="h-[18px] w-[18px]" />
-          </a>
+            <Link href={detailHref} className="btn-secondary w-full sm:w-auto">
+              Ver libro
+            </Link>
+            <a
+              href={inquiryHref}
+              target="_blank"
+              rel="noreferrer"
+              className="editorial-link w-full justify-center sm:w-auto"
+            >
+              {inquiryLabel}
+              <ArrowUpRight className="h-[18px] w-[18px]" />
+            </a>
+          </div>
         </div>
       </div>
     </article>

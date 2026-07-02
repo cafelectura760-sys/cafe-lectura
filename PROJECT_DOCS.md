@@ -60,7 +60,7 @@ Implemented:
 - Tailwind CSS v4 global CSS setup.
 - Supabase SSR client utilities using `@supabase/ssr`.
 - Root `proxy.ts` for Supabase session cookie refresh.
-- Public home page and public library page backed by Supabase book data.
+- Public home page, public library page, and public book-detail page backed by Supabase book data.
 - Login-only authentication flow for existing Supabase users.
 - Private colloquium list and detail pages protected by server-side membership checks.
 - Private colloquium detail rendering based on colloquium metadata, participants, and ordered presentation blocks.
@@ -108,6 +108,10 @@ Routes:
   - Public visual catalog of books.
   - Allows visitors to ask about a book through WhatsApp.
   - Does not provide downloadable files.
+- `(public)/library/[id]/page.tsx`
+  - URL: `/library/[id]`
+  - Public detail page for a single published book.
+  - Shows the complete synopsis, direct WhatsApp inquiry access, and membership-oriented call to action.
 
 ### Private Area
 

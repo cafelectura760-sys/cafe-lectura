@@ -8,6 +8,7 @@ type BookRow = {
   author: string;
   synopsis: string;
   cover_image_url: string;
+  status: "published" | "hidden";
   created_at: string;
 };
 
@@ -24,7 +25,8 @@ export async function getPublicBooks(): Promise<PublicBook[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("books")
-    .select("id, title, author, synopsis, cover_image_url, created_at")
+    .select("id, title, author, synopsis, cover_image_url, status, created_at")
+    .eq("status", "published")
     .order("created_at", { ascending: false });
 
   if (error) {

@@ -17,7 +17,9 @@ type AdminMemberActionErrorCode =
   | "invalid-membership-date"
   | "email-already-exists"
   | "member-not-found"
-  | "cannot-demote-yourself";
+  | "cannot-demote-yourself"
+  | "cannot-delete-yourself"
+  | "cannot-delete-admin";
 
 type ProfileRow = {
   id: string;
@@ -413,5 +415,44 @@ export async function extendAdminMemberMembership(memberId: string) {
 
   if (updateError) {
     throw new Error(`Failed to extend membership: ${updateError.message}`);
+  }
+}
+
+export async function deleteAdminMember(memberId: string) {
+  const adminSession = await requireAdmin();
+  const trimmedMemberId = memberId.trim();
+
+  if (!trimmedMemberId) {
+    throw new AdminMemberActionError("member-not-found");
+  }
+
+  if (trimmedMemberId === adminSession.userId) {
+    throw new AdminMemberActionError("cannot-delete-yourself");
+  }
+
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+  const { data: existingProfile, error: selectError } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", trimmedMemberId)
+    .maybeSingle<{ id: string; role: AppRole }>();
+
+  if (selectError) {
+    throw new Error(`Failed to load member profile: ${selectError.message}`);
+  }
+
+  if (!existingProfile) {
+    throw new AdminMemberActionError("member-not-found");
+  }
+
+  if (existingProfile.role === "admin") {
+    throw new AdminMemberActionError("cannot-delete-admin");
+  }
+
+  const { error } = await adminClient.auth.admin.deleteUser(trimmedMemberId);
+
+  if (error) {
+    throw new Error(`Failed to delete auth user: ${error.message}`);
   }
 }

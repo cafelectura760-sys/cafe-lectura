@@ -6,7 +6,9 @@ import { redirect } from "next/navigation";
 import {
   AdminBookActionError,
   createAdminBook,
+  deleteAdminBook,
   updateAdminBook,
+  updateAdminBookStatus,
 } from "@/lib/admin/book-management";
 
 function redirectWithFeedback(
@@ -118,4 +120,44 @@ export async function updateBookAction(formData: FormData) {
   revalidatePath("/library");
   revalidatePath("/colloquiums");
   redirectWithFeedback(redirectPath, "status", "book-updated");
+}
+
+export async function updateBookStatusAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
+  try {
+    await updateAdminBookStatus({
+      bookId: getStringEntry(formData.get("book_id"), "book-not-found"),
+      status: getStringEntry(formData.get("status"), "invalid-book-status"),
+    });
+  } catch (error) {
+    handleBookActionError(error, redirectPath);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
+  revalidatePath("/");
+  revalidatePath("/library");
+  revalidatePath("/colloquiums");
+  redirectWithFeedback(redirectPath, "status", "book-status-updated");
+}
+
+export async function deleteBookAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
+  try {
+    await deleteAdminBook(
+      getStringEntry(formData.get("book_id"), "book-not-found"),
+    );
+  } catch (error) {
+    handleBookActionError(error, redirectPath);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
+  revalidatePath("/");
+  revalidatePath("/library");
+  redirectWithFeedback(redirectPath, "status", "book-deleted");
 }

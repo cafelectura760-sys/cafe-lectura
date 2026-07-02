@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import {
   AdminMemberActionError,
   createAdminMember,
+  deleteAdminMember,
   extendAdminMemberMembership,
   updateAdminMember,
 } from "@/lib/admin/member-management";
@@ -120,4 +121,20 @@ export async function extendMembershipAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/members");
   redirectWithFeedback(redirectPath, "status", "membership-extended");
+}
+
+export async function deleteMemberAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
+  try {
+    await deleteAdminMember(
+      getStringEntry(formData.get("member_id"), "member-not-found"),
+    );
+  } catch (error) {
+    handleAdminActionError(error, redirectPath);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/members");
+  redirectWithFeedback(redirectPath, "status", "member-deleted");
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 import { AdminPagination } from "@/components/admin/admin-pagination";
-import { Button } from "@/components/ui/button";
+import { DeleteMemberDialog } from "@/components/admin/delete-member-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,9 +23,9 @@ import {
   extendMembershipAction,
   updateMemberAction,
 } from "@/lib/admin/actions";
+import type { AdminMemberRecord } from "@/lib/admin/member-management";
 import type { AdminPaginatedResult } from "@/lib/admin/ui";
 import { formatDateLabel, formatDateTimeLabel } from "@/lib/admin/ui";
-import type { AdminMemberRecord } from "@/lib/admin/member-management";
 
 const inputClassName =
   "h-11 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color,box-shadow] focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25";
@@ -38,6 +39,30 @@ function RoleBadge({ role }: { role: AdminMemberRecord["role"] }) {
     <Badge className="bg-[color:color-mix(in_srgb,var(--color-verde)_14%,white)] text-[var(--color-verde)]">
       Miembro
     </Badge>
+  );
+}
+
+function DeleteMemberAction({
+  member,
+  currentPath,
+}: {
+  member: AdminMemberRecord;
+  currentPath: string;
+}) {
+  const isAdmin = member.role === "admin";
+
+  return (
+    <DeleteMemberDialog
+      memberId={member.id}
+      memberName={member.fullName}
+      redirectTo={currentPath}
+      disabled={isAdmin}
+      disabledReason={
+        isAdmin
+          ? "Las cuentas administradoras no se pueden eliminar."
+          : undefined
+      }
+    />
   );
 }
 
@@ -160,25 +185,31 @@ export function MembersManagement({
                                 </Button>
                               </form>
 
-                              <form action={extendMembershipAction}>
-                                <input
-                                  type="hidden"
-                                  name="redirect_to"
-                                  value={currentPath}
+                              <div className="flex flex-wrap items-center gap-2">
+                                <form action={extendMembershipAction}>
+                                  <input
+                                    type="hidden"
+                                    name="redirect_to"
+                                    value={currentPath}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="member_id"
+                                    value={member.id}
+                                  />
+                                  <Button
+                                    type="submit"
+                                    size="sm"
+                                    variant="secondary"
+                                  >
+                                    Extender 1 año
+                                  </Button>
+                                </form>
+                                <DeleteMemberAction
+                                  member={member}
+                                  currentPath={currentPath}
                                 />
-                                <input
-                                  type="hidden"
-                                  name="member_id"
-                                  value={member.id}
-                                />
-                                <Button
-                                  type="submit"
-                                  size="sm"
-                                  variant="secondary"
-                                >
-                                  Extender 1 año
-                                </Button>
-                              </form>
+                              </div>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -250,21 +281,27 @@ export function MembersManagement({
                           </Button>
                         </form>
 
-                        <form action={extendMembershipAction}>
-                          <input
-                            type="hidden"
-                            name="redirect_to"
-                            value={currentPath}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <form action={extendMembershipAction}>
+                            <input
+                              type="hidden"
+                              name="redirect_to"
+                              value={currentPath}
+                            />
+                            <input
+                              type="hidden"
+                              name="member_id"
+                              value={member.id}
+                            />
+                            <Button type="submit" variant="secondary">
+                              Extender 1 año
+                            </Button>
+                          </form>
+                          <DeleteMemberAction
+                            member={member}
+                            currentPath={currentPath}
                           />
-                          <input
-                            type="hidden"
-                            name="member_id"
-                            value={member.id}
-                          />
-                          <Button type="submit" variant="secondary">
-                            Extender 1 año
-                          </Button>
-                        </form>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}

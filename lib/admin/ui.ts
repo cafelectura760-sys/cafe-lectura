@@ -106,10 +106,16 @@ export function getAdminFeedbackMessage(
       "La configuración del miembro fue actualizada correctamente.",
     "membership-extended":
       "La membresía fue extendida por un año a partir de la fecha vigente o de hoy.",
+    "member-deleted":
+      "La cuenta del miembro fue eliminada de forma definitiva.",
     "book-created":
       "El libro fue creado correctamente y ya forma parte del catálogo interno.",
     "book-updated":
       "Los datos del libro fueron actualizados y ya están disponibles en el sistema.",
+    "book-status-updated":
+      "La visibilidad del libro fue actualizada correctamente.",
+    "book-deleted":
+      "El libro fue eliminado definitivamente del catálogo interno.",
     "colloquium-deleted":
       "El coloquio fue eliminado por completo, junto con sus archivos privados asociados.",
   };
@@ -138,12 +144,20 @@ export function getAdminFeedbackMessage(
     "member-not-found": "No pudimos encontrar el miembro solicitado.",
     "cannot-demote-yourself":
       "No puedes quitarte a ti mismo el rol de administrador desde este panel.",
+    "cannot-delete-yourself":
+      "No puedes eliminar tu propia cuenta de administrador desde este panel.",
+    "cannot-delete-admin":
+      "Las cuentas administradoras no se pueden eliminar desde este módulo.",
     "invalid-book-title": "Debes indicar un título de libro válido.",
     "invalid-book-author": "Debes indicar un autor válido.",
     "invalid-book-synopsis": "Debes indicar una sinopsis válida para el libro.",
     "invalid-book-cover-image-url":
       "La portada debe ser una URL válida con protocolo http o https.",
     "book-not-found": "No pudimos encontrar el libro solicitado.",
+    "invalid-book-status":
+      "No pudimos actualizar la visibilidad del libro con el estado recibido.",
+    "book-has-colloquiums":
+      "Este libro no se puede eliminar porque tiene coloquios vinculados.",
   };
 
   return {

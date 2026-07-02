@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { DeleteBookDialog } from "@/components/admin/delete-book-dialog";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,13 +19,69 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { updateBookAction } from "@/lib/admin/book-actions";
+import {
+  updateBookAction,
+  updateBookStatusAction,
+} from "@/lib/admin/book-actions";
+import type { AdminBookRecord } from "@/lib/admin/book-management";
 import type { AdminPaginatedResult } from "@/lib/admin/ui";
 import { formatDateLabel } from "@/lib/admin/ui";
-import type { AdminBookRecord } from "@/lib/admin/book-management";
 
 const inputClassName =
   "h-11 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none transition-[border-color,box-shadow] focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25";
+
+function BookStatusBadge({ status }: { status: AdminBookRecord["status"] }) {
+  return status === "published" ? (
+    <Badge className="bg-emerald-100 text-emerald-900">Publicado</Badge>
+  ) : (
+    <Badge className="bg-amber-100 text-amber-900">Oculto</Badge>
+  );
+}
+
+function BookVisibilityAction({
+  book,
+  currentPath,
+}: {
+  book: AdminBookRecord;
+  currentPath: string;
+}) {
+  const nextStatus = book.status === "published" ? "hidden" : "published";
+
+  return (
+    <form action={updateBookStatusAction}>
+      <input type="hidden" name="redirect_to" value={currentPath} />
+      <input type="hidden" name="book_id" value={book.id} />
+      <input type="hidden" name="status" value={nextStatus} />
+      <Button type="submit" size="sm" variant="secondary">
+        {book.status === "published" ? "Ocultar en biblioteca" : "Publicar"}
+      </Button>
+    </form>
+  );
+}
+
+function BookDeleteAction({
+  book,
+  currentPath,
+}: {
+  book: AdminBookRecord;
+  currentPath: string;
+}) {
+  const isDeleteDisabled = book.linkedColloquiumCount > 0;
+
+  return (
+    <DeleteBookDialog
+      bookId={book.id}
+      title={book.title}
+      redirectTo={currentPath}
+      disabled={isDeleteDisabled}
+      disabledReason={
+        isDeleteDisabled
+          ? "No se puede eliminar porque tiene coloquios vinculados."
+          : undefined
+      }
+    />
+  );
+}
 
 export function BooksManagement({
   booksPage,
@@ -74,8 +132,10 @@ export function BooksManagement({
                     <TableHeader>
                       <TableRow>
                         <TableHead>Libro</TableHead>
+                        <TableHead>Estado</TableHead>
                         <TableHead>Creado</TableHead>
-                        <TableHead className="w-[540px]">Edición</TableHead>
+                        <TableHead>Coloquios</TableHead>
+                        <TableHead className="w-[560px]">Edición</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -91,60 +151,78 @@ export function BooksManagement({
                               </p>
                             </div>
                           </TableCell>
+                          <TableCell className="align-top">
+                            <BookStatusBadge status={book.status} />
+                          </TableCell>
                           <TableCell className="align-top text-sm text-[var(--text-secondary)]">
                             {formatDateLabel(book.createdAt)}
                           </TableCell>
+                          <TableCell className="align-top text-sm text-[var(--text-secondary)]">
+                            {book.linkedColloquiumCount}
+                          </TableCell>
                           <TableCell className="align-top">
-                            <form
-                              action={updateBookAction}
-                              className="grid gap-3"
-                            >
-                              <input
-                                type="hidden"
-                                name="redirect_to"
-                                value={currentPath}
-                              />
-                              <input
-                                type="hidden"
-                                name="book_id"
-                                value={book.id}
-                              />
-                              <div className="grid gap-3 md:grid-cols-2">
+                            <div className="grid gap-3">
+                              <form
+                                action={updateBookAction}
+                                className="grid gap-3"
+                              >
                                 <input
-                                  type="text"
-                                  name="title"
-                                  defaultValue={book.title}
+                                  type="hidden"
+                                  name="redirect_to"
+                                  value={currentPath}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="book_id"
+                                  value={book.id}
+                                />
+                                <div className="grid gap-3 md:grid-cols-2">
+                                  <input
+                                    type="text"
+                                    name="title"
+                                    defaultValue={book.title}
+                                    required
+                                    className={inputClassName}
+                                  />
+                                  <input
+                                    type="text"
+                                    name="author"
+                                    defaultValue={book.author}
+                                    required
+                                    className={inputClassName}
+                                  />
+                                </div>
+                                <input
+                                  type="url"
+                                  name="cover_image_url"
+                                  defaultValue={book.coverImageUrl}
                                   required
                                   className={inputClassName}
                                 />
-                                <input
-                                  type="text"
-                                  name="author"
-                                  defaultValue={book.author}
+                                <textarea
+                                  name="synopsis"
+                                  rows={4}
+                                  defaultValue={book.synopsis}
                                   required
-                                  className={inputClassName}
+                                  className="min-h-28 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 py-3 text-sm text-[var(--text-primary)] transition-[border-color,box-shadow] outline-none focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25"
+                                />
+                                <div>
+                                  <Button type="submit" variant="outline">
+                                    Actualizar libro
+                                  </Button>
+                                </div>
+                              </form>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <BookVisibilityAction
+                                  book={book}
+                                  currentPath={currentPath}
+                                />
+                                <BookDeleteAction
+                                  book={book}
+                                  currentPath={currentPath}
                                 />
                               </div>
-                              <input
-                                type="url"
-                                name="cover_image_url"
-                                defaultValue={book.coverImageUrl}
-                                required
-                                className={inputClassName}
-                              />
-                              <textarea
-                                name="synopsis"
-                                rows={4}
-                                defaultValue={book.synopsis}
-                                required
-                                className="min-h-28 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 py-3 text-sm text-[var(--text-primary)] transition-[border-color,box-shadow] outline-none focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25"
-                              />
-                              <div>
-                                <Button type="submit" variant="outline">
-                                  Actualizar libro
-                                </Button>
-                              </div>
-                            </form>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -160,15 +238,19 @@ export function BooksManagement({
                       className="border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_72%,white)] shadow-none"
                     >
                       <CardContent className="space-y-4 pt-4">
-                        <div className="space-y-1">
-                          <h3 className="text-base font-semibold text-[var(--text-primary)]">
-                            {book.title}
-                          </h3>
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-semibold text-[var(--text-primary)]">
+                              {book.title}
+                            </h3>
+                            <BookStatusBadge status={book.status} />
+                          </div>
                           <p className="text-sm text-[var(--text-secondary)]">
                             {book.author}
                           </p>
                           <p className="text-xs leading-6 text-[var(--text-muted)]">
-                            Creado: {formatDateLabel(book.createdAt)}
+                            Creado: {formatDateLabel(book.createdAt)} ·
+                            Coloquios vinculados: {book.linkedColloquiumCount}
                           </p>
                         </div>
 
@@ -207,10 +289,22 @@ export function BooksManagement({
                             required
                             className="min-h-28 w-full rounded-lg border border-[var(--border-default)] bg-white px-3 py-3 text-sm text-[var(--text-primary)] transition-[border-color,box-shadow] outline-none focus-visible:border-[var(--focus-ring-color)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]/25"
                           />
-                          <Button type="submit" variant="outline">
-                            Actualizar libro
-                          </Button>
+                          <div>
+                            <Button type="submit" variant="outline">
+                              Actualizar libro
+                            </Button>
+                          </div>
                         </form>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <BookVisibilityAction
+                            book={book}
+                            currentPath={currentPath}
+                          />
+                          <BookDeleteAction
+                            book={book}
+                            currentPath={currentPath}
+                          />
+                        </div>
                       </CardContent>
                     </Card>
                   ))}

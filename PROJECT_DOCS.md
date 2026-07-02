@@ -71,6 +71,8 @@ Implemented:
 - Dedicated admin overview, members, books, and colloquiums routes using existing Server Actions and Supabase flows.
 - Server-side paginated admin listings for members, books, and colloquiums using `page` and `size` search parameters.
 - Dedicated admin create routes for members and books so creation is separated from management lists.
+- Admin member hard-delete flow for regular members only, with server-side protection against deleting administrator accounts.
+- Admin book visibility management with `published` and `hidden` states, plus hard delete only when no colloquiums are linked to the book.
 - Dedicated admin colloquium create/edit/preview pages for the presentation-focused colloquium workflow.
 - Supabase Storage private-bucket integration with signed upload, confirm, and delete Route Handlers for colloquium media.
 - Simplified admin colloquium editor flow with shadcn/ui controls, participant management grouped by role, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, URL-persisted editor tabs, and a presentation tab with explicit batch save behavior.
@@ -152,7 +154,7 @@ Routes:
 - `(admin)/admin/books/page.tsx`
   - URL: `/admin/books`
   - Dedicated book administration route.
-  - Focuses on catalog listing and updates using the existing Server Actions.
+  - Focuses on catalog listing, updates, visibility changes, and guarded delete actions using the existing Server Actions.
   - Supports server-side pagination through `page` and `size` search parameters.
 
 - `(admin)/admin/books/new/page.tsx`
@@ -204,6 +206,10 @@ Routes:
 - WhatsApp number and default message must come from environment variables.
 - Books are not downloadable.
 - The public library must provide a "More Information" action that opens WhatsApp.
+- Public library visibility for books is controlled by the admin-facing `books.status` field.
+- Hidden books must not appear in the public library, while published books remain publicly readable.
+- Books linked to one or more colloquiums cannot be hard-deleted from the admin panel.
+- Regular member accounts may be hard-deleted by admins, but administrator accounts must not be deletable through the admin panel.
 - Colloquiums remain private. They must be accessible only to authenticated users with active memberships, while admins retain full access regardless of membership expiration.
 - The approved colloquium MVP only includes the `Presentation` portion of the colloquium experience.
 - The approved colloquium MVP includes structured support for text and audio blocks only.
@@ -261,6 +267,7 @@ Key fields:
 - `author`: book author.
 - `synopsis`: short public description.
 - `cover_image_url`: cover image URL.
+- `status`: visibility state with expected values `published` and `hidden`.
 - `created_at`: book creation timestamp.
 
 Purpose:
@@ -268,6 +275,7 @@ Purpose:
 - Power the public visual library.
 - Provide book details for WhatsApp-based inquiry flows.
 - Link books to colloquiums when applicable.
+- Allow admin operators to hide books from the public library without breaking colloquium relationships.
 
 ### `colloquiums`
 
@@ -1450,7 +1458,6 @@ Completion criteria:
 
 These items remain valid but should be handled only when explicitly requested or when required after the colloquium refactor foundation is in place:
 
-- Add delete workflows for admin-managed books or members if the business process requires them.
 - Add route-level `error.tsx` boundaries where operational testing shows meaningful failure modes.
 - Continue extending the committed shadcn/ui primitive directory only where it improves clarity and accessibility.
 - Add formal automated tests after the MVP behavior stabilizes enough to justify the maintenance cost.

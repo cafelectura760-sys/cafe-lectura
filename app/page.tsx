@@ -13,7 +13,6 @@ import { MemberVoicesSection } from "@/components/member-voices-section";
 import { PageShell } from "@/components/page-shell";
 import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import { BorderGlowSlot } from "@/components/react-bits/border-glow-slot";
-import { MagneticSlot } from "@/components/react-bits/magnetic-slot";
 import { SpotlightCardSlot } from "@/components/react-bits/spotlight-card-slot";
 import { ReadingTableau } from "@/components/reading-tableau";
 import { SectionHeading } from "@/components/section-heading";
@@ -95,7 +94,7 @@ export default async function Home() {
 
       <section className="hero-band">
         <div className="relative z-10 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.9fr)] lg:items-center lg:gap-10">
-          <AnimatedContentSlot as="div" className="min-w-0 py-2">
+          <AnimatedContentSlot delay={0} distance={20} className="min-w-0 py-2">
             <div className="accent-rule" />
             <p className="eyebrow mt-5">Club privado de lectura</p>
             <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
@@ -109,70 +108,73 @@ export default async function Home() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {session ? (
-                <MagneticSlot>
-                  <Link href="/colloquiums" className="btn-primary">
-                    Ver coloquios privados
-                    <ArrowRight className="h-[18px] w-[18px]" />
-                  </Link>
-                </MagneticSlot>
+                <Link href="/colloquiums" className="btn-primary">
+                  Ver coloquios privados
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </Link>
               ) : (
-                <MagneticSlot>
-                  <a
-                    href={getMembershipHref()}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-primary"
-                  >
-                    Consultar membresía
-                    <ArrowRight className="h-[18px] w-[18px]" />
-                  </a>
-                </MagneticSlot>
+                <a
+                  href={getMembershipHref()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-primary"
+                >
+                  Consultar membresía
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </a>
               )}
               <Link href="/library" className="btn-secondary">
                 Ver biblioteca
               </Link>
             </div>
-
-            <div className="content-grid mt-10 md:grid-cols-2 2xl:grid-cols-3">
-              {highlights.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <SpotlightCardSlot key={item.title} className="h-full">
-                    <article className="editorial-note lift-on-hover h-full">
-                      <div className="flex h-full flex-col gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.06)]">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <h2 className="text-[22px] leading-[1.24] font-semibold text-[var(--text-primary)]">
-                            {item.title}
-                          </h2>
-                          <p className="body-copy mt-2">{item.text}</p>
-                        </div>
-                      </div>
-                    </article>
-                  </SpotlightCardSlot>
-                );
-              })}
-            </div>
           </AnimatedContentSlot>
 
           <ReadingTableau />
         </div>
+
+        <div className="content-grid mt-10 md:grid-cols-2 2xl:grid-cols-3">
+          {highlights.map((item, index) => {
+            const Icon = item.icon;
+
+            return (
+              <AnimatedContentSlot
+                key={item.title}
+                delay={1.5 + index * 1.5}
+                distance={28}
+                className="h-full"
+              >
+                <SpotlightCardSlot className="editorial-note lift-on-hover h-full !p-5 md:!p-6">
+                  <div className="flex h-full flex-col gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-default)] text-[var(--color-casa)] shadow-[0_10px_22px_rgba(31,26,23,0.06)]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-[22px] leading-[1.24] font-semibold text-[var(--text-primary)]">
+                        {item.title}
+                      </h2>
+                      <p className="body-copy mt-2">{item.text}</p>
+                    </div>
+                  </div>
+                </SpotlightCardSlot>
+              </AnimatedContentSlot>
+            );
+          })}
+        </div>
       </section>
 
       <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <SectionHeading
-          eyebrow="Biblioteca"
-          title="Una biblioteca visible para descubrir con calma"
-          description="Estos son algunos de los títulos disponibles en Café Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
-          action={
-            <Link href="/library" className="editorial-link">
-              Ver catálogo completo
-            </Link>
-          }
-        />
+        <AnimatedContentSlot delay={0} distance={20}>
+          <SectionHeading
+            eyebrow="Biblioteca"
+            title="Una biblioteca visible para descubrir con calma"
+            description="Estos son algunos de los títulos disponibles en Café Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
+            action={
+              <Link href="/library" className="editorial-link">
+                Ver catálogo completo
+              </Link>
+            }
+          />
+        </AnimatedContentSlot>
 
         {featuredBooks.length === 0 ? (
           <div className="mt-8">
@@ -183,16 +185,22 @@ export default async function Home() {
           </div>
         ) : (
           <div className="content-grid mt-8 md:grid-cols-2 xl:grid-cols-3">
-            {featuredBooks.map((book) => (
-              <BookCard
+            {featuredBooks.map((book, index) => (
+              <AnimatedContentSlot
                 key={book.id}
-                book={book}
-                eyebrow="Selección del club"
-                detailHref={buildBookDetailHref(book.id)}
-                inquiryHref={buildBookInfoHref(book.title, book.author)}
-                inquiryLabel="Más información"
-                compact
-              />
+                delay={1 + index * 1.5}
+                distance={28}
+                className="h-full"
+              >
+                <BookCard
+                  book={book}
+                  eyebrow="Selección del club"
+                  detailHref={buildBookDetailHref(book.id)}
+                  inquiryHref={buildBookInfoHref(book.title, book.author)}
+                  inquiryLabel="Más información"
+                  compact
+                />
+              </AnimatedContentSlot>
             ))}
           </div>
         )}
@@ -202,30 +210,42 @@ export default async function Home() {
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-          <SectionHeading
-            eyebrow="Membresía"
-            title="Una forma sencilla de sostener el hábito de leer durante todo el año"
-            description="Café Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
-          />
+          <AnimatedContentSlot delay={0} distance={20}>
+            <SectionHeading
+              eyebrow="Membresía"
+              title="Una forma sencilla de sostener el hábito de leer durante todo el año"
+              description="Café Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
+            />
+          </AnimatedContentSlot>
 
           <div className="content-grid mt-8 md:grid-cols-3">
-            {membershipSteps.map((step) => (
-              <article key={step.number} className="editorial-step h-full">
-                <div className="flex items-center gap-3">
-                  <span className="editorial-step-number">{step.number}</span>
-                  <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
-                    {step.title}
-                  </h3>
-                </div>
-                <p className="body-copy mt-4">{step.text}</p>
-              </article>
+            {membershipSteps.map((step, index) => (
+              <AnimatedContentSlot
+                key={step.number}
+                delay={1 + index * 1.5}
+                distance={24}
+                className="h-full"
+              >
+                <article className="editorial-step h-full">
+                  <div className="flex items-center gap-3">
+                    <span className="editorial-step-number">{step.number}</span>
+                    <h3 className="text-[20px] font-semibold text-[var(--text-primary)]">
+                      {step.title}
+                    </h3>
+                  </div>
+                  <p className="body-copy mt-4">{step.text}</p>
+                </article>
+              </AnimatedContentSlot>
             ))}
           </div>
         </article>
 
         {session ? (
-          <BorderGlowSlot className="h-full">
-            <aside className="surface-card-strong h-full px-6 py-7 md:px-7 md:py-8">
+          <BorderGlowSlot
+            className="h-full rounded-[14px]"
+            backgroundColor="linear-gradient(145deg, color-mix(in srgb, var(--color-fig) 96%, var(--color-casa)) 0%, color-mix(in srgb, var(--color-dune) 80%, var(--color-casa)) 100%)"
+          >
+            <aside className="h-full px-6 py-7 text-[var(--text-on-dark)] md:px-7 md:py-8">
               <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
                 Tu espacio privado
               </p>
@@ -239,18 +259,19 @@ export default async function Home() {
                 nuestros miembros.
               </p>
               <div className="mt-8">
-                <MagneticSlot>
-                  <Link href="/colloquiums" className="btn-warm">
-                    Ir a los coloquios
-                    <ArrowRight className="h-[18px] w-[18px]" />
-                  </Link>
-                </MagneticSlot>
+                <Link href="/colloquiums" className="btn-warm">
+                  Ir a los coloquios
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </Link>
               </div>
             </aside>
           </BorderGlowSlot>
         ) : (
-          <BorderGlowSlot className="h-full">
-            <aside className="surface-card-strong h-full px-6 py-7 md:px-7 md:py-8">
+          <BorderGlowSlot
+            className="h-full rounded-[14px]"
+            backgroundColor="linear-gradient(145deg, color-mix(in srgb, var(--color-fig) 96%, var(--color-casa)) 0%, color-mix(in srgb, var(--color-dune) 80%, var(--color-casa)) 100%)"
+          >
+            <aside className="h-full px-6 py-7 text-[var(--text-on-dark)] md:px-7 md:py-8">
               <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
                 Conversación cercana
               </p>
@@ -264,17 +285,15 @@ export default async function Home() {
                 organizan los coloquios del club.
               </p>
               <div className="mt-8">
-                <MagneticSlot>
-                  <a
-                    href={getMembershipHref()}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-warm"
-                  >
-                    Consultar membresía
-                    <ArrowRight className="h-[18px] w-[18px]" />
-                  </a>
-                </MagneticSlot>
+                <a
+                  href={getMembershipHref()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-warm"
+                >
+                  Consultar membresía
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </a>
               </div>
             </aside>
           </BorderGlowSlot>

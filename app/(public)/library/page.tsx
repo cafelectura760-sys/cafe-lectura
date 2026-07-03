@@ -5,6 +5,7 @@ import { BookOpenText } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
+import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import { SectionHeading } from "@/components/section-heading";
 import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
@@ -40,7 +41,7 @@ export default async function LibraryPage() {
       />
 
       <section className="hero-band">
-        <div className="relative z-10">
+        <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
             eyebrow="Biblioteca pública"
@@ -53,7 +54,7 @@ export default async function LibraryPage() {
               </Link>
             }
           />
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       {books.length === 0 ? (
@@ -74,23 +75,31 @@ export default async function LibraryPage() {
         </section>
       ) : (
         <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-          <SectionHeading
-            eyebrow="Catálogo disponible"
-            title="Una biblioteca visible para explorar con calma"
-            description="Cada tarjeta conserva una lectura más limpia y deja la sinopsis completa para la ficha del libro, con un recorrido más claro en cualquier tamaño de pantalla."
-          />
+          <AnimatedContentSlot delay={0} distance={20}>
+            <SectionHeading
+              eyebrow="Catálogo disponible"
+              title="Una biblioteca visible para explorar con calma"
+              description="Cada tarjeta conserva una lectura más limpia y deja la sinopsis completa para la ficha del libro, con un recorrido más claro en cualquier tamaño de pantalla."
+            />
+          </AnimatedContentSlot>
 
           <div className="content-grid mt-8 md:grid-cols-2 xl:grid-cols-3">
-            {books.map((book) => (
-              <BookCard
+            {books.map((book, index) => (
+              <AnimatedContentSlot
                 key={book.id}
-                book={book}
-                eyebrow="Catálogo disponible"
-                detailHref={buildBookDetailHref(book.id)}
-                inquiryHref={buildBookInfoHref(book.title, book.author)}
-                inquiryLabel="Más información"
-                compact
-              />
+                delay={1 + (index % 6) * 1.5}
+                distance={28}
+                className="h-full"
+              >
+                <BookCard
+                  book={book}
+                  eyebrow="Catálogo disponible"
+                  detailHref={buildBookDetailHref(book.id)}
+                  inquiryHref={buildBookInfoHref(book.title, book.author)}
+                  inquiryLabel="Más información"
+                  compact
+                />
+              </AnimatedContentSlot>
             ))}
           </div>
         </section>

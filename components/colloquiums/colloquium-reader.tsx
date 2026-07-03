@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { getParticipantRoleLabel } from "@/lib/colloquiums/schemas";
+import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import type {
   ColloquiumDetail,
   ColloquiumParticipantRecord,
@@ -207,7 +208,7 @@ export function ColloquiumReader({
       ) : null}
 
       <header className="hero-band colloquium-hero">
-        <div className="relative z-10">
+        <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="colloquium-meta">
             <span className="editorial-pill">
               <LockKeyhole className="h-4 w-4" />
@@ -253,102 +254,108 @@ export function ColloquiumReader({
               {colloquium.participants.length} participantes
             </span>
           </div>
-        </div>
+        </AnimatedContentSlot>
       </header>
 
       <section className="colloquium-card surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)_260px] lg:items-center">
-          <div className="book-cover-frame mx-auto max-w-[168px] lg:mx-0">
-            {colloquium.bookCoverImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={colloquium.bookCoverImageUrl}
-                alt={`Portada de ${colloquium.bookTitle}`}
-                className="book-cover-image"
-              />
-            ) : (
-              <div className="flex h-full min-h-[240px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
-                Portada no disponible
+        <AnimatedContentSlot delay={1} distance={24}>
+          <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)_260px] lg:items-center">
+            <div className="book-cover-frame mx-auto max-w-[168px] lg:mx-0">
+              {colloquium.bookCoverImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={colloquium.bookCoverImageUrl}
+                  alt={`Portada de ${colloquium.bookTitle}`}
+                  className="book-cover-image"
+                />
+              ) : (
+                <div className="flex h-full min-h-[240px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
+                  Portada no disponible
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-center py-1">
+              <p className="eyebrow">Libro de esta sesión</p>
+              <h2 className="section-title mt-3 text-[var(--text-primary)]">
+                {colloquium.bookTitle}
+              </h2>
+              <p className="meta-copy mt-3 inline-flex items-center gap-2">
+                <BookOpenText className="h-4 w-4" />
+                {colloquium.bookAuthor}
+              </p>
+              <p className="body-copy mt-4">
+                Esta sesión privada profundiza en los temas, reflexiones y
+                pasajes esenciales de la obra. Puedes acceder a su ficha
+                completa dentro del catálogo del club.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)] pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+              <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
+                Ficha bibliográfica disponible en el catálogo.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <Link
+                  href={`/library/${colloquium.bookId}`}
+                  className="btn-primary justify-center text-center"
+                >
+                  Abrir ficha del libro
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </Link>
+                <Link
+                  href="/library"
+                  className="btn-secondary justify-center text-center"
+                >
+                  Ver biblioteca
+                </Link>
               </div>
-            )}
-          </div>
-
-          <div className="flex flex-col justify-center py-1">
-            <p className="eyebrow">Libro de esta sesión</p>
-            <h2 className="section-title mt-3 text-[var(--text-primary)]">
-              {colloquium.bookTitle}
-            </h2>
-            <p className="meta-copy mt-3 inline-flex items-center gap-2">
-              <BookOpenText className="h-4 w-4" />
-              {colloquium.bookAuthor}
-            </p>
-            <p className="body-copy mt-4">
-              Esta sesión privada profundiza en los temas, reflexiones y pasajes
-              esenciales de la obra. Puedes acceder a su ficha completa dentro
-              del catálogo del club.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 border-t border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)] pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
-            <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
-              Ficha bibliográfica disponible en el catálogo.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <Link
-                href={`/library/${colloquium.bookId}`}
-                className="btn-primary justify-center text-center"
-              >
-                Abrir ficha del libro
-                <ArrowRight className="h-[18px] w-[18px]" />
-              </Link>
-              <Link
-                href="/library"
-                className="btn-secondary justify-center text-center"
-              >
-                Ver biblioteca
-              </Link>
             </div>
           </div>
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       <section className="surface-card-muted rounded-[14px] border border-[var(--border-default)] px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-start">
-          <div className="max-w-md space-y-3">
-            <p className="eyebrow">Participantes</p>
-            <h2 className="section-title text-[var(--text-primary)]">
-              Voces que conducen la lectura
-            </h2>
-            <p className="body-copy">
-              Anfitriones, ponentes e invitados que guían la conversación y
-              aportan sus notas, lecturas y reflexiones en audio a lo largo de
-              la sesión.
-            </p>
-          </div>
+        <AnimatedContentSlot delay={2} distance={24}>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-start">
+            <div className="max-w-md space-y-3">
+              <p className="eyebrow">Participantes</p>
+              <h2 className="section-title text-[var(--text-primary)]">
+                Voces que conducen la lectura
+              </h2>
+              <p className="body-copy">
+                Anfitriones, ponentes e invitados que guían la conversación y
+                aportan sus notas, lecturas y reflexiones en audio a lo largo de
+                la sesión.
+              </p>
+            </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            {renderParticipantGroup("Anfitriones", hosts)}
-            {renderParticipantGroup("Ponentes", presenters)}
-            {renderParticipantGroup("Invitados", guests)}
-            {renderParticipantGroup("Otros participantes", others)}
-            {colloquium.participants.length === 0 ? (
-              <div className="participant-group-card sm:col-span-2">
-                <p className="body-copy">
-                  Todavía no hay participantes visibles registrados para este
-                  coloquio.
-                </p>
-              </div>
-            ) : null}
+            <div className="grid gap-6 sm:grid-cols-2">
+              {renderParticipantGroup("Anfitriones", hosts)}
+              {renderParticipantGroup("Ponentes", presenters)}
+              {renderParticipantGroup("Invitados", guests)}
+              {renderParticipantGroup("Otros participantes", others)}
+              {colloquium.participants.length === 0 ? (
+                <div className="participant-group-card sm:col-span-2">
+                  <p className="body-copy">
+                    Todavía no hay participantes visibles registrados para este
+                    coloquio.
+                  </p>
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       {colloquium.presentationBlocks.length > 0 ? (
-        <article className="reader-prose w-full max-w-none gap-6 md:gap-7">
-          {colloquium.presentationBlocks.map((block) =>
-            renderPresentationBlock(block),
-          )}
-        </article>
+        <AnimatedContentSlot delay={3} distance={24}>
+          <article className="reader-prose w-full max-w-none gap-6 md:gap-7">
+            {colloquium.presentationBlocks.map((block) =>
+              renderPresentationBlock(block),
+            )}
+          </article>
+        </AnimatedContentSlot>
       ) : (
         <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <h2 className="subsection-title text-[var(--text-primary)]">

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 
+import { AppHeader } from "@/components/app-header";
 import { ColloquiumCard } from "@/components/colloquium-card";
 import { PageShell } from "@/components/page-shell";
+import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import { SectionHeading } from "@/components/section-heading";
-import { AppHeader } from "@/components/app-header";
 import { requireActiveMembership } from "@/lib/auth/session";
 import { getAvailableColloquiums } from "@/lib/colloquiums/data";
 
@@ -33,14 +34,14 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
       />
 
       <section className="hero-band">
-        <div className="relative z-10">
+        <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
             eyebrow="Área privada"
             title="Coloquios disponibles"
             description={`Bienvenido, ${session.profile.full_name}. Aquí puedes revisar los coloquios publicados para miembros activos y abrir cada lectura en detalle.`}
           />
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       {colloquiums.length === 0 ? (
@@ -56,28 +57,38 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
         </section>
       ) : (
         <section className="content-grid" aria-label="Coloquios publicados">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-            <div className="editorial-note">
-              <p className="eyebrow">Sala privada</p>
-              <p className="body-copy mt-2">
-                Abre cada coloquio con calma. El libro, la fecha y el extracto
-                inicial están pensados para orientarte antes de entrar a leer.
+          <AnimatedContentSlot delay={0.5} distance={20}>
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="editorial-note">
+                <p className="eyebrow">Sala privada</p>
+                <p className="body-copy mt-2">
+                  Abre cada coloquio con calma. El libro, la fecha y el extracto
+                  inicial están pensados para orientarte antes de entrar a leer.
+                </p>
+              </div>
+              <p className="editorial-pill lg:justify-self-end">
+                {colloquiums.length}{" "}
+                {colloquiums.length === 1
+                  ? "coloquio publicado"
+                  : "coloquios publicados"}
               </p>
             </div>
-            <p className="editorial-pill lg:justify-self-end">
-              {colloquiums.length}{" "}
-              {colloquiums.length === 1
-                ? "coloquio publicado"
-                : "coloquios publicados"}
-            </p>
-          </div>
+          </AnimatedContentSlot>
 
           <div className="grid gap-5">
             {leadColloquium ? (
-              <ColloquiumCard colloquium={leadColloquium} featured />
+              <AnimatedContentSlot delay={1} distance={28}>
+                <ColloquiumCard colloquium={leadColloquium} featured />
+              </AnimatedContentSlot>
             ) : null}
-            {remainingColloquiums.map((colloquium) => (
-              <ColloquiumCard key={colloquium.id} colloquium={colloquium} />
+            {remainingColloquiums.map((colloquium, index) => (
+              <AnimatedContentSlot
+                key={colloquium.id}
+                delay={1.5 + index * 1.5}
+                distance={28}
+              >
+                <ColloquiumCard colloquium={colloquium} />
+              </AnimatedContentSlot>
             ))}
           </div>
         </section>

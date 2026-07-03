@@ -10,6 +10,7 @@ import {
 
 import { AppHeader } from "@/components/app-header";
 import { PageShell } from "@/components/page-shell";
+import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import { SectionHeading } from "@/components/section-heading";
 import { StatusBanner } from "@/components/status-banner";
 import { getAuthSession } from "@/lib/auth/session";
@@ -98,7 +99,11 @@ export default async function LibraryBookDetailPage({
       />
 
       <section className="hero-band">
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
+        <AnimatedContentSlot
+          delay={0}
+          distance={20}
+          className="relative z-10 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center"
+        >
           <div className="book-cover-frame max-w-[220px]">
             {book.coverImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -168,76 +173,80 @@ export default async function LibraryBookDetailPage({
               )}
             </div>
           </div>
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       <div className="flex flex-col gap-6">
         <article className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-          <SectionHeading
-            eyebrow="Sinopsis completa"
-            title={`Sobre ${book.title}`}
-          />
+          <AnimatedContentSlot delay={1} distance={24}>
+            <SectionHeading
+              eyebrow="Sinopsis completa"
+              title={`Sobre ${book.title}`}
+            />
 
-          <div className="reader-prose mx-0 mt-8 max-w-none">
-            {renderSynopsis(book.synopsis)}
-          </div>
+            <div className="reader-prose mx-0 mt-8 max-w-none">
+              {renderSynopsis(book.synopsis)}
+            </div>
+          </AnimatedContentSlot>
         </article>
 
         <aside className="editorial-note-strong px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div className="space-y-6">
-              <div>
-                <p className="eyebrow">Siguiente paso</p>
-                <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
-                  Si este libro te despierta curiosidad, ya tienes por dónde
-                  entrar
-                </h2>
-                <p className="body-copy mt-4">
-                  {session
-                    ? "Puedes consultarnos por este título, entrar directamente a tu área privada de coloquios o volver al catálogo para seguir explorando lecturas con tranquilidad."
-                    : "Puedes consultarnos por este título, preguntar por la membresía anual o volver al catálogo para seguir comparando lecturas con tranquilidad."}
-                </p>
+          <AnimatedContentSlot delay={2} distance={24}>
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center xl:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="space-y-6">
+                <div>
+                  <p className="eyebrow">Siguiente paso</p>
+                  <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
+                    Si este libro te despierta curiosidad, ya tienes por dónde
+                    entrar
+                  </h2>
+                  <p className="body-copy mt-4">
+                    {session
+                      ? "Puedes consultarnos por este título, entrar directamente a tu área privada de coloquios o volver al catálogo para seguir explorando lecturas con tranquilidad."
+                      : "Puedes consultarnos por este título, preguntar por la membresía anual o volver al catálogo para seguir comparando lecturas con tranquilidad."}
+                  </p>
+                </div>
+
+                <StatusBanner
+                  title={
+                    book.publishedColloquiumCount > 0
+                      ? "Libro ya presente en la conversación del club"
+                      : "Libro disponible para consulta directa"
+                  }
+                >
+                  {book.publishedColloquiumCount > 0
+                    ? `Este título ya forma parte de ${linkedColloquiumLabel}. El acceso a esos coloquios sigue siendo privado para miembros activos.`
+                    : "Todavía no aparece vinculado a un coloquio publicado, pero puedes consultarnos por él con total calma."}
+                </StatusBanner>
               </div>
 
-              <StatusBanner
-                title={
-                  book.publishedColloquiumCount > 0
-                    ? "Libro ya presente en la conversación del club"
-                    : "Libro disponible para consulta directa"
-                }
-              >
-                {book.publishedColloquiumCount > 0
-                  ? `Este título ya forma parte de ${linkedColloquiumLabel}. El acceso a esos coloquios sigue siendo privado para miembros activos.`
-                  : "Todavía no aparece vinculado a un coloquio publicado, pero puedes consultarnos por él con total calma."}
-              </StatusBanner>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:self-center">
-              <a
-                href={inquiryHref}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-primary justify-center text-center"
-              >
-                Consultar por este libro
-                <ArrowRight className="h-[18px] w-[18px]" />
-              </a>
-              <Link
-                href="/library"
-                className="btn-secondary justify-center text-center"
-              >
-                Volver a la biblioteca
-              </Link>
-              {session ? (
-                <Link
-                  href="/colloquiums"
-                  className="editorial-link justify-center pt-1 text-center"
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:self-center">
+                <a
+                  href={inquiryHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-primary justify-center text-center"
                 >
-                  Ir a los coloquios
+                  Consultar por este libro
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </a>
+                <Link
+                  href="/library"
+                  className="btn-secondary justify-center text-center"
+                >
+                  Volver a la biblioteca
                 </Link>
-              ) : null}
+                {session ? (
+                  <Link
+                    href="/colloquiums"
+                    className="editorial-link justify-center pt-1 text-center"
+                  >
+                    Ir a los coloquios
+                  </Link>
+                ) : null}
+              </div>
             </div>
-          </div>
+          </AnimatedContentSlot>
         </aside>
       </div>
     </PageShell>

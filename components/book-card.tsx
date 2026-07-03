@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+import { SpotlightCardSlot } from "@/components/react-bits/spotlight-card-slot";
 import type { PublicBook } from "@/lib/books/data";
 
 type BookCardProps = {
@@ -21,7 +22,7 @@ export function BookCard({
   compact = false,
 }: BookCardProps) {
   return (
-    <article className="book-card surface-card lift-on-hover flex h-full flex-col p-5 md:p-6">
+    <SpotlightCardSlot className="book-card surface-card lift-on-hover flex h-full flex-col !p-5 md:!p-6">
       <div className="book-card-header min-w-0">
         <p className="eyebrow">{eyebrow}</p>
         <h3
@@ -87,6 +88,6 @@ export function BookCard({
           </div>
         </div>
       </div>
-    </article>
+    </SpotlightCardSlot>
   );
 }

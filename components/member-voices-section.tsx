@@ -5,7 +5,6 @@ import {
   type MemberVoice,
 } from "@/components/member-voices-carousel";
 import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
-import { MagneticSlot } from "@/components/react-bits/magnetic-slot";
 import { SectionHeading } from "@/components/section-heading";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
@@ -60,24 +59,23 @@ function getMembershipHref() {
 
 export function MemberVoicesSection() {
   return (
-    <AnimatedContentSlot
-      as="section"
-      className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10"
-    >
-      <SectionHeading
-        eyebrow="Voces del club"
-        title="Una experiencia de lectura que se siente cercana desde dentro"
-        description="Estas voces muestran cómo se vive Café Lectura desde dentro: una navegación legible, una biblioteca clara y coloquios privados preparados para leer con calma."
-      />
+    <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
+      <AnimatedContentSlot delay={0} distance={20}>
+        <SectionHeading
+          eyebrow="Voces del club"
+          title="Una experiencia de lectura que se siente cercana desde dentro"
+          description="Estas voces muestran cómo se vive Café Lectura desde dentro: una navegación legible, una biblioteca clara y coloquios privados preparados para leer con calma."
+        />
+      </AnimatedContentSlot>
 
-      <AnimatedContentSlot as="div" className="mt-8" delay={1}>
+      <AnimatedContentSlot className="mt-8" delay={1.5} distance={24}>
         <MemberVoicesCarousel voices={memberVoices} />
       </AnimatedContentSlot>
 
       <AnimatedContentSlot
-        as="div"
         className="surface-card-muted mt-8 flex flex-col gap-5 px-5 py-5 md:px-6 md:py-6 lg:flex-row lg:items-center lg:justify-between"
-        delay={2}
+        delay={3}
+        distance={24}
       >
         <div className="max-w-3xl">
           <p className="eyebrow">Conocer el club</p>
@@ -88,18 +86,16 @@ export function MemberVoicesSection() {
           </p>
         </div>
 
-        <MagneticSlot className="w-full sm:w-auto">
-          <a
-            href={getMembershipHref()}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-warm w-full sm:w-auto"
-          >
-            Consultar membresía
-            <ArrowRight className="h-[18px] w-[18px]" />
-          </a>
-        </MagneticSlot>
+        <a
+          href={getMembershipHref()}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-warm w-full sm:w-auto"
+        >
+          Consultar membresía
+          <ArrowRight className="h-[18px] w-[18px]" />
+        </a>
       </AnimatedContentSlot>
-    </AnimatedContentSlot>
+    </section>
   );
 }

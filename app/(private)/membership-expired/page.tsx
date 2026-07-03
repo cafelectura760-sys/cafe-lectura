@@ -14,13 +14,14 @@ type MembershipExpiredPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Membresia vencida",
-  description: "Expired membership guidance for Cafe Lectura members.",
+  title: "Membresía vencida",
+  description:
+    "Orientación para miembros con membresía vencida en Café Lectura.",
 };
 
 export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
   const whatsappHref = createWhatsAppHref(
-    "Necesito ayuda para renovar mi membresia de Cafe Lectura.",
+    "Necesito ayuda para renovar mi membresía de Café Lectura.",
   );
 
   return (
@@ -29,15 +30,16 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
         items={[
           { href: "/", label: "Inicio" },
           { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Acceso" },
+          { href: "/login", label: "Iniciar sesión" },
         ]}
-        description="Orientacion para renovar la membresia y recuperar el acceso privado."
+        activeHref="/login"
+        description="Orientación para renovar la membresía y recuperar el acceso privado."
       />
 
       <GatePanel
-        eyebrow="Membresia"
-        title="Tu acceso necesita renovacion"
-        description="Tu sesion esta activa, pero la membresia registrada ya no permite entrar a los coloquios privados."
+        eyebrow="Membresía"
+        title="Tu acceso necesita renovación"
+        description="Tu sesión está activa, pero la membresía registrada ya no permite entrar a los coloquios privados."
         footer={
           <Link href="/" className="editorial-link">
             Volver al inicio
@@ -45,11 +47,11 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
         }
       >
         <StatusBanner tone="warning">
-          Escribenos por WhatsApp y te ayudamos a renovar tu membresia de forma
+          Escríbenos por WhatsApp y te ayudamos a renovar tu membresía de forma
           directa y cercana.
         </StatusBanner>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
             href={whatsappHref}
             target="_blank"
@@ -61,7 +63,7 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
 
           <form action={logoutAction}>
             <button type="submit" className="btn-secondary w-full sm:w-auto">
-              Cerrar sesion
+              Cerrar sesión
             </button>
           </form>
         </div>

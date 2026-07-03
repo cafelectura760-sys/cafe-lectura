@@ -6,11 +6,19 @@ import { redirect } from "next/navigation";
 import {
   AdminBookActionError,
   createAdminBook,
+  deleteAdminBook,
   updateAdminBook,
+  updateAdminBookStatus,
 } from "@/lib/admin/book-management";
 
-function redirectToAdmin(key: "status" | "error", value: string): never {
-  redirect(`/admin?${key}=${encodeURIComponent(value)}`);
+function redirectWithFeedback(
+  path: string,
+  key: "status" | "error",
+  value: string,
+): never {
+  const url = new URL(path, "http://localhost");
+  url.searchParams.set(key, value);
+  redirect(`${url.pathname}${url.search}`);
 }
 
 function getStringEntry(
@@ -18,21 +26,46 @@ function getStringEntry(
   fallbackErrorCode: string,
 ): string {
   if (typeof value !== "string") {
-    redirectToAdmin("error", fallbackErrorCode);
+    redirectWithFeedback("/admin/books", "error", fallbackErrorCode);
   }
 
   return value;
 }
 
-function handleBookActionError(error: unknown): never {
+function normalizeRedirectPath(value: FormDataEntryValue | null): string {
+  if (typeof value !== "string" || !value.startsWith("/")) {
+    return "/admin/books";
+  }
+
+  return value;
+}
+
+function normalizeOptionalRedirectPath(
+  value: FormDataEntryValue | null,
+  fallbackPath: string,
+): string {
+  if (typeof value !== "string" || !value.startsWith("/")) {
+    return fallbackPath;
+  }
+
+  return value;
+}
+
+function handleBookActionError(error: unknown, path: string): never {
   if (error instanceof AdminBookActionError) {
-    redirectToAdmin("error", error.code);
+    redirectWithFeedback(path, "error", error.code);
   }
 
   throw error;
 }
 
 export async function createBookAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+  const successRedirectPath = normalizeOptionalRedirectPath(
+    formData.get("success_redirect_to"),
+    redirectPath,
+  );
+
   try {
     await createAdminBook({
       title: getStringEntry(formData.get("title"), "invalid-book-title"),
@@ -47,17 +80,21 @@ export async function createBookAction(formData: FormData) {
       ),
     });
   } catch (error) {
-    handleBookActionError(error);
+    handleBookActionError(error, redirectPath);
   }
 
   revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
   revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/colloquiums");
-  redirectToAdmin("status", "book-created");
+  redirectWithFeedback(successRedirectPath, "status", "book-created");
 }
 
 export async function updateBookAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
   try {
     await updateAdminBook({
       bookId: getStringEntry(formData.get("book_id"), "book-not-found"),
@@ -73,12 +110,54 @@ export async function updateBookAction(formData: FormData) {
       ),
     });
   } catch (error) {
-    handleBookActionError(error);
+    handleBookActionError(error, redirectPath);
   }
 
   revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
   revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/colloquiums");
-  redirectToAdmin("status", "book-updated");
+  redirectWithFeedback(redirectPath, "status", "book-updated");
+}
+
+export async function updateBookStatusAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
+  try {
+    await updateAdminBookStatus({
+      bookId: getStringEntry(formData.get("book_id"), "book-not-found"),
+      status: getStringEntry(formData.get("status"), "invalid-book-status"),
+    });
+  } catch (error) {
+    handleBookActionError(error, redirectPath);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
+  revalidatePath("/");
+  revalidatePath("/library");
+  revalidatePath("/colloquiums");
+  redirectWithFeedback(redirectPath, "status", "book-status-updated");
+}
+
+export async function deleteBookAction(formData: FormData) {
+  const redirectPath = normalizeRedirectPath(formData.get("redirect_to"));
+
+  try {
+    await deleteAdminBook(
+      getStringEntry(formData.get("book_id"), "book-not-found"),
+    );
+  } catch (error) {
+    handleBookActionError(error, redirectPath);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/books");
+  revalidatePath("/admin/colloquiums");
+  revalidatePath("/");
+  revalidatePath("/library");
+  redirectWithFeedback(redirectPath, "status", "book-deleted");
 }

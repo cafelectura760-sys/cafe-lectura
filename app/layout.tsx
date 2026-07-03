@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Literata, Source_Sans_3 } from "next/font/google";
 
+import { NavigationScrollReset } from "@/components/navigation-scroll-reset";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -15,10 +16,10 @@ const literata = Literata({
 
 export const metadata: Metadata = {
   title: {
-    default: "Cafe Lectura",
-    template: "%s | Cafe Lectura",
+    default: "Café Lectura",
+    template: "%s | Café Lectura",
   },
-  description: "Plataforma privada para el club de lectura Cafe Lectura.",
+  description: "Plataforma privada del club de lectura Café Lectura.",
   icons: {
     icon: "/cafe-lectura-logo.svg",
   },
@@ -34,7 +35,10 @@ export default function RootLayout({
       lang="es"
       className={`${sourceSans.variable} ${literata.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        <NavigationScrollReset />
+        {children}
+      </body>
     </html>
   );
 }

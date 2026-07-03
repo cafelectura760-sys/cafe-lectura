@@ -2,59 +2,51 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpenText } from "lucide-react";
 
+import { AppHeader } from "@/components/app-header";
 import { BookCard } from "@/components/book-card";
 import { PageShell } from "@/components/page-shell";
+import { AnimatedContentSlot } from "@/components/react-bits/animated-content-slot";
 import { SectionHeading } from "@/components/section-heading";
-import { SiteHeader } from "@/components/site-header";
-import { StatusBanner } from "@/components/status-banner";
+import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Biblioteca",
-  description: "Public library catalog for Cafe Lectura.",
+  description: "Catálogo público de libros de Café Lectura.",
 };
 
-function buildBookRequestHref(title: string, author: string) {
+function buildBookInfoHref(title: string, author: string) {
   return createWhatsAppHref(
-    `Me interesa solicitar el libro "${title}" de ${author}.`,
+    `Quiero más información sobre "${title}" de ${author}.`,
   );
 }
 
+function buildBookDetailHref(bookId: string) {
+  return `/library/${bookId}`;
+}
+
 export default async function LibraryPage() {
-  const books = await getPublicBooks();
+  const [session, books] = await Promise.all([
+    getAuthSession(),
+    getPublicBooks(),
+  ]);
 
   return (
     <PageShell>
-      <SiteHeader
-        items={[
-          { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
-          { href: "/login", label: "Iniciar sesion" },
-        ]}
+      <AppHeader
         activeHref="/library"
-        description="Catalogo publico de libros disponibles para consultar y solicitar por WhatsApp."
-        actions={
-          <a
-            href={createWhatsAppHref(
-              "Quiero recibir orientacion sobre un libro disponible en la biblioteca de Cafe Lectura.",
-            )}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-warm"
-          >
-            Consultar por WhatsApp
-          </a>
-        }
+        session={session}
+        description="Catálogo público de libros disponibles para explorar con calma."
       />
 
       <section className="hero-band">
-        <div className="relative z-10">
+        <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
-            eyebrow="Biblioteca publica"
-            title="Libros para descubrir, leer con interes y solicitar con facilidad"
-            description="Esta biblioteca muestra los titulos disponibles en Cafe Lectura. Puedes recorrer el catalogo con calma y escribirnos por WhatsApp para pedir informacion o solicitar un libro en particular."
+            eyebrow="Biblioteca pública"
+            title="Libros para descubrir y conocer con calma"
+            description="Esta biblioteca muestra los títulos disponibles en Café Lectura. Puedes recorrer el catálogo con calma y escribirnos si quieres saber más sobre algún libro."
             titleClassName="display-title"
             action={
               <Link href="/" className="editorial-link">
@@ -62,25 +54,7 @@ export default async function LibraryPage() {
               </Link>
             }
           />
-
-          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="surface-card-muted px-5 py-5 md:px-6">
-              <h2 className="text-[22px] font-semibold text-[var(--text-primary)]">
-                Una biblioteca para recorrer sin prisa
-              </h2>
-              <p className="body-copy mt-3">
-                Los titulos se presentan con portada, autor y sinopsis para que
-                la consulta sea simple y directa. La solicitud siempre termina
-                en un contacto humano por WhatsApp.
-              </p>
-            </div>
-            <StatusBanner title="Sin descargas ni pasos confusos">
-              El catalogo es solo de consulta. Si un libro te interesa, la
-              accion principal te lleva directamente al canal de contacto del
-              club.
-            </StatusBanner>
-          </div>
-        </div>
+        </AnimatedContentSlot>
       </section>
 
       {books.length === 0 ? (
@@ -90,26 +64,44 @@ export default async function LibraryPage() {
               <BookOpenText className="h-5 w-5" />
             </div>
             <h2 className="subsection-title mt-5 text-[var(--text-primary)]">
-              Biblioteca en preparacion
+              Biblioteca en preparación
             </h2>
             <p className="body-large mt-4">
-              Todavia no hay libros publicados en el catalogo. En cuanto el
-              equipo cargue nuevos titulos desde el panel admin, apareceran
-              aqui.
+              Todavía no hay libros publicados en el catálogo. En cuanto el
+              equipo cargue nuevos títulos desde el panel de administración,
+              aparecerán aquí.
             </p>
           </div>
         </section>
       ) : (
-        <section className="content-grid md:grid-cols-2 xl:grid-cols-3">
-          {books.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              eyebrow="Catalogo disponible"
-              actionHref={buildBookRequestHref(book.title, book.author)}
-              actionLabel="Solicitar por WhatsApp"
+        <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
+          <AnimatedContentSlot delay={0} distance={20}>
+            <SectionHeading
+              eyebrow="Catálogo disponible"
+              title="Una biblioteca visible para explorar con calma"
+              description="Cada tarjeta conserva una lectura más limpia y deja la sinopsis completa para la ficha del libro, con un recorrido más claro en cualquier tamaño de pantalla."
             />
-          ))}
+          </AnimatedContentSlot>
+
+          <div className="content-grid mt-8 md:grid-cols-2 xl:grid-cols-3">
+            {books.map((book, index) => (
+              <AnimatedContentSlot
+                key={book.id}
+                delay={1 + (index % 6) * 1.5}
+                distance={28}
+                className="h-full"
+              >
+                <BookCard
+                  book={book}
+                  eyebrow="Catálogo disponible"
+                  detailHref={buildBookDetailHref(book.id)}
+                  inquiryHref={buildBookInfoHref(book.title, book.author)}
+                  inquiryLabel="Más información"
+                  compact
+                />
+              </AnimatedContentSlot>
+            ))}
+          </div>
         </section>
       )}
     </PageShell>

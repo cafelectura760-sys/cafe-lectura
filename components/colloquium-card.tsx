@@ -1,25 +1,13 @@
 import Link from "next/link";
+import { ArrowRight, BookOpenText, CalendarDays } from "lucide-react";
 
-import type { ColloquiumSummary } from "@/lib/colloquiums/data";
+import type { ColloquiumSummary } from "@/lib/colloquiums/types";
+import { cn } from "@/lib/utils";
 
 type ColloquiumCardProps = {
   colloquium: ColloquiumSummary;
+  featured?: boolean;
 };
-
-function getExcerpt(content: string): string {
-  const normalizedContent = content
-    .replace(/\r\n?/g, "\n")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^[-*]\s+/gm, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (normalizedContent.length <= 220) {
-    return normalizedContent;
-  }
-
-  return `${normalizedContent.slice(0, 217).trim()}...`;
-}
 
 function formatDateLabel(isoDate: string): string {
   return new Intl.DateTimeFormat("es-VE", {
@@ -27,17 +15,37 @@ function formatDateLabel(isoDate: string): string {
   }).format(new Date(isoDate));
 }
 
-export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
+export function ColloquiumCard({
+  colloquium,
+  featured = false,
+}: ColloquiumCardProps) {
   return (
-    <article className="surface-card lift-on-hover overflow-hidden p-4 md:p-5">
-      <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)]">
-        <div className="book-cover-frame max-w-[168px]">
+    <article
+      className={cn(
+        "colloquium-card surface-card lift-on-hover overflow-hidden p-5 md:p-6",
+        featured && "colloquium-card-featured",
+      )}
+    >
+      <div
+        className={cn(
+          "grid gap-6 lg:items-center",
+          featured
+            ? "xl:grid-cols-[188px_minmax(0,1fr)_260px]"
+            : "lg:grid-cols-[168px_minmax(0,1fr)_240px]",
+        )}
+      >
+        <div
+          className={cn(
+            "book-cover-frame mx-auto lg:mx-0",
+            featured ? "max-w-[188px]" : "max-w-[168px]",
+          )}
+        >
           {colloquium.bookCoverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={colloquium.bookCoverImageUrl}
               alt={`Portada de ${colloquium.bookTitle}`}
-              className="h-full w-full object-cover"
+              className="book-cover-image"
             />
           ) : (
             <div className="flex h-full min-h-[240px] items-center justify-center px-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
@@ -46,27 +54,57 @@ export function ColloquiumCard({ colloquium }: ColloquiumCardProps) {
           )}
         </div>
 
-        <div className="flex flex-col justify-between gap-5 py-2">
-          <div>
-            <p className="eyebrow">{colloquium.bookTitle}</p>
-            <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
-              {colloquium.title}
-            </h2>
-            <p className="meta-copy mt-3">
-              {colloquium.bookAuthor} - Publicado el{" "}
-              {formatDateLabel(colloquium.publishedAt)}
-            </p>
-            <p className="body-copy mt-4">{getExcerpt(colloquium.content)}</p>
+        <div className="flex flex-col justify-center py-1">
+          <div className="colloquium-meta">
+            <span className="editorial-pill">Área privada</span>
+            <span className="editorial-pill">
+              <CalendarDays className="h-4 w-4" />
+              Publicado el{" "}
+              {formatDateLabel(
+                colloquium.publishedAt ?? new Date().toISOString(),
+              )}
+            </span>
           </div>
+          <p className="eyebrow mt-4">{colloquium.bookTitle}</p>
+          <h2
+            className={cn(
+              "mt-3 text-[var(--text-primary)]",
+              featured ? "section-title" : "subsection-title",
+            )}
+          >
+            {colloquium.title}
+          </h2>
+          <p className="meta-copy mt-3 inline-flex items-center gap-2">
+            <BookOpenText className="h-4 w-4" />
+            {colloquium.bookAuthor}
+          </p>
+          <p className="body-copy mt-4">
+            {colloquium.excerpt ??
+              "Este coloquio ya está disponible para lectura privada."}
+          </p>
+        </div>
 
-          <div className="flex flex-wrap gap-3">
+        <div
+          className={cn(
+            "flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6",
+            "border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)]",
+          )}
+        >
+          <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
+            Lectura privada preparada para miembros activos.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
             <Link
-              href={`/colloquiums/${colloquium.id}`}
-              className="btn-primary"
+              href={`/colloquiums/${colloquium.slug}`}
+              className="btn-primary justify-center text-center"
             >
               Abrir coloquio
+              <ArrowRight className="h-[18px] w-[18px]" />
             </Link>
-            <Link href="/library" className="btn-ghost">
+            <Link
+              href="/library"
+              className="btn-secondary justify-center text-center"
+            >
               Ver biblioteca
             </Link>
           </div>

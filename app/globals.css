@@ -625,6 +625,342 @@ select {
     font-variant-numeric: tabular-nums;
   }
 
+  .testimonial-quote {
+    @apply text-[28px] leading-[1.32] font-semibold md:text-[34px];
+    font-family: var(--font-serif);
+    text-wrap: pretty;
+  }
+
+  .testimonial-carousel-shell {
+    @apply rounded-[18px] border p-4 md:p-5 lg:p-6;
+    border-color: color-mix(in srgb, var(--color-casa) 20%, white);
+    background:
+      radial-gradient(
+        circle at top right,
+        color-mix(in srgb, var(--color-gold) 10%, white) 0%,
+        transparent 24%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 98%, white) 0%,
+        color-mix(in srgb, var(--surface-subtle) 82%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      0 24px 52px rgba(31, 26, 23, 0.08);
+  }
+
+  .testimonial-carousel-topbar {
+    @apply flex flex-col gap-4 border-b px-1 pb-5 md:flex-row md:items-end md:justify-between;
+    border-color: color-mix(in srgb, var(--color-clay) 18%, white);
+  }
+
+  .testimonial-carousel-status {
+    @apply flex flex-wrap items-center gap-2 md:justify-end;
+  }
+
+  .testimonial-carousel-track {
+    @apply flex;
+  }
+
+  .testimonial-carousel-slide {
+    @apply min-w-0 flex-[0_0_100%] pt-6;
+  }
+
+  .testimonial-slide-card {
+    @apply rounded-[18px] border px-6 py-6 transition-all duration-300 md:px-8 md:py-8 lg:px-10 lg:py-9;
+    border-color: color-mix(in srgb, var(--color-clay) 22%, white);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-gold) 10%, white) 0%,
+        transparent 26%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 99%, white) 0%,
+        color-mix(in srgb, var(--color-paper-soft) 78%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      0 20px 42px rgba(31, 26, 23, 0.07);
+  }
+
+  .testimonial-slide-card[data-tone="dune"] {
+    border-color: color-mix(in srgb, var(--color-dune) 30%, white);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-dune) 12%, white) 0%,
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 99%, white) 0%,
+        color-mix(in srgb, var(--color-error-bg) 50%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 20px 42px rgba(160, 80, 53, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="verde"] {
+    border-color: color-mix(in srgb, var(--color-verde) 32%, white);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-verde) 12%, white) 0%,
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 99%, white) 0%,
+        color-mix(in srgb, var(--color-success-bg) 60%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 20px 42px rgba(115, 123, 76, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="teal"] {
+    border-color: color-mix(in srgb, var(--color-teal) 32%, white);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-teal) 12%, white) 0%,
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 99%, white) 0%,
+        color-mix(in srgb, var(--color-teal) 8%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 20px 42px rgba(63, 111, 112, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="casa"] {
+    border-color: color-mix(in srgb, var(--color-casa) 30%, white);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--color-gold) 14%, white) 0%,
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-default) 99%, white) 0%,
+        color-mix(in srgb, var(--color-warning-bg) 60%, white) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 20px 42px rgba(124, 86, 61, 0.08);
+  }
+
+  .testimonial-avatar {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors duration-300;
+    background: color-mix(in srgb, var(--surface-default) 82%, white);
+    color: var(--color-casa);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-clay) 26%, white),
+      0 10px 20px rgba(31, 26, 23, 0.06);
+  }
+
+  .testimonial-slide-card[data-tone="dune"] .testimonial-avatar {
+    background: color-mix(in srgb, var(--color-dune) 14%, white);
+    color: var(--color-dune-active);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-dune) 28%, white),
+      0 12px 24px rgba(160, 80, 53, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="verde"] .testimonial-avatar {
+    background: color-mix(in srgb, var(--color-verde) 14%, white);
+    color: var(--color-verde-active);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-verde) 28%, white),
+      0 12px 24px rgba(115, 123, 76, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="teal"] .testimonial-avatar {
+    background: color-mix(in srgb, var(--color-teal) 14%, white);
+    color: var(--color-teal);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-teal) 28%, white),
+      0 12px 24px rgba(63, 111, 112, 0.08);
+  }
+
+  .testimonial-slide-card[data-tone="casa"] .testimonial-avatar {
+    background: color-mix(in srgb, var(--color-gold) 18%, white);
+    color: var(--color-casa);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-casa) 28%, white),
+      0 12px 24px rgba(124, 86, 61, 0.08);
+  }
+
+  .testimonial-badge-primary {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3.5 py-1 text-[13px] font-semibold tracking-wide uppercase transition-colors duration-300;
+    border-color: color-mix(in srgb, var(--color-clay) 24%, white);
+    background: color-mix(in srgb, var(--surface-default) 86%, white);
+    color: var(--color-casa);
+  }
+
+  .testimonial-slide-card[data-tone="dune"] .testimonial-badge-primary {
+    border-color: color-mix(in srgb, var(--color-dune) 28%, white);
+    background: color-mix(in srgb, var(--color-dune) 12%, white);
+    color: var(--color-dune-active);
+  }
+
+  .testimonial-slide-card[data-tone="verde"] .testimonial-badge-primary {
+    border-color: color-mix(in srgb, var(--color-verde) 28%, white);
+    background: color-mix(in srgb, var(--color-verde) 12%, white);
+    color: var(--color-verde-active);
+  }
+
+  .testimonial-slide-card[data-tone="teal"] .testimonial-badge-primary {
+    border-color: color-mix(in srgb, var(--color-teal) 28%, white);
+    background: color-mix(in srgb, var(--color-teal) 12%, white);
+    color: var(--color-teal);
+  }
+
+  .testimonial-slide-card[data-tone="casa"] .testimonial-badge-primary {
+    border-color: color-mix(in srgb, var(--color-casa) 28%, white);
+    background: color-mix(in srgb, var(--color-gold) 16%, white);
+    color: var(--color-casa);
+  }
+
+  .testimonial-badge-secondary {
+    @apply inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3.5 py-1 text-[13px] font-medium transition-colors duration-300;
+    border-color: color-mix(in srgb, var(--color-line) 80%, white);
+    background: color-mix(in srgb, var(--surface-default) 70%, white);
+    color: var(--text-secondary);
+  }
+
+  .testimonial-person-name {
+    @apply text-[20px] leading-[1.35] font-semibold md:text-[22px];
+    color: var(--text-primary);
+  }
+
+  .testimonial-person-role {
+    @apply text-[15px] leading-6 font-medium md:text-[16px];
+    color: var(--color-casa);
+  }
+
+  .testimonial-person-chip {
+    @apply inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[14px] font-semibold;
+    border-color: color-mix(in srgb, var(--color-casa) 18%, white);
+    background: color-mix(in srgb, var(--surface-default) 84%, white);
+    color: var(--text-secondary);
+    box-shadow: 0 10px 22px rgba(31, 26, 23, 0.05);
+  }
+
+  .testimonial-carousel-controls {
+    @apply mt-5 flex flex-col gap-4 border-t pt-5 md:flex-row md:items-center md:justify-between;
+    border-color: color-mix(in srgb, var(--color-clay) 18%, white);
+  }
+
+  .testimonial-dots {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .testimonial-dot {
+    @apply h-3.5 w-3.5 rounded-full border transition-all duration-200;
+    border-color: color-mix(in srgb, var(--color-casa) 24%, white);
+    background: color-mix(in srgb, var(--surface-default) 72%, white);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  }
+
+  .testimonial-dot-active {
+    width: 40px;
+    border-color: color-mix(in srgb, var(--color-dune) 42%, white);
+    background: linear-gradient(
+      90deg,
+      var(--color-dune),
+      color-mix(in srgb, var(--color-gold) 82%, white)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 8px 18px rgba(124, 86, 61, 0.18);
+  }
+
+  .testimonial-carousel-controls[data-tone="dune"] .testimonial-dot-active {
+    border-color: color-mix(in srgb, var(--color-dune) 45%, white);
+    background: linear-gradient(
+      90deg,
+      var(--color-dune),
+      color-mix(in srgb, var(--color-gold) 80%, white)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 8px 18px rgba(160, 80, 53, 0.2);
+  }
+
+  .testimonial-carousel-controls[data-tone="verde"] .testimonial-dot-active {
+    border-color: color-mix(in srgb, var(--color-verde) 45%, white);
+    background: linear-gradient(
+      90deg,
+      var(--color-verde),
+      color-mix(in srgb, var(--color-verde-hover) 75%, white)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 8px 18px rgba(115, 123, 76, 0.2);
+  }
+
+  .testimonial-carousel-controls[data-tone="teal"] .testimonial-dot-active {
+    border-color: color-mix(in srgb, var(--color-teal) 45%, white);
+    background: linear-gradient(
+      90deg,
+      var(--color-teal),
+      color-mix(in srgb, var(--color-teal) 70%, white)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 8px 18px rgba(63, 111, 112, 0.2);
+  }
+
+  .testimonial-carousel-controls[data-tone="casa"] .testimonial-dot-active {
+    border-color: color-mix(in srgb, var(--color-casa) 45%, white);
+    background: linear-gradient(
+      90deg,
+      var(--color-casa),
+      color-mix(in srgb, var(--color-gold) 80%, white)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 8px 18px rgba(124, 86, 61, 0.2);
+  }
+
+  .testimonial-control-button {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 py-2 text-[15px] font-semibold;
+    border-color: color-mix(in srgb, var(--color-casa) 18%, white);
+    background: color-mix(in srgb, var(--surface-default) 84%, white);
+    color: var(--text-primary);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.74),
+      0 10px 22px rgba(31, 26, 23, 0.05);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .testimonial-control-button:hover {
+    background: color-mix(in srgb, var(--surface-subtle) 82%, white);
+    border-color: color-mix(in srgb, var(--color-dune) 24%, white);
+    box-shadow: 0 14px 28px rgba(31, 26, 23, 0.08);
+  }
+
+  .testimonial-control-button:active {
+    transform: scale(0.97);
+  }
+
+  .testimonial-control-button-wide {
+    @apply min-w-[144px] justify-center;
+  }
+
   .book-cover-frame {
     @apply aspect-[4/5] overflow-hidden rounded-[10px] border;
     border-color: color-mix(in srgb, var(--color-clay) 28%, white);

@@ -2,7 +2,7 @@ import { PageShell } from "@/components/page-shell";
 
 export default function ColloquiumsLoading() {
   return (
-    <PageShell width="regular">
+    <PageShell>
       <section className="site-header">
         <div className="flex flex-1 flex-col gap-4">
           <div className="skeleton-block h-12 w-56 rounded-full" />
@@ -15,7 +15,7 @@ export default function ColloquiumsLoading() {
         <div className="skeleton-block h-24 w-full max-w-[320px] rounded-[24px]" />
       </section>
 
-      <section className="surface-card px-6 py-7 md:px-8 md:py-8">
+      <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
         <div className="skeleton-block h-4 w-32 rounded-full" />
         <div className="skeleton-block mt-4 h-12 w-80 rounded-[20px]" />
         <div className="skeleton-block mt-4 h-20 max-w-3xl rounded-[24px]" />

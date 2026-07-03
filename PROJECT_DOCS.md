@@ -874,7 +874,8 @@ Usage rules:
 
 - landing: `wide` or `default`
 - library: `wide`
-- colloquium list: `default`
+- colloquium list: `wide`
+- colloquium detail shell: `wide`
 - colloquium detail body: `reading`
 - login and membership-expired: `auth`
 

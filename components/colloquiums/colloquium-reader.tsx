@@ -32,10 +32,6 @@ function formatDateLabel(isoDate: string | null): string {
   }).format(new Date(isoDate));
 }
 
-function formatBlockNumber(index: number): string {
-  return index.toString().padStart(2, "0");
-}
-
 function renderPlainText(content: string) {
   const blocks = content
     .replace(/\r\n?/g, "\n")
@@ -48,7 +44,7 @@ function renderPlainText(content: string) {
       {blocks.map((block, index) => (
         <p
           key={`${block.slice(0, 12)}-${index}`}
-          className="body-copy whitespace-pre-line text-[var(--text-primary)]"
+          className="text-[17px] leading-[1.75] whitespace-pre-line text-[var(--text-primary)] md:text-[18px]"
         >
           {block}
         </p>
@@ -60,7 +56,7 @@ function renderPlainText(content: string) {
 function renderAudioAsset(asset: MediaAssetRecord | null) {
   if (!asset?.signedUrl) {
     return (
-      <div className="rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_68%,white)] px-4 py-4 text-[16px] text-[var(--text-secondary)]">
+      <div className="rounded-[14px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_80%,white)] p-5 text-[15px] text-[var(--text-secondary)]">
         Este audio necesita la configuración de Supabase Storage para poder
         reproducirse.
       </div>
@@ -68,8 +64,12 @@ function renderAudioAsset(asset: MediaAssetRecord | null) {
   }
 
   return (
-    <div className="rounded-[10px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_68%,white)] px-4 py-4">
-      <audio controls preload="metadata" className="w-full">
+    <div className="rounded-[14px] border border-[color:color-mix(in_srgb,var(--border-default)_80%,transparent)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_90%,white)] p-3 shadow-inner md:p-4">
+      <audio
+        controls
+        preload="metadata"
+        className="h-11 w-full focus:outline-none"
+      >
         <source src={asset.signedUrl} type={asset.mimeType} />
         Tu navegador no soporta la reproducción de audio.
       </audio>
@@ -116,38 +116,38 @@ function renderParticipantGroup(
   );
 }
 
-function renderAudioBlock(block: PresentationAudioBlockRecord, index: number) {
+function renderAudioBlock(block: PresentationAudioBlockRecord) {
   const tone = getSpeakerTone(block.speakerRole);
 
   return (
     <section
       key={block.id}
       data-tone={tone}
-      className="reader-section reader-audio-block space-y-5"
+      className="reader-section reader-audio-block space-y-6 rounded-[16px] px-6 py-7 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(31,26,23,0.08)] md:px-8 md:py-8 lg:px-10 lg:py-10"
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <span className="editorial-pill">
-              <Headphones className="h-4 w-4" />
-              Audio {formatBlockNumber(index)}
-            </span>
-            <span className="editorial-pill">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="editorial-pill bg-[color:color-mix(in_srgb,var(--surface-default)_90%,white)] font-semibold text-[var(--text-primary)]">
               {getParticipantRoleLabel(block.speakerRole)}
             </span>
           </div>
 
-          <div className="space-y-2">
-            <h2 className="subsection-title text-[var(--text-primary)]">
-              {block.speakerName}
-            </h2>
-            <p className="body-copy text-[var(--text-secondary)]">
-              {block.label ?? "Intervención en audio disponible para escuchar."}
+          <h2 className="text-[22px] font-bold tracking-tight text-[var(--text-primary)] md:text-[24px]">
+            {block.speakerName}
+          </h2>
+
+          {block.label ? (
+            <p className="text-[15px] font-medium text-[var(--text-secondary)] md:text-[16px]">
+              {block.label}
             </p>
-          </div>
+          ) : null}
         </div>
 
-        <span className="colloquium-block-badge">Escucha</span>
+        <span className="colloquium-block-badge inline-flex shrink-0 items-center gap-2 font-medium">
+          <Headphones className="h-4 w-4 text-[var(--color-ink)]" />
+          Escucha
+        </span>
       </div>
 
       {renderAudioAsset(block.asset)}
@@ -155,28 +155,19 @@ function renderAudioBlock(block: PresentationAudioBlockRecord, index: number) {
   );
 }
 
-function renderPresentationBlock(
-  block: PresentationBlockRecord,
-  index: number,
-) {
+function renderPresentationBlock(block: PresentationBlockRecord) {
   if (block.type === "text") {
     return (
       <section
         key={block.id}
-        className="reader-section reader-text-block space-y-5"
+        className="reader-section reader-text-block rounded-[16px] px-6 py-7 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(31,26,23,0.08)] md:px-8 md:py-8 lg:px-10 lg:py-10"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="eyebrow">Presentación</p>
-          <span className="editorial-pill">
-            Bloque {formatBlockNumber(index)}
-          </span>
-        </div>
         {renderPlainText(block.content)}
       </section>
     );
   }
 
-  return renderAudioBlock(block, index);
+  return renderAudioBlock(block);
 }
 
 export function ColloquiumReader({
@@ -208,7 +199,7 @@ export function ColloquiumReader({
       : "Publicación pendiente";
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-7 md:gap-9 lg:gap-12">
       {previewLabel ? (
         <section className="rounded-[10px] border border-[var(--color-warning)] bg-[var(--color-warning-bg)] px-5 py-4 text-[var(--color-warning)] shadow-[0_12px_24px_rgba(31,26,23,0.05)]">
           <p className="text-[16px] font-semibold">{previewLabel}</p>
@@ -216,174 +207,150 @@ export function ColloquiumReader({
       ) : null}
 
       <header className="hero-band colloquium-hero">
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-          <div className="min-w-0">
-            <div className="accent-rule mb-5" />
-            <div className="colloquium-meta">
-              <span className="editorial-pill">
-                <LockKeyhole className="h-4 w-4" />
-                Coloquio privado
-              </span>
-              <span className="editorial-pill">
-                <CalendarDays className="h-4 w-4" />
-                {publishedLabel}
-              </span>
-            </div>
-
-            <h1 className="display-title mt-5 max-w-4xl text-[var(--text-primary)]">
-              {colloquium.title}
-            </h1>
-
-            <p className="body-large mt-5 max-w-3xl">
-              Basado en{" "}
-              <span className="font-semibold text-[var(--text-primary)]">
-                {colloquium.bookTitle}
-              </span>{" "}
-              de {colloquium.bookAuthor}.
-            </p>
-
-            {colloquium.excerpt ? (
-              <blockquote className="reader-pull-quote mt-6">
-                <p className="body-large text-[var(--text-primary)]">
-                  {colloquium.excerpt}
-                </p>
-              </blockquote>
-            ) : null}
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="editorial-pill">
-                <BookOpenText className="h-4 w-4" />
-                {textBlockCount} bloques de lectura
-              </span>
-              <span className="editorial-pill">
-                <Headphones className="h-4 w-4" />
-                {audioBlockCount} audios
-              </span>
-              <span className="editorial-pill">
-                <Users className="h-4 w-4" />
-                {colloquium.participants.length} participantes
-              </span>
-            </div>
+        <div className="relative z-10">
+          <div className="colloquium-meta">
+            <span className="editorial-pill">
+              <LockKeyhole className="h-4 w-4" />
+              Coloquio privado
+            </span>
+            <span className="editorial-pill">
+              <CalendarDays className="h-4 w-4" />
+              {publishedLabel}
+            </span>
           </div>
 
-          <aside className="colloquium-aside-card">
-            <p className="eyebrow">Antes de entrar</p>
-            <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
-              Una pieza principal del club, no una lectura de paso
+          <h1 className="display-title mt-5 max-w-4xl text-[var(--text-primary)]">
+            {colloquium.title}
+          </h1>
+
+          <p className="body-large mt-5 max-w-3xl">
+            Basado en{" "}
+            <span className="font-semibold text-[var(--text-primary)]">
+              {colloquium.bookTitle}
+            </span>{" "}
+            de {colloquium.bookAuthor}.
+          </p>
+
+          {colloquium.excerpt ? (
+            <blockquote className="reader-pull-quote mt-6 max-w-3xl">
+              <p className="body-large text-[var(--text-primary)]">
+                {colloquium.excerpt}
+              </p>
+            </blockquote>
+          ) : null}
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <span className="editorial-pill">
+              <BookOpenText className="h-4 w-4" />
+              {textBlockCount} bloques de lectura
+            </span>
+            <span className="editorial-pill">
+              <Headphones className="h-4 w-4" />
+              {audioBlockCount} audios
+            </span>
+            <span className="editorial-pill">
+              <Users className="h-4 w-4" />
+              {colloquium.participants.length} participantes
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <section className="colloquium-card surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
+        <div className="grid gap-6 lg:grid-cols-[168px_minmax(0,1fr)_260px] lg:items-center">
+          <div className="book-cover-frame mx-auto max-w-[168px] lg:mx-0">
+            {colloquium.bookCoverImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={colloquium.bookCoverImageUrl}
+                alt={`Portada de ${colloquium.bookTitle}`}
+                className="book-cover-image"
+              />
+            ) : (
+              <div className="flex h-full min-h-[240px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
+                Portada no disponible
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col justify-center py-1">
+            <p className="eyebrow">Libro de esta sesión</p>
+            <h2 className="section-title mt-3 text-[var(--text-primary)]">
+              {colloquium.bookTitle}
             </h2>
-            <p className="body-copy mt-4">
-              Este detalle reúne contexto, voces y audios en una misma
-              composición para que la experiencia se sienta más cuidada desde el
-              primer vistazo.
+            <p className="meta-copy mt-3 inline-flex items-center gap-2">
+              <BookOpenText className="h-4 w-4" />
+              {colloquium.bookAuthor}
             </p>
+            <p className="body-copy mt-4">
+              Esta sesión privada profundiza en los temas, reflexiones y pasajes
+              esenciales de la obra. Puedes acceder a su ficha completa dentro
+              del catálogo del club.
+            </p>
+          </div>
 
-            <ul className="detail-rich-list mt-6">
-              <li>Una apertura escrita para entrar con contexto.</li>
-              <li>Intervenciones en audio organizadas por participante.</li>
-              <li>
-                Acceso directo al libro relacionado y al resto de la sala.
-              </li>
-            </ul>
-
-            <div className="mt-7 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 border-t border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)] pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+            <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
+              Ficha bibliográfica disponible en el catálogo.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link
                 href={`/library/${colloquium.bookId}`}
-                className="btn-primary w-full"
+                className="btn-primary justify-center text-center"
               >
                 Abrir ficha del libro
                 <ArrowRight className="h-[18px] w-[18px]" />
               </Link>
-              <Link href="/colloquiums" className="btn-secondary w-full">
-                Explorar otros coloquios
+              <Link
+                href="/library"
+                className="btn-secondary justify-center text-center"
+              >
+                Ver biblioteca
               </Link>
             </div>
-          </aside>
-        </div>
-      </header>
-
-      <section className="colloquium-context-grid">
-        <section className="reader-panel">
-          <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
-            <div className="book-cover-frame max-w-[220px]">
-              {colloquium.bookCoverImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={colloquium.bookCoverImageUrl}
-                  alt={`Portada de ${colloquium.bookTitle}`}
-                  className="book-cover-image"
-                />
-              ) : (
-                <div className="flex h-full min-h-[280px] items-center justify-center p-6 text-center text-[16px] font-semibold text-[var(--text-muted)]">
-                  Imagen no disponible
-                </div>
-              )}
-            </div>
-
-            <div className="max-w-2xl space-y-6 py-2">
-              <div>
-                <p className="eyebrow">Libro de esta sesión</p>
-                <h2 className="section-title mt-3 text-[var(--text-primary)]">
-                  {colloquium.bookTitle}
-                </h2>
-                <p className="body-copy mt-3">{colloquium.bookAuthor}</p>
-                <p className="body-copy mt-4">
-                  El libro ya no compite con el resto del detalle: ahora actúa
-                  como una entrada clara hacia su propia ficha y deja espacio
-                  para que el coloquio tome protagonismo.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Link
-                  href={`/library/${colloquium.bookId}`}
-                  className="btn-primary"
-                >
-                  Abrir ficha del libro
-                  <ArrowRight className="h-[18px] w-[18px]" />
-                </Link>
-                <Link href="/library" className="btn-secondary">
-                  Ver biblioteca completa
-                </Link>
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <aside className="editorial-note-strong h-full">
-          <p className="eyebrow">Participantes</p>
-          <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
-            Voces que conducen la lectura
-          </h2>
-          <p className="body-copy mt-3">
-            La composición separa mejor los roles para que el lector entienda
-            quién introduce, quién presenta y quién acompaña la conversación.
-          </p>
+      <section className="surface-card-muted rounded-[14px] border border-[var(--border-default)] px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-start">
+          <div className="max-w-md space-y-3">
+            <p className="eyebrow">Participantes</p>
+            <h2 className="section-title text-[var(--text-primary)]">
+              Voces que conducen la lectura
+            </h2>
+            <p className="body-copy">
+              Anfitriones, ponentes e invitados que guían la conversación y
+              aportan sus notas, lecturas y reflexiones en audio a lo largo de
+              la sesión.
+            </p>
+          </div>
 
-          <div className="mt-6 grid gap-4">
+          <div className="grid gap-6 sm:grid-cols-2">
             {renderParticipantGroup("Anfitriones", hosts)}
             {renderParticipantGroup("Ponentes", presenters)}
             {renderParticipantGroup("Invitados", guests)}
             {renderParticipantGroup("Otros participantes", others)}
             {colloquium.participants.length === 0 ? (
-              <section className="participant-group-card">
+              <div className="participant-group-card sm:col-span-2">
                 <p className="body-copy">
                   Todavía no hay participantes visibles registrados para este
                   coloquio.
                 </p>
-              </section>
+              </div>
             ) : null}
           </div>
-        </aside>
+        </div>
       </section>
 
       {colloquium.presentationBlocks.length > 0 ? (
-        <article className="reader-prose space-y-8">
-          {colloquium.presentationBlocks.map((block, index) =>
-            renderPresentationBlock(block, index + 1),
+        <article className="reader-prose w-full max-w-none gap-6 md:gap-7">
+          {colloquium.presentationBlocks.map((block) =>
+            renderPresentationBlock(block),
           )}
         </article>
       ) : (
-        <section className="surface-card px-6 py-7 md:px-8 md:py-8">
+        <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <h2 className="subsection-title text-[var(--text-primary)]">
             Todavía no hay presentación publicada
           </h2>

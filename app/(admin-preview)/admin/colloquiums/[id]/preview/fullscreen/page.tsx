@@ -30,9 +30,6 @@ export default async function AdminColloquiumFullscreenPreviewPage({
   }
 
   return (
-    <ColloquiumDetailPageShell
-      colloquium={colloquium}
-      readerName={session.profile.full_name}
-    />
+    <ColloquiumDetailPageShell colloquium={colloquium} session={session} />
   );
 }

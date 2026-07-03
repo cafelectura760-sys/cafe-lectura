@@ -33,9 +33,6 @@ export default async function ColloquiumDetailPage({
   }
 
   return (
-    <ColloquiumDetailPageShell
-      colloquium={colloquium}
-      readerName={session.profile.full_name}
-    />
+    <ColloquiumDetailPageShell colloquium={colloquium} session={session} />
   );
 }

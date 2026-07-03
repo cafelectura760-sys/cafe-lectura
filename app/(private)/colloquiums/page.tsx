@@ -25,7 +25,7 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
   const remainingColloquiums = colloquiums.slice(1);
 
   return (
-    <PageShell width="regular">
+    <PageShell>
       <AppHeader
         activeHref="/colloquiums"
         session={session}
@@ -44,7 +44,7 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
       </section>
 
       {colloquiums.length === 0 ? (
-        <section className="surface-card px-6 py-7 md:px-8 md:py-8">
+        <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <h2 className="subsection-title text-[var(--text-primary)]">
             Todavía no hay coloquios publicados
           </h2>

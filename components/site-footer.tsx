@@ -11,43 +11,46 @@ export function SiteFooter() {
 
   return (
     <footer className="site-footer">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <BrandLogo size="sm" />
-          <div className="min-w-0 space-y-2">
-            <p className="text-[22px] leading-[1.2] font-semibold text-[var(--text-primary)]">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex max-w-xl min-w-0 flex-col gap-3">
+          <div className="flex items-center gap-3.5">
+            <BrandLogo size="sm" />
+            <span className="text-[22px] leading-[1.2] font-semibold text-[var(--text-primary)]">
               Cafe Lectura
-            </p>
-            <p className="meta-copy max-w-2xl">
-              Club privado de lectura con biblioteca visible, coloquios para
-              miembros activos y atención cercana por WhatsApp.
-            </p>
+            </span>
           </div>
+          <p className="meta-copy text-[15px] leading-relaxed">
+            Club privado de lectura con biblioteca visible, coloquios para
+            miembros activos y atención cercana por WhatsApp.
+          </p>
         </div>
 
-        <nav
-          className="site-footer-links"
-          aria-label="Enlaces del pie de página"
-        >
-          <Link href="/" className="editorial-link">
-            Inicio
-          </Link>
-          <Link href="/library" className="editorial-link">
-            Biblioteca
-          </Link>
-          <Link href="/login" className="editorial-link">
-            Iniciar sesión
-          </Link>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center lg:flex-col lg:items-end lg:justify-center">
+          <nav
+            className="flex flex-wrap items-center gap-1 sm:gap-2 lg:justify-end"
+            aria-label="Enlaces del pie de página"
+          >
+            <Link href="/" className="nav-link justify-start">
+              Inicio
+            </Link>
+            <Link href="/library" className="nav-link justify-start">
+              Biblioteca
+            </Link>
+            <Link href="/login" className="nav-link justify-start">
+              Iniciar sesión
+            </Link>
+          </nav>
+
           <a
             href={whatsappHref}
             target="_blank"
             rel="noreferrer"
-            className="editorial-link"
+            className="btn-secondary w-full px-4 py-2 text-[15px] shadow-sm sm:w-auto md:min-h-11 md:text-[16px]"
           >
-            <MessageCircleMore className="h-[18px] w-[18px]" />
+            <MessageCircleMore className="h-[18px] w-[18px] text-[var(--color-verde)]" />
             Escribir por WhatsApp
           </a>
-        </nav>
+        </div>
       </div>
     </footer>
   );

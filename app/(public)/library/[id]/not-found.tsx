@@ -5,7 +5,7 @@ import { PageShell } from "@/components/page-shell";
 
 export default function LibraryBookNotFound() {
   return (
-    <PageShell width="regular">
+    <PageShell>
       <section className="surface-card px-6 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12">
         <p className="eyebrow">Libro no encontrado</p>
         <h1 className="section-title mt-3 text-[var(--text-primary)]">

@@ -28,10 +28,10 @@ export function ColloquiumCard({
     >
       <div
         className={cn(
-          "grid gap-6",
+          "grid gap-6 lg:items-center",
           featured
-            ? "xl:grid-cols-[188px_minmax(0,1fr)]"
-            : "lg:grid-cols-[168px_minmax(0,1fr)]",
+            ? "xl:grid-cols-[188px_minmax(0,1fr)_260px]"
+            : "lg:grid-cols-[168px_minmax(0,1fr)_240px]",
         )}
       >
         <div
@@ -54,53 +54,59 @@ export function ColloquiumCard({
           )}
         </div>
 
-        <div className="flex flex-col justify-between gap-5 py-1">
-          <div>
-            <div className="colloquium-meta">
-              <span className="editorial-pill">Área privada</span>
-              <span className="editorial-pill">
-                <CalendarDays className="h-4 w-4" />
-                Publicado el{" "}
-                {formatDateLabel(
-                  colloquium.publishedAt ?? new Date().toISOString(),
-                )}
-              </span>
-            </div>
-            <p className="eyebrow mt-4">{colloquium.bookTitle}</p>
-            <h2
-              className={cn(
-                "mt-3 text-[var(--text-primary)]",
-                featured ? "section-title" : "subsection-title",
+        <div className="flex flex-col justify-center py-1">
+          <div className="colloquium-meta">
+            <span className="editorial-pill">Área privada</span>
+            <span className="editorial-pill">
+              <CalendarDays className="h-4 w-4" />
+              Publicado el{" "}
+              {formatDateLabel(
+                colloquium.publishedAt ?? new Date().toISOString(),
               )}
-            >
-              {colloquium.title}
-            </h2>
-            <p className="meta-copy mt-3 inline-flex items-center gap-2">
-              <BookOpenText className="h-4 w-4" />
-              {colloquium.bookAuthor}
-            </p>
-            <p className="body-copy mt-4">
-              {colloquium.excerpt ??
-                "Este coloquio ya está disponible para lectura privada."}
-            </p>
+            </span>
           </div>
+          <p className="eyebrow mt-4">{colloquium.bookTitle}</p>
+          <h2
+            className={cn(
+              "mt-3 text-[var(--text-primary)]",
+              featured ? "section-title" : "subsection-title",
+            )}
+          >
+            {colloquium.title}
+          </h2>
+          <p className="meta-copy mt-3 inline-flex items-center gap-2">
+            <BookOpenText className="h-4 w-4" />
+            {colloquium.bookAuthor}
+          </p>
+          <p className="body-copy mt-4">
+            {colloquium.excerpt ??
+              "Este coloquio ya está disponible para lectura privada."}
+          </p>
+        </div>
 
-          <div className="colloquium-card-footer">
-            <p className="meta-copy">
-              Lectura privada preparada para miembros activos.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                href={`/colloquiums/${colloquium.slug}`}
-                className="btn-primary"
-              >
-                Abrir coloquio
-                <ArrowRight className="h-[18px] w-[18px]" />
-              </Link>
-              <Link href="/library" className="btn-secondary">
-                Ver biblioteca
-              </Link>
-            </div>
+        <div
+          className={cn(
+            "flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6",
+            "border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)]",
+          )}
+        >
+          <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
+            Lectura privada preparada para miembros activos.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <Link
+              href={`/colloquiums/${colloquium.slug}`}
+              className="btn-primary justify-center text-center"
+            >
+              Abrir coloquio
+              <ArrowRight className="h-[18px] w-[18px]" />
+            </Link>
+            <Link
+              href="/library"
+              className="btn-secondary justify-center text-center"
+            >
+              Ver biblioteca
+            </Link>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
-# Cafe Lectura
+# Café Lectura
 
-Cafe Lectura is a monolithic web application for a private reading club in Venezuela. The product includes a public area, a membership area for active readers, and an internal admin area for manual management.
+Café Lectura is a monolithic web application for a private reading club in Venezuela. The product includes a public area, a membership area for active readers, and an internal admin area for manual management.
 
 This repository is intentionally maintained with a public-repo security posture:
 

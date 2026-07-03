@@ -118,7 +118,7 @@ export function SiteHeader({
           <div className="min-w-0 space-y-1">
             <Link href="/" className="inline-flex">
               <span className="text-[22px] leading-[1.2] font-semibold [text-wrap:balance] text-[var(--text-primary)]">
-                Cafe Lectura
+                Café Lectura
               </span>
             </Link>
             {description ? (

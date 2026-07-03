@@ -6,7 +6,7 @@ import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export function SiteFooter() {
   const whatsappHref = createWhatsAppHref(
-    "Quiero comunicarme con Cafe Lectura por WhatsApp.",
+    "Quiero comunicarme con Café Lectura por WhatsApp.",
   );
 
   return (
@@ -16,7 +16,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-3.5">
             <BrandLogo size="sm" />
             <span className="text-[22px] leading-[1.2] font-semibold text-[var(--text-primary)]">
-              Cafe Lectura
+              Café Lectura
             </span>
           </div>
           <p className="meta-copy text-[15px] leading-relaxed">

@@ -19,7 +19,7 @@ function buildGuestActions(): HeaderAction[] {
     {
       kind: "link",
       href: createWhatsAppHref(
-        "Me gustaría recibir información sobre la membresía anual de Cafe Lectura.",
+        "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
       ),
       label: "Consultar membresía",
       tone: "warm",

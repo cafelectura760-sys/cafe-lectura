@@ -15,10 +15,10 @@ const literata = Literata({
 
 export const metadata: Metadata = {
   title: {
-    default: "Cafe Lectura",
-    template: "%s | Cafe Lectura",
+    default: "Café Lectura",
+    template: "%s | Café Lectura",
   },
-  description: "Plataforma privada del club de lectura Cafe Lectura.",
+  description: "Plataforma privada del club de lectura Café Lectura.",
   icons: {
     icon: "/cafe-lectura-logo.svg",
   },

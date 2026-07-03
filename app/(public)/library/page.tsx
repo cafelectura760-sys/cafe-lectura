@@ -12,7 +12,7 @@ import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Biblioteca",
-  description: "Catálogo público de libros de Cafe Lectura.",
+  description: "Catálogo público de libros de Café Lectura.",
 };
 
 function buildBookInfoHref(title: string, author: string) {
@@ -45,7 +45,7 @@ export default async function LibraryPage() {
           <SectionHeading
             eyebrow="Biblioteca pública"
             title="Libros para descubrir y conocer con calma"
-            description="Esta biblioteca muestra los títulos disponibles en Cafe Lectura. Puedes recorrer el catálogo con calma y escribirnos si quieres saber más sobre algún libro."
+            description="Esta biblioteca muestra los títulos disponibles en Café Lectura. Puedes recorrer el catálogo con calma y escribirnos si quieres saber más sobre algún libro."
             titleClassName="display-title"
             action={
               <Link href="/" className="editorial-link">

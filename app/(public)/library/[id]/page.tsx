@@ -24,7 +24,7 @@ type LibraryBookDetailPageProps = {
 
 function getMembershipHref() {
   return createWhatsAppHref(
-    "Me gustaría recibir información sobre la membresía anual de Cafe Lectura.",
+    "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
   );
 }
 
@@ -65,7 +65,7 @@ export async function generateMetadata({
 
   return {
     title: `${book.title} | Biblioteca`,
-    description: `Ficha pública de ${book.title} de ${book.author} en Cafe Lectura.`,
+    description: `Ficha pública de ${book.title} de ${book.author} en Café Lectura.`,
   };
 }
 

@@ -15,7 +15,7 @@ type ColloquiumsPageProps = {
 export const metadata: Metadata = {
   title: "Coloquios",
   description:
-    "Espacio privado de coloquios para miembros activos de Cafe Lectura.",
+    "Espacio privado de coloquios para miembros activos de Café Lectura.",
 };
 
 export default async function ColloquiumsPage(_: ColloquiumsPageProps) {

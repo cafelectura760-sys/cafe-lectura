@@ -16,12 +16,12 @@ type MembershipExpiredPageProps = {
 export const metadata: Metadata = {
   title: "Membresía vencida",
   description:
-    "Orientación para miembros con membresía vencida en Cafe Lectura.",
+    "Orientación para miembros con membresía vencida en Café Lectura.",
 };
 
 export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
   const whatsappHref = createWhatsAppHref(
-    "Necesito ayuda para renovar mi membresía de Cafe Lectura.",
+    "Necesito ayuda para renovar mi membresía de Café Lectura.",
   );
 
   return (

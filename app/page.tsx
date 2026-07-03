@@ -20,12 +20,12 @@ import { createWhatsAppHref } from "@/lib/whatsapp";
 export const metadata: Metadata = {
   title: "Club privado de lectura",
   description:
-    "Cafe Lectura es un club privado de lectura con biblioteca pública, membresía anual y coloquios privados para miembros activos.",
+    "Café Lectura es un club privado de lectura con biblioteca pública, membresía anual y coloquios privados para miembros activos.",
 };
 
 function getMembershipHref() {
   return createWhatsAppHref(
-    "Me gustaría recibir información sobre la membresía anual de Cafe Lectura.",
+    "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
   );
 }
 
@@ -97,7 +97,7 @@ export default async function Home() {
               Un club de lectura que se siente cercano desde la primera visita.
             </h1>
             <p className="body-large mt-6 max-w-3xl">
-              Cafe Lectura acompaña a sus miembros con una biblioteca pública
+              Café Lectura acompaña a sus miembros con una biblioteca pública
               para consulta, una membresía anual gestionada de forma cercana y
               coloquios privados preparados para leer sin prisa.
             </p>
@@ -158,7 +158,7 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Biblioteca"
           title="Una biblioteca visible para descubrir con calma"
-          description="Estos son algunos de los títulos disponibles en Cafe Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
+          description="Estos son algunos de los títulos disponibles en Café Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
           action={
             <Link href="/library" className="editorial-link">
               Ver catálogo completo
@@ -195,7 +195,7 @@ export default async function Home() {
           <SectionHeading
             eyebrow="Membresía"
             title="Una forma sencilla de sostener el hábito de leer durante todo el año"
-            description="Cafe Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
+            description="Café Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
           />
 
           <div className="content-grid mt-8 md:grid-cols-3">
@@ -220,7 +220,7 @@ export default async function Home() {
             </p>
             <div className="accent-rule mt-4" />
             <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-              Tu membresía está activa en Cafe Lectura
+              Tu membresía está activa en Café Lectura
             </h2>
             <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
               Accede a la sala privada para explorar los coloquios publicados y
@@ -241,7 +241,7 @@ export default async function Home() {
             </p>
             <div className="accent-rule mt-4" />
             <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-              ¿Quieres saber si Cafe Lectura puede ser para ti?
+              ¿Quieres saber si Café Lectura puede ser para ti?
             </h2>
             <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
               Escríbenos por WhatsApp y te contamos cómo funciona la membresía,

@@ -9,6 +9,8 @@ type ConfirmRequestBody = {
   mimeType?: string;
   sizeBytes?: number;
   durationSeconds?: number | null;
+  caption?: string | null;
+  altText?: string | null;
 };
 
 export async function POST(request: Request) {
@@ -33,6 +35,8 @@ export async function POST(request: Request) {
       mimeType: body.mimeType ?? "",
       sizeBytes: body.sizeBytes ?? 0,
       durationSeconds: body.durationSeconds ?? null,
+      caption: body.caption ?? null,
+      altText: body.altText ?? null,
     });
 
     return NextResponse.json(result);

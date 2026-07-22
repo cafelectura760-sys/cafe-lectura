@@ -13,7 +13,7 @@ export const COLLOQUIUM_PARTICIPANT_ROLE_VALUES = [
   "other",
 ] as const;
 export const PRESENTATION_BLOCK_TYPE_VALUES = ["text", "audio"] as const;
-export const MEDIA_ASSET_TYPE_VALUES = ["audio"] as const;
+export const MEDIA_ASSET_TYPE_VALUES = ["audio", "image"] as const;
 
 export const AUDIO_MIME_TYPES = [
   "audio/mpeg",
@@ -32,7 +32,25 @@ export const AUDIO_EXTENSIONS_BY_MIME: Record<
   "audio/ogg": "ogg",
 };
 
+export const IMAGE_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+] as const;
+
+export const IMAGE_EXTENSIONS_BY_MIME: Record<
+  (typeof IMAGE_MIME_TYPES)[number],
+  string
+> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/avif": "avif",
+};
+
 export const MAX_AUDIO_SIZE_BYTES = 45 * 1024 * 1024;
+export const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 export const MEDIA_UPLOAD_URL_TTL_SECONDS = 5 * 60;
 export const MEDIA_READ_URL_TTL_SECONDS = 15 * 60;
 
@@ -187,17 +205,23 @@ export function getFileExtensionForMimeType(mimeType: string): string {
     ];
   }
 
+  if (mimeType in IMAGE_EXTENSIONS_BY_MIME) {
+    return IMAGE_EXTENSIONS_BY_MIME[
+      mimeType as keyof typeof IMAGE_EXTENSIONS_BY_MIME
+    ];
+  }
+
   throw new Error("Unsupported MIME type");
 }
 
-export function getMediaSizeLimit(_assetType: MediaAssetType): number {
-  return MAX_AUDIO_SIZE_BYTES;
+export function getMediaSizeLimit(assetType: MediaAssetType): number {
+  return assetType === "image" ? MAX_IMAGE_SIZE_BYTES : MAX_AUDIO_SIZE_BYTES;
 }
 
 export function getAllowedMimeTypes(
-  _assetType: MediaAssetType,
+  assetType: MediaAssetType,
 ): readonly string[] {
-  return AUDIO_MIME_TYPES;
+  return assetType === "image" ? IMAGE_MIME_TYPES : AUDIO_MIME_TYPES;
 }
 
 export function getParticipantRoleLabel(

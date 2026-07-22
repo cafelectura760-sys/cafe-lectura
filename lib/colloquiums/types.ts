@@ -8,7 +8,7 @@ export type ColloquiumParticipantRole =
 
 export type PresentationBlockType = "text" | "audio";
 
-export type MediaAssetType = "audio";
+export type MediaAssetType = "audio" | "image";
 
 export type BookOption = {
   id: string;
@@ -30,6 +30,7 @@ export type MediaAssetRecord = {
   durationSeconds: number | null;
   title: string | null;
   caption: string | null;
+  altText: string | null;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -110,6 +111,7 @@ export type ColloquiumDetail = ColloquiumSummary & {
   createdAt: string;
   updatedAt: string;
   participants: ColloquiumParticipantRecord[];
+  flyer: MediaAssetRecord | null;
   presentationBlocks: PresentationBlockRecord[];
 };
 
@@ -137,7 +139,7 @@ export type ColloquiumFormState = {
 
 export type MediaUploadIntent = {
   colloquiumId: string;
-  sectionId: string;
+  sectionId: string | null;
   assetType: MediaAssetType;
   fileName: string;
   mimeType: string;
@@ -146,7 +148,7 @@ export type MediaUploadIntent = {
 
 export type MediaUploadTokenPayload = {
   colloquiumId: string;
-  sectionId: string;
+  sectionId: string | null;
   assetType: MediaAssetType;
   storageKey: string;
   mimeType: string;

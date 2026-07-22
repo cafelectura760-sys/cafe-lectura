@@ -30,6 +30,7 @@ type ColloquiumRow = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  hero_image_asset_id: string | null;
 };
 
 type BookLookupRow = {
@@ -94,10 +95,9 @@ async function fetchMediaAssetsForColloquium(
   const { data, error } = await supabase
     .from("media_assets")
     .select(
-      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, display_order, created_at, updated_at",
+      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, alt_text, display_order, created_at, updated_at",
     )
     .eq("colloquium_id", colloquiumId)
-    .eq("type", "audio")
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -191,7 +191,11 @@ async function getPresentationBlocks(
   const assetsBySectionId = new Map<string, MediaAssetRecord>();
 
   assets.forEach((asset) => {
-    if (asset.sectionId && !assetsBySectionId.has(asset.sectionId)) {
+    if (
+      asset.type === "audio" &&
+      asset.sectionId &&
+      !assetsBySectionId.has(asset.sectionId)
+    ) {
       assetsBySectionId.set(asset.sectionId, asset);
     }
   });
@@ -234,7 +238,7 @@ async function findColloquiumBySegment(
   let query = supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at, hero_image_asset_id",
     )
     .eq("slug", segment)
     .limit(1);
@@ -263,7 +267,7 @@ async function findColloquiumBySegment(
   let byIdQuery = supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at, hero_image_asset_id",
     )
     .eq("id", segment)
     .limit(1);
@@ -288,7 +292,7 @@ export async function getAvailableColloquiums(): Promise<ColloquiumSummary[]> {
   const { data, error } = await supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at, hero_image_asset_id",
     )
     .eq("status", "published")
     .order("published_at", { ascending: false });
@@ -328,6 +332,11 @@ export async function getColloquiumBySegment(
     createdAt: colloquium.created_at,
     updatedAt: colloquium.updated_at,
     participants,
+    flyer:
+      assets.find(
+        (asset) =>
+          asset.type === "image" && asset.id === colloquium.hero_image_asset_id,
+      ) ?? null,
     presentationBlocks,
   };
 }
@@ -340,7 +349,7 @@ export async function listAdminColloquiums(): Promise<
   const { data, error } = await supabase
     .from("colloquiums")
     .select(
-      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+      "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at, hero_image_asset_id",
     )
     .order("updated_at", { ascending: false });
 
@@ -437,7 +446,7 @@ export async function listAdminColloquiumsPage(
     let query = supabase
       .from("colloquiums")
       .select(
-        "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at",
+        "id, slug, title, excerpt, status, book_id, published_at, created_at, updated_at, hero_image_asset_id",
         {
           count: "exact",
         },

@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 
 import { getAuthSession } from "@/lib/auth/session";
 import { createColloquiumPresignedUpload } from "@/lib/colloquiums/media";
+import type { MediaAssetType } from "@/lib/colloquiums/types";
 
 type PresignRequestBody = {
   colloquiumId?: string;
-  sectionId?: string;
+  sectionId?: string | null;
+  assetType?: MediaAssetType;
   fileName?: string;
   mimeType?: string;
   sizeBytes?: number;
@@ -29,8 +31,8 @@ export async function POST(request: Request) {
   try {
     const result = await createColloquiumPresignedUpload({
       colloquiumId: body.colloquiumId ?? "",
-      sectionId: body.sectionId ?? "",
-      assetType: "audio",
+      sectionId: body.sectionId ?? null,
+      assetType: body.assetType ?? "audio",
       fileName: body.fileName ?? "",
       mimeType: body.mimeType ?? "",
       sizeBytes: body.sizeBytes ?? 0,

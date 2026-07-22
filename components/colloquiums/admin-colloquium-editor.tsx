@@ -15,6 +15,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DeleteColloquiumDialog } from "@/components/colloquiums/delete-colloquium-dialog";
+import { FlyerAssetManager } from "@/components/colloquiums/flyer-asset-manager";
 import { PresentationDraftEditor } from "@/components/colloquiums/presentation-draft-editor";
 import { PrivateRouteAction } from "@/components/colloquiums/private-route-action";
 import {
@@ -682,7 +683,7 @@ export function AdminColloquiumEditor({
                   breve.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-8">
                 <form
                   action={updateColloquiumMetadataAction}
                   className="grid max-w-3xl gap-5"
@@ -750,6 +751,12 @@ export function AdminColloquiumEditor({
                     Guardar datos básicos
                   </Button>
                 </form>
+                <FlyerAssetManager
+                  bucketName={mediaBucketName}
+                  colloquiumId={colloquium.id}
+                  colloquiumTitle={colloquium.title}
+                  asset={colloquium.flyer}
+                />
               </CardContent>
             </Card>
           </TabsContent>

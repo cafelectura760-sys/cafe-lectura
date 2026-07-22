@@ -11,7 +11,7 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 - Public landing page for the reading club.
 - Public visual library of available books.
 - Private colloquium area for active members.
-- Private colloquium presentation module with ordered text and audio blocks.
+- Private colloquium presentation module with ordered text and audio blocks plus an optional responsive flyer.
 - Admin dashboard for manual internal management, including the colloquium builder workflow.
 - Login-only authentication flow with no public signup.
 - WhatsApp-based membership and book inquiries.
@@ -220,14 +220,14 @@ Routes:
 - Regular member accounts may be hard-deleted by admins, but administrator accounts must not be deletable through the admin panel.
 - Colloquiums remain private. They must be accessible only to authenticated users with active memberships, while admins retain full access regardless of membership expiration.
 - The approved colloquium MVP only includes the `Presentation` portion of the colloquium experience.
-- The approved colloquium MVP includes structured support for text and audio blocks only.
+- The approved colloquium MVP includes structured support for text and audio blocks plus one optional flyer image per colloquium.
 - Colloquium media files must not be committed to the repository or stored on the Vercel filesystem.
 - Supabase Storage private buckets are the approved object storage provider for colloquium media in the MVP.
 - Colloquium content must no longer use one flat Markdown field as its primary source of truth.
 - Colloquium text fields now use plain text with preserved paragraphs and line breaks, not Markdown.
 - Raw enriched HTML should not be accepted for MVP colloquium content.
 - Existing legacy colloquiums must be migrated once into presentation-compatible blocks and must not remain on any fallback runtime path.
-- The member-facing and admin-facing colloquium MVP must ignore question-and-answer, discussion, closing, and image flows even if legacy rows remain stored for compatibility.
+- The member-facing and admin-facing colloquium MVP must ignore question-and-answer, discussion, and closing flows even if legacy rows remain stored for compatibility. Flyer images are a separate colloquium-level media asset and are rendered before the presentation when present.
 - Private colloquium access requires:
   - an authenticated user, and
   - `membership_expires_at` greater than the current date.
@@ -370,7 +370,7 @@ Implemented in the repository.
 Purpose:
 
 - Store metadata for colloquium media files hosted outside the repository.
-- Support private audio delivery for presentation blocks.
+- Support private audio delivery for presentation blocks and private flyer delivery for colloquiums.
 
 Expected fields:
 
@@ -402,7 +402,16 @@ These rules are approved for the MVP target and should guide implementation even
 - The structure must remain flexible. Not every colloquium is required to use the same number of blocks or the same number of audio items.
 - Ordered blocks are the top-level composition mechanism.
 - Audio blocks may reference a registered participant or a manually typed speaker identity.
-- Media assets belong to presentation audio blocks in the current MVP.
+- Audio media assets belong to presentation audio blocks. An optional image media asset may belong to the colloquium itself through `colloquiums.hero_image_asset_id` and uses `section_id = null`.
+
+#### Colloquium flyers
+
+- Each colloquium may have at most one flyer image.
+- Flyer images are optional and do not block saving or publishing.
+- Supported formats are JPEG, PNG, WebP, and AVIF, with a 10 MB application limit.
+- Flyer objects are stored in the private Supabase Storage bucket under the colloquium image namespace and are delivered through signed read URLs.
+- The member-facing reader renders the flyer after participants and immediately before the presentation, preserving the source aspect ratio across mobile, tablet, and desktop layouts.
+- `media_assets.caption` stores the optional visible description and `media_assets.alt_text` stores the accessible alternative text.
 
 #### Publication model
 

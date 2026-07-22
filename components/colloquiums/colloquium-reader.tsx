@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
   ArrowRight,
   BookOpenText,
@@ -153,6 +154,37 @@ function renderAudioBlock(block: PresentationAudioBlockRecord) {
 
       {renderAudioAsset(block.asset)}
     </section>
+  );
+}
+
+function renderFlyer(flyer: MediaAssetRecord | null, colloquiumTitle: string) {
+  if (!flyer?.signedUrl) {
+    return null;
+  }
+
+  return (
+    <figure className="surface-card overflow-hidden rounded-[18px] border border-[var(--border-default)] bg-[color:color-mix(in_srgb,var(--surface-subtle)_82%,white)] p-3 shadow-[0_18px_40px_rgba(31,26,23,0.06)] transition-shadow duration-300 hover:shadow-[0_22px_46px_rgba(31,26,23,0.1)] motion-reduce:transition-none sm:p-4 md:p-5">
+      <div
+        className="flyer-stage min-h-48 sm:min-h-64"
+        style={
+          {
+            "--flyer-stage-image": `url("${flyer.signedUrl}")`,
+          } as CSSProperties
+        }
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={flyer.signedUrl}
+          alt={flyer.altText ?? `Flyer del coloquio ${colloquiumTitle}`}
+          className="flyer-stage__image max-h-[min(72vh,48rem)]"
+        />
+      </div>
+      {flyer.caption ? (
+        <figcaption className="px-2 pt-4 text-center text-[15px] leading-7 text-[var(--text-secondary)] sm:px-4 sm:pt-5 sm:text-base">
+          {flyer.caption}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
 
@@ -348,8 +380,25 @@ export function ColloquiumReader({
         </AnimatedContentSlot>
       </section>
 
-      {colloquium.presentationBlocks.length > 0 ? (
+      {colloquium.flyer?.signedUrl ? (
         <AnimatedContentSlot delay={3} distance={24}>
+          <section
+            aria-labelledby="colloquium-flyer-heading"
+            className="space-y-3"
+          >
+            <div className="px-1">
+              <p className="eyebrow">Flyer del coloquio</p>
+              <h2 id="colloquium-flyer-heading" className="sr-only">
+                Flyer de {colloquium.title}
+              </h2>
+            </div>
+            {renderFlyer(colloquium.flyer, colloquium.title)}
+          </section>
+        </AnimatedContentSlot>
+      ) : null}
+
+      {colloquium.presentationBlocks.length > 0 ? (
+        <AnimatedContentSlot delay={4} distance={24}>
           <article className="reader-prose w-full max-w-none gap-6 md:gap-7">
             {colloquium.presentationBlocks.map((block) =>
               renderPresentationBlock(block),

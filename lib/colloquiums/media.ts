@@ -42,6 +42,7 @@ type MediaAssetRow = {
   duration_seconds: number | null;
   title: string | null;
   caption: string | null;
+  alt_text: string | null;
   display_order: number;
   created_at: string;
   updated_at: string;
@@ -124,6 +125,7 @@ function mapMediaAssetRecord(row: MediaAssetRow): MediaAssetRecord {
     durationSeconds: row.duration_seconds,
     title: row.title,
     caption: row.caption,
+    altText: row.alt_text,
     displayOrder: row.display_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -145,8 +147,12 @@ export function validateMediaFile(input: MediaUploadIntent) {
 
   const extension = getFileExtensionForMimeType(input.mimeType);
 
-  if (!input.sectionId.trim()) {
+  if (assetType === "audio" && !input.sectionId?.trim()) {
     throw new Error("Audio assets must belong to a presentation block");
+  }
+
+  if (assetType === "image" && input.sectionId?.trim()) {
+    throw new Error("Flyer images belong to the colloquium, not a block");
   }
 
   return {
@@ -157,7 +163,8 @@ export function validateMediaFile(input: MediaUploadIntent) {
 
 async function assertMediaContextExists(input: {
   colloquiumId: string;
-  sectionId: string;
+  sectionId: string | null;
+  assetType: MediaAssetType;
 }) {
   const supabase = await createClient();
 
@@ -177,10 +184,14 @@ async function assertMediaContextExists(input: {
     throw new Error("Invalid colloquium context");
   }
 
+  if (input.assetType === "image") {
+    return colloquium;
+  }
+
   const { data: section, error: sectionError } = await supabase
     .from("colloquium_sections")
     .select("id, colloquium_id, type")
-    .eq("id", input.sectionId)
+    .eq("id", input.sectionId ?? "")
     .maybeSingle<{ id: string; colloquium_id: string; type: string }>();
 
   if (sectionError) {
@@ -200,9 +211,10 @@ async function assertMediaContextExists(input: {
 
 function createStorageKey(input: {
   colloquiumSlug: string;
+  assetType: MediaAssetType;
   extension: string;
 }) {
-  return `colloquiums/${input.colloquiumSlug}/audio/${createRandomStorageSuffix()}.${input.extension}`;
+  return `colloquiums/${input.colloquiumSlug}/${input.assetType === "image" ? "images" : "audio"}/${createRandomStorageSuffix()}.${input.extension}`;
 }
 
 export async function createColloquiumPresignedUpload(
@@ -214,9 +226,11 @@ export async function createColloquiumPresignedUpload(
   const colloquium = await assertMediaContextExists({
     colloquiumId: input.colloquiumId,
     sectionId: input.sectionId,
+    assetType,
   });
   const storageKey = createStorageKey({
     colloquiumSlug: colloquium.slug,
+    assetType,
     extension,
   });
   const expiresAt = new Date(
@@ -249,6 +263,8 @@ export async function confirmMediaUpload(input: {
   mimeType: string;
   sizeBytes: number;
   durationSeconds?: number | null;
+  caption?: string | null;
+  altText?: string | null;
 }) {
   await requireAdmin();
 
@@ -265,32 +281,25 @@ export async function confirmMediaUpload(input: {
   await assertMediaContextExists({
     colloquiumId: payload.colloquiumId,
     sectionId: payload.sectionId,
+    assetType: payload.assetType,
   });
 
   const supabase = await createClient();
-  const { data: currentAssets, error: currentAssetsError } = await supabase
+  const currentAssetsQuery = supabase
     .from("media_assets")
     .select("id, storage_key")
-    .eq("section_id", payload.sectionId)
-    .eq("type", "audio");
+    .eq("colloquium_id", payload.colloquiumId)
+    .eq("type", payload.assetType);
+
+  const { data: currentAssets, error: currentAssetsError } =
+    payload.assetType === "image"
+      ? await currentAssetsQuery.is("section_id", null)
+      : await currentAssetsQuery.eq("section_id", payload.sectionId);
 
   if (currentAssetsError) {
     throw new Error(
       `Failed to inspect existing block media: ${currentAssetsError.message}`,
     );
-  }
-
-  for (const asset of currentAssets ?? []) {
-    await deleteObjectFromStorage(asset.storage_key);
-
-    const { error: deleteError } = await supabase
-      .from("media_assets")
-      .delete()
-      .eq("id", asset.id);
-
-    if (deleteError) {
-      throw new Error(`Failed to replace block audio: ${deleteError.message}`);
-    }
   }
 
   const { data, error } = await supabase
@@ -307,12 +316,12 @@ export async function confirmMediaUpload(input: {
       size_bytes: payload.sizeBytes,
       duration_seconds: input.durationSeconds ?? null,
       title: null,
-      caption: null,
-      alt_text: null,
+      caption: input.caption?.trim() || null,
+      alt_text: input.altText?.trim() || null,
       display_order: 0,
     })
     .select(
-      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, display_order, created_at, updated_at",
+      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, alt_text, display_order, created_at, updated_at",
     )
     .maybeSingle<MediaAssetRow>();
 
@@ -322,6 +331,38 @@ export async function confirmMediaUpload(input: {
 
   if (!data) {
     throw new Error("Media upload confirmation did not return a saved asset");
+  }
+
+  if (payload.assetType === "image") {
+    const { error: pointerError } = await supabase
+      .from("colloquiums")
+      .update({ hero_image_asset_id: data.id })
+      .eq("id", payload.colloquiumId);
+
+    if (pointerError) {
+      await deleteObjectFromStorage(data.storage_key);
+      await supabase.from("media_assets").delete().eq("id", data.id);
+      throw new Error(
+        `Failed to attach colloquium flyer: ${pointerError.message}`,
+      );
+    }
+  }
+
+  for (const asset of currentAssets ?? []) {
+    await deleteObjectFromStorage(asset.storage_key);
+
+    const { error: deleteError } = await supabase
+      .from("media_assets")
+      .delete()
+      .eq("id", asset.id);
+
+    if (deleteError) {
+      throw new Error(
+        payload.assetType === "image"
+          ? `Failed to remove the previous flyer: ${deleteError.message}`
+          : `Failed to replace block audio: ${deleteError.message}`,
+      );
+    }
   }
 
   const signedReadUrl = await createSignedReadUrl({
@@ -344,9 +385,14 @@ export async function deleteMediaAsset(input: { assetId: string }) {
   const supabase = await createClient();
   const { data: asset, error: selectError } = await supabase
     .from("media_assets")
-    .select("id, storage_key")
+    .select("id, storage_key, colloquium_id, type")
     .eq("id", input.assetId)
-    .maybeSingle<{ id: string; storage_key: string }>();
+    .maybeSingle<{
+      id: string;
+      storage_key: string;
+      colloquium_id: string;
+      type: MediaAssetType;
+    }>();
 
   if (selectError) {
     throw new Error(`Failed to load media asset: ${selectError.message}`);
@@ -354,6 +400,20 @@ export async function deleteMediaAsset(input: { assetId: string }) {
 
   if (!asset) {
     throw new Error("Media asset not found");
+  }
+
+  if (asset.type === "image") {
+    const { error: pointerError } = await supabase
+      .from("colloquiums")
+      .update({ hero_image_asset_id: null })
+      .eq("id", asset.colloquium_id)
+      .eq("hero_image_asset_id", asset.id);
+
+    if (pointerError) {
+      throw new Error(
+        `Failed to detach colloquium flyer: ${pointerError.message}`,
+      );
+    }
   }
 
   await deleteObjectFromStorage(asset.storage_key);
@@ -378,6 +438,38 @@ export async function signMediaAssets(assets: MediaAssetRecord[]) {
       }),
     })),
   );
+}
+
+export async function updateMediaAssetMetadata(input: {
+  assetId: string;
+  caption?: string | null;
+  altText?: string | null;
+}) {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("media_assets")
+    .update({
+      caption: input.caption?.trim() || null,
+      alt_text: input.altText?.trim() || null,
+    })
+    .eq("id", input.assetId)
+    .eq("type", "image")
+    .select(
+      "id, colloquium_id, section_id, type, provider, bucket, storage_key, asset_path, mime_type, size_bytes, duration_seconds, title, caption, alt_text, display_order, created_at, updated_at",
+    )
+    .maybeSingle<MediaAssetRow>();
+
+  if (error) {
+    throw new Error(`Failed to update flyer metadata: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error("Flyer not found");
+  }
+
+  return mapMediaAssetRecord(data);
 }
 
 export function mapMediaAssetRows(rows: MediaAssetRow[]) {

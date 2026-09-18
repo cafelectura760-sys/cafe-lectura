@@ -16,7 +16,9 @@ export function ReadingTableau() {
     <div className="reading-tableau reveal-soft reveal-soft-delay-1">
       <div className="relative z-10 flex h-full min-h-[480px] min-w-0 flex-col justify-between gap-8">
         <div className="flex items-center justify-between gap-3">
-          <p className="eyebrow text-[var(--color-casa)]">Mesa de lectura</p>
+          <p className="eyebrow text-[var(--color-casa)]">
+            Experiencia compartida
+          </p>
           <span className="editorial-pill">Sin prisa</span>
         </div>
 
@@ -43,11 +45,11 @@ export function ReadingTableau() {
           <div className="tableau-quote">
             <div className="accent-rule" />
             <p className="mt-5 font-serif text-[30px] leading-[1.18] font-semibold text-[var(--text-primary)] md:text-[34px]">
-              Leer aquí se siente como llegar a una mesa ya preparada.
+              Del texto leído al coloquio compartido.
             </p>
             <p className="mt-4 text-[17px] leading-7 text-[var(--text-secondary)]">
-              Biblioteca, conversación y acompañamiento en un espacio hecho para
-              entrar sin prisa.
+              Cada mes se anuncia la obra seleccionada, se comparte la ponencia
+              y el chat se abre para conversar.
             </p>
           </div>
 
@@ -57,10 +59,10 @@ export function ReadingTableau() {
                 <BookOpenText className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
                 <div>
                   <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                    Biblioteca visible
+                    Coloquios mensuales
                   </p>
                   <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                    Portadas, autores y sinopsis claras.
+                    Una obra, una ponencia y una conversación compartida.
                   </p>
                 </div>
               </div>
@@ -72,10 +74,10 @@ export function ReadingTableau() {
                   <CalendarDays className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
                   <div>
                     <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                      Membresía anual
+                      Participación gratuita
                     </p>
                     <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                      Gestión directa y cercana.
+                      El diálogo se desarrolla en el chat del CCLB.
                     </p>
                   </div>
                 </div>
@@ -86,10 +88,10 @@ export function ReadingTableau() {
                   <MessageCircleMore className="mt-1 h-5 w-5 text-[var(--color-casa)]" />
                   <div>
                     <p className="text-[16px] font-semibold text-[var(--text-primary)]">
-                      Conversación directa
+                      Membresía web
                     </p>
                     <p className="mt-1 text-[15px] leading-6 text-[var(--text-secondary)]">
-                      La orientación continúa en un contacto cercano.
+                      US$7 al año para consultar la colección privada.
                     </p>
                   </div>
                 </div>

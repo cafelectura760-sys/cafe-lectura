@@ -19,9 +19,9 @@ function buildGuestActions(): HeaderAction[] {
     {
       kind: "link",
       href: createWhatsAppHref(
-        "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
+        "Me gustaría recibir información sobre la membresía anual de Café Lectura Barquisimeto.",
       ),
-      label: "Consultar membresía",
+      label: "Consultar membresía web",
       tone: "warm",
       external: true,
     },
@@ -75,7 +75,7 @@ export function AppHeader({
         isAuthenticated
           ? [
               { href: "/", label: "Inicio" },
-              { href: "/library", label: "Biblioteca" },
+              { href: "/library", label: "Colección" },
               { href: "/colloquiums", label: "Coloquios" },
               ...(session.profile?.role === "admin"
                 ? [{ href: "/admin", label: "Panel de administración" }]
@@ -83,7 +83,7 @@ export function AppHeader({
             ]
           : [
               { href: "/", label: "Inicio" },
-              { href: "/library", label: "Biblioteca" },
+              { href: "/library", label: "Colección" },
               { href: "/login", label: "Iniciar sesión" },
             ]
       }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,6 +26,7 @@ export type MemberVoice = {
   focus: string;
   badge: string;
   quote: string;
+  href: string;
   highlight?: string;
   clubContext?: string;
   readingContext?: string;
@@ -174,7 +176,7 @@ export function MemberVoicesCarousel({ voices }: MemberVoicesCarouselProps) {
         className="overflow-hidden"
         ref={emblaRef}
         aria-roledescription="carousel"
-        aria-label="Testimonios de miembros de Café Lectura"
+        aria-label="Testimonios de Café Lectura Barquisimeto"
       >
         <div className="testimonial-carousel-track">
           {voices.map((voice) => (
@@ -225,9 +227,19 @@ export function MemberVoicesCarousel({ voices }: MemberVoicesCarouselProps) {
                       <p className="testimonial-person-role">{voice.role}</p>
                     </div>
 
-                    <div className="testimonial-person-chip shrink-0">
-                      <UserRound className="h-4 w-4" />
-                      <span>Voz del club</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="testimonial-person-chip shrink-0">
+                        <UserRound className="h-4 w-4" />
+                        <span>Voz del club</span>
+                      </div>
+                      <Link
+                        href={voice.href}
+                        className="editorial-link shrink-0"
+                        aria-label={`Leer el testimonio completo de ${voice.name}`}
+                      >
+                        Leer completo
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
                     </div>
                   </div>
                 </div>

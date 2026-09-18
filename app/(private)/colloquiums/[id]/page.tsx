@@ -14,7 +14,7 @@ type ColloquiumDetailPageProps = {
 export const metadata: Metadata = {
   title: "Detalle del coloquio",
   description:
-    "Vista detallada de un coloquio privado para miembros de Café Lectura.",
+    "Vista detallada de un coloquio privado para miembros de Café Lectura Barquisimeto.",
 };
 
 export default async function ColloquiumDetailPage({

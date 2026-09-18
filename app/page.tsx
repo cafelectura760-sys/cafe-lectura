@@ -22,14 +22,14 @@ import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Club privado de lectura",
+  title: "Café Lectura Barquisimeto | Club de lectura",
   description:
-    "Café Lectura es un club privado de lectura con biblioteca pública, membresía anual y coloquios privados para miembros activos.",
+    "Café Lectura Barquisimeto es un club de lectura con coloquios mensuales por WhatsApp y un archivo privado para miembros.",
 };
 
 function getMembershipHref() {
   return createWhatsAppHref(
-    "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
+    "Me gustaría recibir información sobre la membresía anual de Café Lectura Barquisimeto.",
   );
 }
 
@@ -51,36 +51,36 @@ export default async function Home() {
   const featuredBooks = books.slice(0, 3);
   const highlights = [
     {
-      title: "Biblioteca visible",
-      text: "Consulta los libros disponibles y descubre nuevas lecturas con una guía clara y directa.",
+      title: "Coloquios mensuales",
+      text: "Cada mes se anuncia una obra, se presenta una ponencia y se abre un espacio de conversación en el chat del club.",
       icon: Library,
     },
     {
-      title: "Membresía anual",
-      text: "La participación se gestiona de forma manual, cercana y sin pagos dentro de la plataforma.",
+      title: "Participación por WhatsApp",
+      text: "La participación en los coloquios por el chat del CCLB es gratuita y se coordina con la administración.",
       icon: MessageCircleMore,
     },
     {
-      title: "Coloquios privados",
-      text: "Los miembros activos acceden a lecturas y conversaciones preparadas para leer con calma.",
+      title: "Archivo privado del club",
+      text: "Los miembros con membresía web vigente pueden consultar la colección de coloquios publicados.",
       icon: ScrollText,
     },
   ];
   const membershipSteps = [
     {
       number: "01",
-      title: "Consulta inicial",
-      text: "El primer contacto se hace por WhatsApp para resolver dudas y explicar cómo funciona el club.",
+      title: "Solicitar información",
+      text: "Escribe por WhatsApp para conocer el proceso de membresía web y recibir las instrucciones de pago.",
     },
     {
       number: "02",
-      title: "Acceso privado",
-      text: "Los miembros activos encuentran sus coloquios en un espacio discreto, legible y fácil de recorrer.",
+      title: "Confirmar el acceso",
+      text: "Una vez confirmado el pago, la administración crea tu usuario y habilita el acceso privado a la plataforma.",
     },
     {
       number: "03",
-      title: "Renovación manual",
-      text: "Cuando hace falta renovar, el flujo vuelve a WhatsApp para mantener el trato cercano del club.",
+      title: "Consultar la colección",
+      text: "Mientras la membresía esté vigente, puedes consultar la colección de coloquios publicada en la web. Si vence, el acceso privado se suspende hasta renovar.",
     },
   ];
 
@@ -89,21 +89,25 @@ export default async function Home() {
       <AppHeader
         activeHref="/"
         session={session}
-        description="Club privado de lectura, biblioteca visible y coloquios para miembros activos."
+        description="Club de lectura, coloquios por WhatsApp y archivo privado para miembros."
       />
 
       <section className="hero-band">
         <div className="relative z-10 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.9fr)] lg:items-center lg:gap-10">
           <AnimatedContentSlot delay={0} distance={20} className="min-w-0 py-2">
             <div className="accent-rule" />
-            <p className="eyebrow mt-5">Club privado de lectura</p>
+            <p className="eyebrow mt-5">Club de lectura</p>
             <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
               Un club de lectura que se siente cercano desde la primera visita.
             </h1>
             <p className="body-large mt-6 max-w-3xl">
-              Café Lectura acompaña a sus miembros con una biblioteca pública
-              para consulta, una membresía anual gestionada de forma cercana y
-              coloquios privados preparados para leer sin prisa.
+              Desde hace seis años, Café Lectura Barquisimeto es un refugio para
+              compartir lo que cada obra nos hace sentir. Ya hemos leído y
+              conversado sobre 70 obras literarias, y nos encantaría que te
+              sumaras al club. Cada mes se anuncia previamente en el chat del
+              CCLB la obra seleccionada y la fecha de la ponencia. Después de la
+              presentación, el grupo se abre para conversar y compartir
+              impresiones.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -119,12 +123,12 @@ export default async function Home() {
                   rel="noreferrer"
                   className="btn-primary"
                 >
-                  Consultar membresía
+                  Consultar membresía web
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </a>
               )}
               <Link href="/library" className="btn-secondary">
-                Ver biblioteca
+                Conocer la colección
               </Link>
             </div>
           </AnimatedContentSlot>
@@ -165,12 +169,12 @@ export default async function Home() {
       <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
         <AnimatedContentSlot delay={0} distance={20}>
           <SectionHeading
-            eyebrow="Biblioteca"
-            title="Una biblioteca visible para descubrir con calma"
-            description="Estos son algunos de los títulos disponibles en Café Lectura. Puedes recorrerlos con calma, abrir cada ficha y escribirnos si quieres conocer más sobre alguno de ellos."
+            eyebrow="Colección del club"
+            title="Coloquios y ponencias para consultar con calma"
+            description="Esta sección presenta algunas de las obras trabajadas por Café Lectura Barquisimeto. El acceso completo a la colección de coloquios corresponde a los miembros con membresía web vigente."
             action={
               <Link href="/library" className="editorial-link">
-                Ver catálogo completo
+                Ver la colección
               </Link>
             }
           />
@@ -178,9 +182,9 @@ export default async function Home() {
 
         {featuredBooks.length === 0 ? (
           <div className="mt-8">
-            <StatusBanner title="Biblioteca en preparación">
-              La biblioteca pública está en preparación. Pronto verás aquí los
-              primeros títulos disponibles.
+            <StatusBanner title="Colección en preparación">
+              Todavía no hay obras publicadas en esta sección. En cuanto la
+              administración cargue nuevos contenidos, aparecerán aquí.
             </StatusBanner>
           </div>
         ) : (
@@ -194,7 +198,7 @@ export default async function Home() {
               >
                 <BookCard
                   book={book}
-                  eyebrow="Selección del club"
+                  eyebrow="Obra trabajada"
                   detailHref={buildBookDetailHref(book.id)}
                   inquiryHref={buildBookInfoHref(book.title, book.author)}
                   inquiryLabel="Más información"
@@ -212,9 +216,9 @@ export default async function Home() {
         <article className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <AnimatedContentSlot delay={0} distance={20}>
             <SectionHeading
-              eyebrow="Membresía"
-              title="Una forma sencilla de sostener el hábito de leer durante todo el año"
-              description="Café Lectura no funciona como una plataforma de suscripción automatizada. La membresía es anual, cercana y pensada para acompañar con claridad, sin pasos innecesarios."
+              eyebrow="Membresía web"
+              title="Accede al archivo privado del club durante todo el año"
+              description="La membresía anual cuesta US$7 y se gestiona directamente por WhatsApp. La participación en los coloquios del chat del CCLB es gratuita; la membresía corresponde al acceso privado a la colección publicada en la página web."
             />
           </AnimatedContentSlot>
 
@@ -251,12 +255,11 @@ export default async function Home() {
               </p>
               <div className="accent-rule mt-4" />
               <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-                Tu membresía está activa en Café Lectura
+                Tu acceso web está activo
               </h2>
               <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
-                Accede a la sala privada para explorar los coloquios publicados
-                y disfrutar de lecturas preparadas con foco y tranquilidad para
-                nuestros miembros.
+                Puedes consultar la colección de coloquios publicados y volver a
+                cada presentación con calma.
               </p>
               <div className="mt-8">
                 <Link href="/colloquiums" className="btn-warm">
@@ -273,16 +276,17 @@ export default async function Home() {
           >
             <aside className="h-full px-6 py-7 text-[var(--text-on-dark)] md:px-7 md:py-8">
               <p className="eyebrow text-[color:color-mix(in_srgb,var(--color-paper-soft)_80%,white)]">
-                Conversación cercana
+                Participación por WhatsApp
               </p>
               <div className="accent-rule mt-4" />
               <h2 className="section-title mt-3 text-[var(--text-on-dark)]">
-                ¿Quieres saber si Café Lectura puede ser para ti?
+                Forma parte de los coloquios del CCLB
               </h2>
               <p className="mt-4 text-[18px] leading-8 text-[color:color-mix(in_srgb,var(--color-paper)_84%,white)]">
-                Escríbenos por WhatsApp y te contamos cómo funciona la
-                membresía, qué libros están disponibles y de qué forma se
-                organizan los coloquios del club.
+                La participación en el chat y en las discusiones es gratuita.
+                Escríbenos por WhatsApp para conocer la próxima obra
+                seleccionada, la fecha de la ponencia y el proceso de membresía
+                web.
               </p>
               <div className="mt-8">
                 <a
@@ -291,7 +295,7 @@ export default async function Home() {
                   rel="noreferrer"
                   className="btn-warm"
                 >
-                  Consultar membresía
+                  Escribir por WhatsApp
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </a>
               </div>

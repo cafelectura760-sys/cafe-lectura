@@ -105,7 +105,7 @@ export function ColloquiumCard({
               href="/library"
               className="btn-secondary justify-center text-center"
             >
-              Ver biblioteca
+              Ver colección
             </Link>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-Cafe Lectura is a monolithic web application for a private local reading club in Venezuela. The MVP supports a public presence, a private membership area, and a simple internal administration area.
+Cafe Lectura is a monolithic web application for a local reading club in Venezuela. The MVP supports a public presence, a private web membership area, and a simple internal administration area. Participation in the club's WhatsApp colloquiums is a separate, free activity coordinated with the administration.
 
 The platform is designed primarily for adults between 50 and 70+ years old. The product must prioritize clarity, readability, accessibility, and a calm user experience over visual novelty or complex interactions.
 
@@ -10,11 +10,12 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 
 - Public landing page for the reading club.
 - Public visual library of available books.
+- Public testimonial pages for people who have participated in the club's colloquiums.
 - Private colloquium area for active members.
 - Private colloquium presentation module with ordered text and audio blocks plus an optional responsive flyer.
 - Admin dashboard for manual internal management, including the colloquium builder workflow.
 - Login-only authentication flow with no public signup.
-- WhatsApp-based membership and book inquiries.
+- WhatsApp-based colloquium participation, web membership inquiries, and book inquiries.
 
 ### Product Goals
 
@@ -26,7 +27,7 @@ The platform is designed primarily for adults between 50 and 70+ years old. The 
 
 ### Business Model
 
-Cafe Lectura uses a manual annual membership model. Users do not purchase subscriptions inside the app. Any membership request, renewal request, or book inquiry must redirect to WhatsApp using configured environment values.
+Cafe Lectura uses a manual annual web membership model. The annual web membership costs US$7 and grants access to the private published colloquium collection. Participation in colloquiums through the club's WhatsApp chat is free and is coordinated with the administration. Users do not purchase subscriptions inside the app. Any membership request, renewal request, or book inquiry must redirect to WhatsApp using configured environment values.
 
 No payment gateway integration is allowed in the MVP.
 
@@ -52,7 +53,7 @@ The technical stack is fixed and must not be changed without explicit approval.
 
 ## 2.1 Current Implementation Status
 
-This section reflects the repository state directly observed in version-controlled files on July 1, 2026 after the admin workspace migration pass.
+This section reflects the repository state directly observed in version-controlled files on September 18, 2026 after the public copy and testimonial pass.
 
 Implemented:
 
@@ -61,6 +62,7 @@ Implemented:
 - Supabase SSR client utilities using `@supabase/ssr`.
 - Root `proxy.ts` for Supabase session cookie refresh.
 - Public home page, public library page, and public book-detail page backed by Supabase book data.
+- Public testimonial section with full-text pages for Federico Arteta and Douglas Jiménez.
 - Login-only authentication flow for existing Supabase users.
 - Private colloquium list and detail pages protected by server-side membership checks.
 - Private colloquium detail rendering based on colloquium metadata, participants, and ordered presentation blocks.
@@ -112,6 +114,10 @@ Routes:
   - URL: `/library/[id]`
   - Public detail page for a single published book.
   - Shows the complete synopsis, direct WhatsApp inquiry access, and membership-oriented call to action.
+- `(public)/testimonios/[slug]/page.tsx`
+  - URL: `/testimonios/[slug]`
+  - Public full-text testimonial page for an approved participant testimony.
+  - The landing page presents a short hook and links to the complete testimony.
 
 ### Private Area
 
@@ -211,6 +217,8 @@ Routes:
 - The membership model is manual and annual.
 - Payment gateways are forbidden. Do not integrate Stripe, PayPal, MercadoPago, or similar providers.
 - Membership purchase, renewal, and subscription intent must redirect to WhatsApp.
+- Participation in colloquiums through the club's WhatsApp chat is free and is distinct from the paid web membership.
+- The US$7 annual web membership grants access to the private published colloquium collection while it remains active.
 - WhatsApp number and default message must come from environment variables.
 - Books are not downloadable.
 - The public library must provide a "More Information" action that opens WhatsApp.

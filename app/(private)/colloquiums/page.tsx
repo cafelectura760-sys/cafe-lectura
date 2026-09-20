@@ -16,7 +16,7 @@ type ColloquiumsPageProps = {
 export const metadata: Metadata = {
   title: "Coloquios",
   description:
-    "Espacio privado de coloquios para miembros activos de Café Lectura.",
+    "Espacio privado de coloquios para miembros activos de Café Lectura Barquisimeto.",
 };
 
 export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
@@ -30,7 +30,7 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
       <AppHeader
         activeHref="/colloquiums"
         session={session}
-        description="Espacio privado para miembros activos con lecturas y conversaciones del club."
+        description="Espacio privado para miembros activos con las presentaciones y conversaciones del club."
       />
 
       <section className="hero-band">
@@ -62,7 +62,7 @@ export default async function ColloquiumsPage(_: ColloquiumsPageProps) {
               <div className="editorial-note">
                 <p className="eyebrow">Sala privada</p>
                 <p className="body-copy mt-2">
-                  Abre cada coloquio con calma. El libro, la fecha y el extracto
+                  Abre cada coloquio con calma. La obra, la fecha y el extracto
                   inicial están pensados para orientarte antes de entrar a leer.
                 </p>
               </div>

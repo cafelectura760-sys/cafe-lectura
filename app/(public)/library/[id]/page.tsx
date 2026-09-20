@@ -25,7 +25,7 @@ type LibraryBookDetailPageProps = {
 
 function getMembershipHref() {
   return createWhatsAppHref(
-    "Me gustaría recibir información sobre la membresía anual de Café Lectura.",
+    "Me gustaría recibir información sobre la membresía anual de Café Lectura Barquisimeto.",
   );
 }
 
@@ -59,14 +59,14 @@ export async function generateMetadata({
 
   if (!book) {
     return {
-      title: "Libro no encontrado",
-      description: "No encontramos este libro dentro de la biblioteca pública.",
+      title: "Obra no encontrada",
+      description: "No encontramos esta obra dentro de la colección pública.",
     };
   }
 
   return {
-    title: `${book.title} | Biblioteca`,
-    description: `Ficha pública de ${book.title} de ${book.author} en Café Lectura.`,
+    title: `${book.title} | Colección`,
+    description: `Ficha pública de ${book.title} de ${book.author} en Café Lectura Barquisimeto.`,
   };
 }
 
@@ -95,7 +95,7 @@ export default async function LibraryBookDetailPage({
       <AppHeader
         activeHref="/library"
         session={session}
-        description="Ficha pública de un libro disponible para explorar con calma."
+        description="Ficha pública de una obra trabajada por el club."
       />
 
       <section className="hero-band">
@@ -123,7 +123,7 @@ export default async function LibraryBookDetailPage({
             <div className="colloquium-meta">
               <span className="editorial-pill">
                 <BookOpenText className="h-4 w-4" />
-                Biblioteca pública
+                Colección pública
               </span>
               <span className="editorial-pill">
                 <ScrollText className="h-4 w-4" />
@@ -137,7 +137,7 @@ export default async function LibraryBookDetailPage({
               </span>
             </div>
 
-            <p className="eyebrow mt-5">Detalle del libro</p>
+            <p className="eyebrow mt-5">Detalle de la obra</p>
             <h1 className="display-title mt-4 max-w-4xl text-[var(--text-primary)]">
               {book.title}
             </h1>
@@ -154,7 +154,7 @@ export default async function LibraryBookDetailPage({
                 rel="noreferrer"
                 className="btn-primary"
               >
-                Consultar por este libro
+                Consultar por esta obra
                 <ArrowRight className="h-[18px] w-[18px]" />
               </a>
               {session ? (
@@ -197,7 +197,7 @@ export default async function LibraryBookDetailPage({
                 <div>
                   <p className="eyebrow">Siguiente paso</p>
                   <h2 className="subsection-title mt-3 text-[var(--text-primary)]">
-                    Si este libro te despierta curiosidad, ya tienes por dónde
+                    Si esta obra te despierta curiosidad, ya tienes por dónde
                     entrar
                   </h2>
                   <p className="body-copy mt-4">
@@ -210,8 +210,8 @@ export default async function LibraryBookDetailPage({
                 <StatusBanner
                   title={
                     book.publishedColloquiumCount > 0
-                      ? "Libro ya presente en la conversación del club"
-                      : "Libro disponible para consulta directa"
+                      ? "Obra ya presente en la conversación del club"
+                      : "Obra disponible para consulta directa"
                   }
                 >
                   {book.publishedColloquiumCount > 0
@@ -227,14 +227,14 @@ export default async function LibraryBookDetailPage({
                   rel="noreferrer"
                   className="btn-primary justify-center text-center"
                 >
-                  Consultar por este libro
+                  Consultar por esta obra
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </a>
                 <Link
                   href="/library"
                   className="btn-secondary justify-center text-center"
                 >
-                  Volver a la biblioteca
+                  Volver a la colección
                 </Link>
                 {session ? (
                   <Link

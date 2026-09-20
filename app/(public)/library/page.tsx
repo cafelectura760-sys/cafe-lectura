@@ -12,8 +12,9 @@ import { getPublicBooks } from "@/lib/books/data";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Biblioteca",
-  description: "Catálogo público de libros de Café Lectura.",
+  title: "Colección",
+  description:
+    "Colección pública de obras trabajadas por Café Lectura Barquisimeto.",
 };
 
 function buildBookInfoHref(title: string, author: string) {
@@ -37,16 +38,16 @@ export default async function LibraryPage() {
       <AppHeader
         activeHref="/library"
         session={session}
-        description="Catálogo público de libros disponibles para explorar con calma."
+        description="Colección pública de obras trabajadas por el club."
       />
 
       <section className="hero-band">
         <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
-            eyebrow="Biblioteca pública"
-            title="Libros para descubrir y conocer con calma"
-            description="Esta biblioteca muestra los títulos disponibles en Café Lectura. Puedes recorrer el catálogo con calma y escribirnos si quieres saber más sobre algún libro."
+            eyebrow="Colección del club"
+            title="Obras para conocer y explorar con calma"
+            description="Esta sección reúne algunas de las obras trabajadas en Café Lectura Barquisimeto. Puedes recorrerlas con calma y escribirnos si quieres saber más sobre alguna."
             titleClassName="display-title"
             action={
               <Link href="/" className="editorial-link">
@@ -64,11 +65,11 @@ export default async function LibraryPage() {
               <BookOpenText className="h-5 w-5" />
             </div>
             <h2 className="subsection-title mt-5 text-[var(--text-primary)]">
-              Biblioteca en preparación
+              Colección en preparación
             </h2>
             <p className="body-large mt-4">
-              Todavía no hay libros publicados en el catálogo. En cuanto el
-              equipo cargue nuevos títulos desde el panel de administración,
+              Todavía no hay obras publicadas en la colección. En cuanto el
+              equipo cargue nuevos contenidos desde el panel de administración,
               aparecerán aquí.
             </p>
           </div>
@@ -77,9 +78,9 @@ export default async function LibraryPage() {
         <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
           <AnimatedContentSlot delay={0} distance={20}>
             <SectionHeading
-              eyebrow="Catálogo disponible"
-              title="Una biblioteca visible para explorar con calma"
-              description="Cada tarjeta conserva una lectura más limpia y deja la sinopsis completa para la ficha del libro, con un recorrido más claro en cualquier tamaño de pantalla."
+              eyebrow="Colección disponible"
+              title="Una colección seleccionada por el club"
+              description="Cada ficha reúne la información disponible sobre una obra y su relación con los coloquios publicados."
             />
           </AnimatedContentSlot>
 
@@ -93,7 +94,7 @@ export default async function LibraryPage() {
               >
                 <BookCard
                   book={book}
-                  eyebrow="Catálogo disponible"
+                  eyebrow="Obra del club"
                   detailHref={buildBookDetailHref(book.id)}
                   inquiryHref={buildBookInfoHref(book.title, book.author)}
                   inquiryLabel="Más información"

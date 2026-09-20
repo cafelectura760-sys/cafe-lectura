@@ -25,7 +25,7 @@ const errorMessages: Record<string, string> = {
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
-  description: "Acceso privado para miembros de Café Lectura.",
+  description: "Acceso privado para miembros de Café Lectura Barquisimeto.",
 };
 
 function normalizeErrorCode(error: string | string[] | undefined) {
@@ -51,7 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       />
 
       <GatePanel
-        eyebrow="Café Lectura"
+        eyebrow="Café Lectura Barquisimeto"
         title="Iniciar sesión"
         description="Accede con las credenciales entregadas por la administración del club."
         footer={

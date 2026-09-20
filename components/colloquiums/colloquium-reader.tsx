@@ -308,7 +308,7 @@ export function ColloquiumReader({
             </div>
 
             <div className="flex flex-col justify-center py-1">
-              <p className="eyebrow">Libro de esta sesión</p>
+              <p className="eyebrow">Obra de esta sesión</p>
               <h2 className="section-title mt-3 text-[var(--text-primary)]">
                 {colloquium.bookTitle}
               </h2>
@@ -319,27 +319,27 @@ export function ColloquiumReader({
               <p className="body-copy mt-4">
                 Esta sesión privada profundiza en los temas, reflexiones y
                 pasajes esenciales de la obra. Puedes acceder a su ficha
-                completa dentro del catálogo del club.
+                completa dentro de la colección del club.
               </p>
             </div>
 
             <div className="flex flex-col gap-3 border-t border-[color:color-mix(in_srgb,var(--color-clay)_18%,white)] pt-5 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch lg:justify-center lg:self-center lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
               <p className="meta-copy text-center text-[13px] sm:text-left lg:text-center">
-                Ficha bibliográfica disponible en el catálogo.
+                Ficha de la obra disponible en la colección.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <Link
                   href={`/library/${colloquium.bookId}`}
                   className="btn-primary justify-center text-center"
                 >
-                  Abrir ficha del libro
+                  Abrir ficha de la obra
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </Link>
                 <Link
                   href="/library"
                   className="btn-secondary justify-center text-center"
                 >
-                  Ver biblioteca
+                  Ver colección
                 </Link>
               </div>
             </div>

@@ -74,7 +74,7 @@ export function BookCard({
             className={`book-card-actions ${compact ? "w-full sm:w-full sm:justify-between" : ""}`}
           >
             <Link href={detailHref} className="btn-secondary w-full sm:w-auto">
-              Ver libro
+              Ver obra
             </Link>
             <a
               href={inquiryHref}

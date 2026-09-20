@@ -16,12 +16,12 @@ type MembershipExpiredPageProps = {
 export const metadata: Metadata = {
   title: "Membresía vencida",
   description:
-    "Orientación para miembros con membresía vencida en Café Lectura.",
+    "Orientación para miembros con membresía vencida en Café Lectura Barquisimeto.",
 };
 
 export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
   const whatsappHref = createWhatsAppHref(
-    "Necesito ayuda para renovar mi membresía de Café Lectura.",
+    "Necesito ayuda para renovar mi membresía de Café Lectura Barquisimeto.",
   );
 
   return (
@@ -29,7 +29,7 @@ export default function MembershipExpiredPage(_: MembershipExpiredPageProps) {
       <SiteHeader
         items={[
           { href: "/", label: "Inicio" },
-          { href: "/library", label: "Biblioteca" },
+          { href: "/library", label: "Colección" },
           { href: "/login", label: "Iniciar sesión" },
         ]}
         activeHref="/login"

@@ -33,6 +33,12 @@ function getMembershipHref() {
   );
 }
 
+function getClubInfoHref() {
+  return createWhatsAppHref(
+    "Me gustaría conocer la próxima obra seleccionada, la fecha de la ponencia y cómo participar en los coloquios por WhatsApp. También quisiera información sobre la membresía web.",
+  );
+}
+
 function buildBookInfoHref(title: string, author: string) {
   return createWhatsAppHref(
     `Quiero más información sobre "${title}" de ${author}.`,
@@ -290,7 +296,7 @@ export default async function Home() {
               </p>
               <div className="mt-8">
                 <a
-                  href={getMembershipHref()}
+                  href={getClubInfoHref()}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-warm"

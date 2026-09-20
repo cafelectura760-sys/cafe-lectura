@@ -1,13 +1,10 @@
 type RequiredPublicEnvName =
   | "NEXT_PUBLIC_SUPABASE_URL"
-  | "NEXT_PUBLIC_WHATSAPP_NUMBER"
-  | "NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE";
+  | "NEXT_PUBLIC_WHATSAPP_NUMBER";
 
 const requiredPublicEnv: Record<RequiredPublicEnvName, string | undefined> = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
-  NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE:
-    process.env.NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE,
 };
 
 function getRequiredPublicEnv(name: RequiredPublicEnvName): string {
@@ -40,8 +37,4 @@ export function getSupabasePublishableKey(): string {
 
 export function getWhatsAppNumber(): string {
   return getRequiredPublicEnv("NEXT_PUBLIC_WHATSAPP_NUMBER");
-}
-
-export function getWhatsAppDefaultMessage(): string {
-  return getRequiredPublicEnv("NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE");
 }

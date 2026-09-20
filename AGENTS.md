@@ -93,8 +93,8 @@ For implementation, auditing, hardening, or repository-quality tasks:
 ## Configuration Rules
 
 - Do not hardcode public configuration values.
-- WhatsApp number and default WhatsApp message must come from environment variables.
-- Use `NEXT_PUBLIC_WHATSAPP_NUMBER` and `NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE` for public WhatsApp flows.
+- The WhatsApp number must come from an environment variable.
+- Use `NEXT_PUBLIC_WHATSAPP_NUMBER` for public WhatsApp flows and pass each CTA's contextual Spanish message explicitly to the shared WhatsApp helper.
 - Use public Supabase environment variables only for browser-safe values.
 - Never expose service-role credentials or other privileged secrets to Client Components.
 - Validate required environment variables in shared configuration modules when the code path depends on them.

@@ -219,7 +219,7 @@ Routes:
 - Membership purchase, renewal, and subscription intent must redirect to WhatsApp.
 - Participation in colloquiums through the club's WhatsApp chat is free and is distinct from the paid web membership.
 - The US$7 annual web membership grants access to the private published colloquium collection while it remains active.
-- WhatsApp number and default message must come from environment variables.
+- The WhatsApp number must come from an environment variable, while each CTA supplies its own contextual message.
 - Books are not downloadable.
 - The public library must provide a "More Information" action that opens WhatsApp.
 - Public library visibility for books is controlled by the admin-facing `books.status` field.
@@ -1313,14 +1313,13 @@ The redesign must not introduce:
 
 ## 9. Environment Configuration
 
-Public WhatsApp configuration must not be hardcoded in components, actions, utilities, or route handlers.
+The public WhatsApp number must not be hardcoded in components, actions, utilities, or route handlers.
 
 Required public environment values:
 
 - `NEXT_PUBLIC_WHATSAPP_NUMBER`
-- `NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE`
 
-These values should be used to build WhatsApp URLs for membership inquiries, renewal requests, and book inquiries. Environment variable validation should be introduced when the project needs a shared configuration module.
+The configured number should be used to build WhatsApp URLs for membership inquiries, renewal requests, colloquium participation, and book inquiries. Each flow must provide a clear, contextual Spanish message in the application code. Environment variable validation should be introduced when the project needs a shared configuration module.
 
 Required Supabase environment values:
 

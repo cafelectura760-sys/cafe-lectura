@@ -63,6 +63,7 @@ Implemented:
 - Root `proxy.ts` for Supabase session cookie refresh.
 - Public home page, public library page, and public book-detail page backed by Supabase book data.
 - Public testimonial section with full-text pages for Federico Arteta and Douglas Jiménez.
+- Shared site footer with direct links to the club's YouTube channel and historical colloquium archive on Blogspot.
 - Login-only authentication flow for existing Supabase users.
 - Private colloquium list and detail pages protected by server-side membership checks.
 - Private colloquium detail rendering based on colloquium metadata, participants, and ordered presentation blocks.
@@ -114,6 +115,7 @@ Routes:
   - URL: `/`
   - Public landing page for the reading club.
   - Explains the club, membership idea, and primary WhatsApp call to action.
+  - The shared site footer links to the club's YouTube channel and historical colloquium archive on Blogspot.
 - `(public)/library/page.tsx`
   - URL: `/library`
   - Public visual catalog of books.

@@ -26,6 +26,10 @@ const errorMessages: Record<string, string> = {
 export const metadata: Metadata = {
   title: "Iniciar sesión",
   description: "Acceso privado para miembros de Café Lectura Barquisimeto.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 function normalizeErrorCode(error: string | string[] | undefined) {

@@ -45,6 +45,19 @@ export async function createSignedReadUrl(input: {
   return data.signedUrl;
 }
 
+export async function getStoredObjectInfo(storageKey: string) {
+  const { data, error } = await getStorageBucketApi().info(storageKey);
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to inspect the uploaded file");
+  }
+
+  return {
+    sizeBytes: data.size,
+    mimeType: data.contentType,
+  };
+}
+
 export async function deleteObjectFromStorage(storageKey: string) {
   const { error } = await getStorageBucketApi().remove([storageKey]);
 

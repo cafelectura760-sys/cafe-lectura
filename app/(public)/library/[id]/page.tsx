@@ -15,6 +15,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { StatusBanner } from "@/components/status-banner";
 import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBookById } from "@/lib/books/data";
+import { createPublicMetadata } from "@/lib/seo/metadata";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
 type LibraryBookDetailPageProps = {
@@ -61,13 +62,15 @@ export async function generateMetadata({
     return {
       title: "Obra no encontrada",
       description: "No encontramos esta obra dentro de la colección pública.",
+      robots: { index: false, follow: false },
     };
   }
 
-  return {
+  return createPublicMetadata({
     title: `${book.title} | Colección`,
     description: `Ficha pública de ${book.title} de ${book.author} en Café Lectura Barquisimeto.`,
-  };
+    path: `/library/${book.id}`,
+  });
 }
 
 export default async function LibraryBookDetailPage({

@@ -17,6 +17,7 @@ import {
   createSignedUploadToken,
   deleteObjectFromStorage,
   getColloquiumMediaBucket,
+  getStoredObjectInfo,
 } from "@/lib/colloquiums/storage";
 import type {
   MediaAssetRecord,
@@ -276,6 +277,25 @@ export async function confirmMediaUpload(input: {
     payload.sizeBytes !== input.sizeBytes
   ) {
     throw new Error("Upload confirmation does not match the original request");
+  }
+
+  const uploadedObject = await getStoredObjectInfo(payload.storageKey);
+  const allowedMimeTypes = getAllowedMimeTypes(payload.assetType);
+
+  if (
+    typeof uploadedObject.sizeBytes !== "number" ||
+    uploadedObject.sizeBytes !== payload.sizeBytes ||
+    uploadedObject.sizeBytes <= 0 ||
+    uploadedObject.sizeBytes > getMediaSizeLimit(payload.assetType) ||
+    uploadedObject.mimeType !== payload.mimeType ||
+    !allowedMimeTypes.includes(
+      uploadedObject.mimeType as (typeof allowedMimeTypes)[number],
+    )
+  ) {
+    await deleteObjectFromStorage(payload.storageKey);
+    throw new Error(
+      "The uploaded file does not match the approved file type or size",
+    );
   }
 
   await assertMediaContextExists({

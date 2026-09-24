@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpenText } from "lucide-react";
 
@@ -9,13 +8,15 @@ import { AnimatedContentSlot } from "@/components/react-bits/animated-content-sl
 import { SectionHeading } from "@/components/section-heading";
 import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
+import { createPublicMetadata } from "@/lib/seo/metadata";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
+export const metadata = createPublicMetadata({
   title: "Colección",
   description:
-    "Colección pública de obras trabajadas por Café Lectura Barquisimeto.",
-};
+    "Colección pública de obras analizadas por Café Lectura Barquisimeto.",
+  path: "/library",
+});
 
 function buildBookInfoHref(title: string, author: string) {
   return createWhatsAppHref(
@@ -38,16 +39,16 @@ export default async function LibraryPage() {
       <AppHeader
         activeHref="/library"
         session={session}
-        description="Colección pública de obras trabajadas por el club."
+        description="Colección pública de obras analizadas por el club."
       />
 
       <section className="hero-band">
         <AnimatedContentSlot delay={0} distance={20} className="relative z-10">
           <div className="accent-rule mb-5" />
           <SectionHeading
-            eyebrow="Colección del club"
+            eyebrow="Colección que le pertenece a Café Lectura Barquisimeto"
             title="Obras para conocer y explorar con calma"
-            description="Esta sección reúne algunas de las obras trabajadas en Café Lectura Barquisimeto. Puedes recorrerlas con calma y escribirnos si quieres saber más sobre alguna."
+            description="Esta sección reúne algunas de las obras analizadas en Café Lectura Barquisimeto. Puedes recorrerlas con calma y escribirnos si quieres saber más sobre alguna."
             titleClassName="display-title"
             action={
               <Link href="/" className="editorial-link">

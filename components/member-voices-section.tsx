@@ -12,7 +12,7 @@ const memberVoices: MemberVoice[] = [
   {
     id: "federico-arteta",
     name: "Federico Arteta",
-    role: "Presentador y participante de los coloquios",
+    role: "Ponente y participante de los coloquios",
     focus: "Humanismo compartido",
     badge: "Testimonio completo",
     quote:
@@ -23,7 +23,7 @@ const memberVoices: MemberVoice[] = [
   {
     id: "douglas-jimenez",
     name: "Douglas Jiménez",
-    role: "Moderador y participante de los coloquios",
+    role: "Ponente y participante de los coloquios",
     focus: "Historia cultural",
     badge: "Testimonio completo",
     quote:

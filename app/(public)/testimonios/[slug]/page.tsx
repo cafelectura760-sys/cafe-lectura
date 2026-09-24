@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { PageShell } from "@/components/page-shell";
 import { getAuthSession } from "@/lib/auth/session";
+import { createPublicMetadata } from "@/lib/seo/metadata";
 import { getTestimonialBySlug } from "@/lib/testimonials/data";
 
 type TestimonialPageProps = {
@@ -22,13 +23,15 @@ export async function generateMetadata({
   if (!testimonial) {
     return {
       title: "Testimonio no encontrado",
+      robots: { index: false, follow: false },
     };
   }
 
-  return {
+  return createPublicMetadata({
     title: `${testimonial.name} | Testimonios`,
     description: testimonial.hook,
-  };
+    path: `/testimonios/${testimonial.slug}`,
+  });
 }
 
 export default async function TestimonialPage({

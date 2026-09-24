@@ -20,7 +20,7 @@ export const testimonials: Testimonial[] = [
   {
     slug: "federico-arteta",
     name: "Federico Arteta",
-    role: "Presentador y participante de los coloquios",
+    role: "Ponente y participante de los coloquios",
     hook: "He sido testigo del crecimiento de un espacio de humanismo necesario en Barquisimeto.",
     blocks: [
       {
@@ -51,7 +51,7 @@ export const testimonials: Testimonial[] = [
   {
     slug: "douglas-jimenez",
     name: "Douglas Jiménez",
-    role: "Moderador y participante de los coloquios",
+    role: "Ponente y participante de los coloquios",
     hook: "Si algún día se compila la historia cultural de Barquisimeto, Café Lectura Barquisimeto deberá ocupar un capítulo muy especial.",
     blocks: [
       {

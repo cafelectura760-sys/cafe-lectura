@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -19,13 +18,15 @@ import { SectionHeading } from "@/components/section-heading";
 import { StatusBanner } from "@/components/status-banner";
 import { getAuthSession } from "@/lib/auth/session";
 import { getPublicBooks } from "@/lib/books/data";
+import { createPublicMetadata } from "@/lib/seo/metadata";
 import { createWhatsAppHref } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
-  title: "Café Lectura Barquisimeto | Club de lectura",
+export const metadata = createPublicMetadata({
+  title: "Club de lectura en Barquisimeto",
   description:
-    "Café Lectura Barquisimeto es un club de lectura con coloquios mensuales por WhatsApp y un archivo privado para miembros.",
-};
+    "Café Lectura Barquisimeto es un club de lectura con coloquios mensuales por WhatsApp y una colección privada para miembros.",
+  path: "/",
+});
 
 function getMembershipHref() {
   return createWhatsAppHref(
@@ -175,9 +176,9 @@ export default async function Home() {
       <section className="surface-card px-6 py-7 md:px-8 md:py-8 lg:px-10 lg:py-10">
         <AnimatedContentSlot delay={0} distance={20}>
           <SectionHeading
-            eyebrow="Colección del club"
+            eyebrow="Colección que le pertenece a Café Lectura Barquisimeto"
             title="Coloquios y ponencias para consultar con calma"
-            description="Esta sección presenta algunas de las obras trabajadas por Café Lectura Barquisimeto. El acceso completo a la colección de coloquios corresponde a los miembros con membresía web vigente."
+            description="Esta sección presenta algunas de las obras analizadas por Café Lectura Barquisimeto. El acceso completo a la colección de coloquios corresponde a los miembros con membresía web vigente."
             action={
               <Link href="/library" className="editorial-link">
                 Ver la colección

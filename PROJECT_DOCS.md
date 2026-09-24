@@ -53,11 +53,11 @@ The technical stack is fixed and must not be changed without explicit approval.
 
 ## 2.1 Current Implementation Status
 
-This section reflects the repository state directly observed in version-controlled files on September 18, 2026 after the public copy and testimonial pass.
+This section reflects the repository state directly observed in version-controlled files on September 24, 2026 after the launch-readiness SEO, security, and icon review.
 
 Implemented:
 
-- Next.js 16 App Router project using the root `app/` directory and route groups.
+- Next.js 16.3.6 App Router project using the root `app/` directory and route groups.
 - Tailwind CSS v4 global CSS setup.
 - Supabase SSR client utilities using `@supabase/ssr`.
 - Root `proxy.ts` for Supabase session cookie refresh.
@@ -80,8 +80,12 @@ Implemented:
 - Simplified admin colloquium editor flow with shadcn/ui controls, participant management grouped by role, ordered text/audio presentation blocks, advanced slug editing, destructive delete confirmation, a Spanish calendar-based publication date picker, URL-persisted editor tabs, and a presentation tab with explicit batch save behavior.
 - Vercel-based daily Supabase keep-alive cron with persisted admin-visible heartbeat status.
 - Supabase migrations for `profiles`, `books`, `colloquiums`, `colloquium_sections`, `colloquium_entries`, `colloquium_participants`, `media_assets`, and operational heartbeat records, including constraints, indexes, Row Level Security, and policies.
+- Explicit table grants paired with Row Level Security: anonymous visitors can select books, authenticated clients receive only the table operations used by the application, heartbeat records are read-only to authenticated clients, and the server-only `service_role` retains privileged access.
 - GitHub Actions CI for formatting, linting, typechecking, and production build.
 - Weekly dependency audit workflow.
+- Unique page metadata, canonical URLs, social sharing metadata, a public sitemap, a robots file, a web manifest, and Cafe Lectura browser/app icons derived from the approved logo. The icon set includes a 16–256 px multi-resolution ICO, a 512 px Next.js app icon, a 180 px Apple touch icon, 192/512 px manifest icons, and a separately padded 512 px maskable icon.
+- Baseline browser security headers and post-upload checks against Supabase Storage's actual MIME type and byte size.
+- Next.js is pinned to 16.3.6 after the September 2026 security release; `npm audit` reports no known vulnerabilities in the current dependency tree.
 
 Observed gaps or repository-only limitations:
 
@@ -90,7 +94,12 @@ Observed gaps or repository-only limitations:
 - The colloquium presentation runtime now depends on presentation blocks as its only visible content source, but it still depends on runtime Supabase Storage configuration and on applying the latest migration in real environments before production use.
 - Supabase project settings are not represented in version-controlled files, so public self-registration still needs manual verification in the Supabase dashboard.
 - Real RLS runtime behavior against anonymous visitors, active members, expired members, and admins cannot be confirmed from repository files alone.
+- The configured production origin must be set with `NEXT_PUBLIC_SITE_URL` when Vercel's `VERCEL_PROJECT_PRODUCTION_URL` is not available; verify canonical URLs and the sitemap against the production domain after deployment.
+- The Supabase media bucket must remain private and enforce the approved size and MIME limits in the Supabase project settings. Repository checks cannot confirm the live bucket configuration.
+- The repository audit cannot confirm whether a deployed site or Supabase project has experienced a breach; review provider security logs and run authenticated/anonymous access checks before launch.
+- A Content Security Policy has not been configured. Validate a policy against Next.js scripts, Supabase connections/media, and externally hosted book covers before enforcing it.
 - Production deployment readiness on Vercel cannot be confirmed from repository files alone.
+- PageSpeed Insights field data and Core Web Vitals cannot be assessed until the production site is publicly reachable.
 - The public and member-facing design uses the Cafe Lectura visual foundation with warm editorial surfaces, a custom landing-page reading tableau, restrained texture, and reduced-motion-aware entry animation.
 
 ## 3. Product Structure
@@ -1318,6 +1327,7 @@ The public WhatsApp number must not be hardcoded in components, actions, utiliti
 Required public environment values:
 
 - `NEXT_PUBLIC_WHATSAPP_NUMBER`
+- `NEXT_PUBLIC_SITE_URL` should be set to the production origin, such as `https://example.com`. Vercel's `VERCEL_PROJECT_PRODUCTION_URL` is used as a fallback when available; local development falls back to `http://localhost:3000`.
 
 The configured number should be used to build WhatsApp URLs for membership inquiries, renewal requests, colloquium participation, and book inquiries. Each flow must provide a clear, contextual Spanish message in the application code. Environment variable validation should be introduced when the project needs a shared configuration module.
 
@@ -1342,13 +1352,15 @@ Server-only values must never be imported into Client Components or exposed thro
 
 ### Colloquium Media Validation Baseline
 
-The first implementation should enforce at least the following validation rules on the server:
+The server enforces the following validation rules:
 
 - Supported audio types: `audio/mpeg`, `audio/mp4`, `audio/aac`, `audio/ogg`, and any additional type only if explicitly approved during implementation.
-- The project should define an explicit maximum size limit for audio before production launch, rather than leaving it implicit.
-- The server should reject uploads whose MIME type, extension, or intended usage context do not match the request.
-- The server should persist `mime_type` and `size_bytes` for every confirmed media asset.
+- Audio uploads are limited to 45 MB; flyer images support JPEG, PNG, WebP, and AVIF and are limited to 10 MB.
+- The server rejects uploads whose MIME type, extension, or intended usage context do not match the request and compares confirmation data with the actual object metadata returned by Supabase Storage.
+- The server persists `mime_type` and `size_bytes` for every confirmed media asset.
 - The server should persist `duration_seconds` for audio whenever that value can be obtained reliably.
+
+The Supabase bucket must independently enforce a 45 MB maximum object size and the approved audio and flyer MIME types before production use. Application checks do not replace the Storage service's bucket-level limits.
 
 ### Storage Key Convention
 

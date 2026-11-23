@@ -57,7 +57,7 @@ This section reflects the repository state directly observed in version-controll
 
 Implemented:
 
-- Next.js 16.3.6 App Router project using the root `app/` directory and route groups.
+- Next.js 16.4.6 App Router project using the root `app/` directory and route groups.
 - Tailwind CSS v4 global CSS setup.
 - Supabase SSR client utilities using `@supabase/ssr`.
 - Root `proxy.ts` for Supabase session cookie refresh.
@@ -86,7 +86,7 @@ Implemented:
 - Weekly dependency audit workflow.
 - Unique page metadata, canonical URLs, social sharing metadata, a public sitemap, a robots file, a web manifest, and Cafe Lectura browser/app icons derived from the approved logo. The icon set includes a 16–256 px multi-resolution ICO, a 512 px Next.js app icon, a 180 px Apple touch icon, 192/512 px manifest icons, and a separately padded 512 px maskable icon.
 - Baseline browser security headers and post-upload checks against Supabase Storage's actual MIME type and byte size.
-- Next.js is pinned to 16.3.6 after the September 2026 security release; `npm audit` reports no known vulnerabilities in the current dependency tree.
+- Next.js is pinned to 16.4.6 following the November 2026 dependency security review; dependency advisories should be checked regularly using `npm audit`.
 
 Observed gaps or repository-only limitations:
 
